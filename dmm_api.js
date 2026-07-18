@@ -86,25 +86,77 @@ async function fetchDmmProduct(keyword = '') {
         const rawUrl = `https://www.dmm.co.jp/litevideo/-/detail/=/cid=${contentId}/`;
         const customAffiliateUrl = `https://al.fanza.co.jp/?lurl=${encodeURIComponent(rawUrl)}&af_id=${DMM_AFFILIATE_ID}&ch=link_ag`;
 
-        // 商品の紹介文（説明文）をlitevideoページから取得
+        // litevideoページから説明文とMP4 URLを一度のリクエストで取得する
         let productText = '';
+        let resolvedMp4Url = null;
         try {
             const liteVideoUrl = `https://www.dmm.co.jp/litevideo/-/part/=/cid=${contentId}/size=720_480/`;
-            const htmlRes = await axios.get(liteVideoUrl);
-            const dataMatch = htmlRes.data.match(/<script id="__NEXT_DATA__" type="application\/json">(.*?)<\/script>/);
+            console.log(`Fetching litevideo page: ${liteVideoUrl}`);
+            const htmlRes = await axios.get(liteVideoUrl, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+                    'Accept-Language': 'ja,en-US;q=0.9,en;q=0.8',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'Referer': 'https://www.dmm.co.jp/',
+                },
+                timeout: 15000,
+            });
+            const htmlBody = htmlRes.data;
+            console.log(`Litevideo HTML length: ${htmlBody.length}, has NEXT_DATA: ${htmlBody.includes('__NEXT_DATA__')}`);
+            // デバッグ用: NEXT_DATAが見つからない場合は先頭300文字を出力
+            if (!htmlBody.includes('__NEXT_DATA__')) {
+                console.warn('NEXT_DATA not found. HTML preview:', htmlBody.substring(0, 300));
+            }
+
+            const dataMatch = htmlBody.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
             if (dataMatch) {
                 const jsonData = JSON.parse(dataMatch[1]);
                 const queries = jsonData?.props?.pageProps?.dehydratedState?.queries || [];
+
+                // 説明文を取得
                 const contentQuery = queries.find(q => q.state?.data?.videoContent);
                 const text = contentQuery?.state?.data?.videoContent?.text || '';
                 productText = text.replace(/<br\s*\/?>/gi, ' ')
                                   .replace(/\r?\n|\r/g, ' ')
                                   .replace(/\s+/g, ' ')
-                                  .replace(/<\/?[^>]+(>|$)/g, "")
+                                  .replace(/<\/?[^>]+(\>|$)/g, '')
                                   .trim();
+
+                // mtype を使って html5_player URL を構築し、MP4 URLを解決
+                const mtypeQuery = queries.find(q => Array.isArray(q.queryKey) && q.queryKey.includes('dmm-base64-encode'));
+                const mtype = mtypeQuery?.state?.data;
+                if (mtype) {
+                    console.log(`Got mtype: ${mtype}. Fetching html5_player...`);
+                    const playerUrl = `https://www.dmm.co.jp/service/digitalapi/-/html5_player/=/cid=${contentId}/mtype=${mtype}/service=litevideo/mode=part/width=720/height=480/affi_id=${DMM_AFFILIATE_ID}/`;
+                    const playerRes = await axios.get(playerUrl, {
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+                            'Referer': liteVideoUrl,
+                        },
+                        timeout: 15000,
+                    });
+                    const playerHtml = playerRes.data;
+                    // args.src を抽出
+                    const argsMatch = playerHtml.match(/const\s+args\s*=\s*(\{[^;]+\});/);
+                    if (argsMatch) {
+                        const args = JSON.parse(argsMatch[1]);
+                        if (args.src) {
+                            resolvedMp4Url = args.src.startsWith('//') ? 'https:' + args.src : args.src;
+                            console.log(`Resolved MP4 URL: ${resolvedMp4Url}`);
+                        }
+                    }
+                    // フォールバック: cc*.dmm.co.jp/*.mp4 を直接検索
+                    if (!resolvedMp4Url) {
+                        const mp4Match = playerHtml.match(/(\/\/cc\d+\.dmm\.co\.jp\/[^\s"'<>]+\.mp4[^\s"'<>]*)/);
+                        if (mp4Match) {
+                            resolvedMp4Url = 'https:' + mp4Match[1];
+                            console.log(`Resolved MP4 URL (fallback): ${resolvedMp4Url}`);
+                        }
+                    }
+                }
             }
         } catch (e) {
-            console.warn('Failed to fetch detailed description, skipping...', e.message);
+            console.warn('Failed to fetch litevideo page:', e.message);
         }
 
         // ハッシュタグの生成
@@ -113,10 +165,11 @@ async function fetchDmmProduct(keyword = '') {
         const allTags = [...new Set([...keywordTags, ...genreTags])].join(' ');
 
         return {
-            contentId: contentId, // あとで保存するために追加
+            contentId: contentId,
             title: itemWithVideo.title,
             affiliateUrl: customAffiliateUrl,
-            sampleVideoUrl: contentId, // content IDを渡してCDN URLを直接構築する
+            // 解決済みMP4 URLがあればそれを使い、なければcontentIdを渡してdownloadVideo内で再試行
+            sampleVideoUrl: resolvedMp4Url || contentId,
             url: rawUrl,
             tags: allTags,
             text: productText
