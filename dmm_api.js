@@ -129,111 +129,106 @@ async function fetchDmmProduct(keyword = '') {
 }
 
 /**
+ * Playwrightを使ってDMMのサンプル動画のMP4 URLを取得する
+ * @param {string} partPageUrl /litevideo/-/part/ 形式のURL
+ * @returns {Promise<string>} 実際のMP4ファイルのURL
+ */
+async function getMp4UrlViaPlaywright(partPageUrl) {
+    const { chromium } = require('playwright-extra');
+    const stealth = require('puppeteer-extra-plugin-stealth')();
+    chromium.use(stealth);
+
+    console.log('Launching browser to intercept MP4 URL...');
+    const browser = await chromium.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+    });
+    const context = await browser.newContext({
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+        locale: 'ja-JP',
+    });
+    const page = await context.newPage();
+
+    let mp4Url = null;
+
+    // ネットワークリクエストをインターセプトして .mp4 URL を捕捉する
+    page.on('request', request => {
+        const url = request.url();
+        if (url.includes('.mp4') && !mp4Url) {
+            console.log(`Intercepted MP4 request: ${url}`);
+            mp4Url = url;
+        }
+    });
+
+    try {
+        // まず litevideo/part ページに移動
+        await page.goto(partPageUrl, { waitUntil: 'networkidle', timeout: 30000 });
+
+        // iframe の中の html5_player ページに移動するため、iframe の src を取得
+        const iframeSrc = await page.evaluate(() => {
+            const iframe = document.querySelector('iframe[src*="html5_player"], iframe[src*="digitalapi"]');
+            return iframe ? iframe.src : null;
+        });
+
+        if (iframeSrc) {
+            console.log(`Found iframe src: ${iframeSrc}`);
+            await page.goto(iframeSrc, { waitUntil: 'networkidle', timeout: 30000 });
+        }
+
+        // MP4リクエストが発生するまで少し待つ
+        await page.waitForTimeout(5000);
+
+        // まだ取れていない場合は、ページ内のsrc属性から直接探す
+        if (!mp4Url) {
+            mp4Url = await page.evaluate(() => {
+                // video要素のsrc
+                const video = document.querySelector('video[src*=".mp4"]');
+                if (video) return video.src;
+                // source要素のsrc
+                const source = document.querySelector('source[src*=".mp4"]');
+                if (source) return source.src;
+                return null;
+            });
+            if (mp4Url) console.log(`Found MP4 URL in DOM: ${mp4Url}`);
+        }
+
+        // スクリプトタグ内のargs.srcを検索
+        if (!mp4Url) {
+            mp4Url = await page.evaluate(() => {
+                const scripts = Array.from(document.querySelectorAll('script'));
+                for (const s of scripts) {
+                    const m = s.textContent.match(/"src"\s*:\s*"(\/\/[^"]+\.mp4[^"]*)"/);
+                    if (m) return 'https:' + m[1];
+                    const m2 = s.textContent.match(/src\s*:\s*["'](\/\/[^"']+\.mp4[^"']*)/);
+                    if (m2) return 'https:' + m2[1];
+                }
+                return null;
+            });
+            if (mp4Url) console.log(`Found MP4 URL in script: ${mp4Url}`);
+        }
+
+    } finally {
+        await browser.close();
+    }
+
+    return mp4Url;
+}
+
+/**
  * 動画ファイルをローカルにダウンロードする
  * @param {string} videoUrl ダウンロードする動画のURL
  * @returns {Promise<string>} ダウンロードしたファイルのローカルパス
  */
 async function downloadVideo(videoUrl) {
-    // Step 1: /litevideo/-/part/ ページから html5_player URL を取得する
+    let mp4Url = null;
+
+    // litevideo/part URL の場合は Playwright でMP4 URLを取得する
     if (videoUrl.includes('/litevideo/-/part/')) {
-        console.log(`Fetching litevideo part page: ${videoUrl}`);
-        const res1 = await axios.get(videoUrl, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-                'Accept-Language': 'ja,en;q=0.9',
-            }
-        });
-        const html = res1.data;
-
-        // 方法A: __NEXT_DATA__ から mtype トークンを取得して html5_player URL を直接構築
-        let html5PlayerUrl = null;
-        try {
-            const nextDataMatch = html.match(/<script id="__NEXT_DATA__" type="application\/json">(.*?)<\/script>/s);
-            if (nextDataMatch) {
-                const nextData = JSON.parse(nextDataMatch[1]);
-                const queries = nextData?.props?.pageProps?.dehydratedState?.queries || [];
-                // mtype トークンは queryKey が ["dmm-base64-encode", "guest"] のクエリに格納されている
-                const mtypeQuery = queries.find(q => Array.isArray(q.queryKey) && q.queryKey.includes('dmm-base64-encode'));
-                const mtype = mtypeQuery?.state?.data;
-                // contentId は URL または __NEXT_DATA__ から取得
-                const contentIdFromData = nextData?.props?.pageProps?.contentId
-                    || nextData?.query?.dmmParams?.find(p => p.startsWith('cid='))?.replace('cid=', '');
-                // affi_id を URL から抽出
-                const affiIdMatch = videoUrl.match(/affi_id=([^\/&]+)/);
-                const affiId = affiIdMatch ? affiIdMatch[1] : DMM_AFFILIATE_ID;
-
-                if (mtype && contentIdFromData) {
-                    html5PlayerUrl = `https://www.dmm.co.jp/service/digitalapi/-/html5_player/=/cid=${contentIdFromData}/mtype=${mtype}/service=litevideo/mode=part/width=720/height=480/affi_id=${affiId}/`;
-                    console.log(`Built html5_player URL from __NEXT_DATA__: ${html5PlayerUrl}`);
-                }
-            }
-        } catch (e) {
-            console.warn('Failed to extract mtype from __NEXT_DATA__:', e.message);
-        }
-
-        // 方法B: iframe の src を正規表現で直接取得（フォールバック）
-        if (!html5PlayerUrl) {
-            const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']*html5_player[^"']*)['"]/i)
-                             || html.match(/<iframe[^>]+src=["']([^"']*service\/digitalapi[^"']*)['"]/i);
-            if (iframeMatch) {
-                html5PlayerUrl = iframeMatch[1].replace(/&amp;/g, '&');
-                console.log(`Extracted html5_player URL from iframe: ${html5PlayerUrl}`);
-            }
-        }
-
-        if (!html5PlayerUrl) {
-            throw new Error('Could not extract html5_player URL from litevideo part page. Page structure may have changed.');
-        }
-        videoUrl = html5PlayerUrl;
-    }
-
-    // Step 2: html5_player ページから実際の MP4 URL を取得する
-    if (videoUrl.includes('/html5_player/') || videoUrl.includes('/digitalapi/')) {
-        console.log(`Fetching html5_player page: ${videoUrl}`);
-        const res2 = await axios.get(videoUrl, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-                'Referer': 'https://www.dmm.co.jp/',
-            }
-        });
-        const playerHtml = res2.data;
-
-        let mp4Url = null;
-
-        // パターンA: const args = { src: "//..." }; 形式
-        const argsMatch = playerHtml.match(/const\s+args\s*=\s*(\{[\s\S]*?\});/);
-        if (argsMatch) {
-            try {
-                const args = JSON.parse(argsMatch[1]);
-                if (args.src) {
-                    mp4Url = (args.src.startsWith('//') ? 'https:' : '') + args.src;
-                    console.log(`Extracted MP4 URL from args.src: ${mp4Url}`);
-                }
-            } catch (e) {
-                console.warn('Failed to parse player args JSON:', e.message);
-            }
-        }
-
-        // パターンB: src: "..." の文字列形式（JSON解析失敗時）
-        if (!mp4Url) {
-            const srcMatch = playerHtml.match(/"src"\s*:\s*"(\/\/[^"]+\.mp4[^"]*)"/);
-            if (srcMatch) {
-                mp4Url = 'https:' + srcMatch[1];
-                console.log(`Extracted MP4 URL from src string: ${mp4Url}`);
-            }
-        }
-
-        // パターンC: .mp4 を含む URL を直接検索
-        if (!mp4Url) {
-            const directMp4Match = playerHtml.match(/(https?:\/\/[^\s"'<>]+\.mp4[^\s"'<>]*)/);
-            if (directMp4Match) {
-                mp4Url = directMp4Match[1];
-                console.log(`Extracted MP4 URL from direct match: ${mp4Url}`);
-            }
-        }
+        console.log('Using Playwright to extract MP4 URL...');
+        mp4Url = await getMp4UrlViaPlaywright(videoUrl);
 
         if (!mp4Url) {
-            throw new Error('Could not extract MP4 URL from html5_player page. Player format may have changed.');
+            throw new Error('Could not find MP4 URL via Playwright. Page may require login or has changed structure.');
         }
         videoUrl = mp4Url;
     }
