@@ -116,7 +116,7 @@ async function fetchDmmProduct(keyword = '') {
             contentId: contentId, // あとで保存するために追加
             title: itemWithVideo.title,
             affiliateUrl: customAffiliateUrl,
-            sampleVideoUrl: itemWithVideo.sampleMovieURL.size_720_480 || itemWithVideo.sampleMovieURL.size_476_306 || itemWithVideo.sampleMovieURL.size_sm,
+            sampleVideoUrl: contentId, // content IDを渡してCDN URLを直接構築する
             url: rawUrl,
             tags: allTags,
             text: productText
@@ -129,106 +129,72 @@ async function fetchDmmProduct(keyword = '') {
 }
 
 /**
- * Playwrightを使ってDMMのサンプル動画のMP4 URLを取得する
- * @param {string} partPageUrl /litevideo/-/part/ 形式のURL
- * @returns {Promise<string>} 実際のMP4ファイルのURL
+ * content IDからDMM CDNのMP4 URLを複数パターン試行して有効なURLを返す
+ * @param {string} contentId DMM商品のcontent ID
+ * @returns {Promise<string>} 有効なMP4ファイルのURL
  */
-async function getMp4UrlViaPlaywright(partPageUrl) {
-    const { chromium } = require('playwright-extra');
-    const stealth = require('puppeteer-extra-plugin-stealth')();
-    chromium.use(stealth);
+async function findMp4UrlByCid(contentId) {
+    // DMMのCDNサーバーでのサンプル動画URLパターン
+    // 例: cid=pfes00115 → /p/pfe/pfes00115/pfes00115_sm_w.mp4
+    const cid = contentId;
+    const dir1 = cid.charAt(0);          // 先頭1文字
+    const dir2 = cid.substring(0, 3);    // 先頭3文字
 
-    console.log('Launching browser to intercept MP4 URL...');
-    const browser = await chromium.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
-    });
-    const context = await browser.newContext({
-        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-        locale: 'ja-JP',
-    });
-    const page = await context.newPage();
+    // 試行するファイル名サフィックスパターン（品質順）
+    const suffixes = ['_dmb_w.mp4', '_sm_w.mp4', '_mhb_w.mp4', '_dm_w.mp4'];
+    const cdnHosts = [
+        'https://cc3001.dmm.co.jp',
+        'https://cc3002.dmm.co.jp',
+    ];
 
-    let mp4Url = null;
-
-    // ネットワークリクエストをインターセプトして .mp4 URL を捕捉する
-    page.on('request', request => {
-        const url = request.url();
-        if (url.includes('.mp4') && !mp4Url) {
-            console.log(`Intercepted MP4 request: ${url}`);
-            mp4Url = url;
+    const candidates = [];
+    for (const host of cdnHosts) {
+        for (const suffix of suffixes) {
+            candidates.push(`${host}/litevideo/freepv/${dir1}/${dir2}/${cid}/${cid}${suffix}`);
         }
-    });
-
-    try {
-        // まず litevideo/part ページに移動
-        await page.goto(partPageUrl, { waitUntil: 'networkidle', timeout: 30000 });
-
-        // iframe の中の html5_player ページに移動するため、iframe の src を取得
-        const iframeSrc = await page.evaluate(() => {
-            const iframe = document.querySelector('iframe[src*="html5_player"], iframe[src*="digitalapi"]');
-            return iframe ? iframe.src : null;
-        });
-
-        if (iframeSrc) {
-            console.log(`Found iframe src: ${iframeSrc}`);
-            await page.goto(iframeSrc, { waitUntil: 'networkidle', timeout: 30000 });
-        }
-
-        // MP4リクエストが発生するまで少し待つ
-        await page.waitForTimeout(5000);
-
-        // まだ取れていない場合は、ページ内のsrc属性から直接探す
-        if (!mp4Url) {
-            mp4Url = await page.evaluate(() => {
-                // video要素のsrc
-                const video = document.querySelector('video[src*=".mp4"]');
-                if (video) return video.src;
-                // source要素のsrc
-                const source = document.querySelector('source[src*=".mp4"]');
-                if (source) return source.src;
-                return null;
-            });
-            if (mp4Url) console.log(`Found MP4 URL in DOM: ${mp4Url}`);
-        }
-
-        // スクリプトタグ内のargs.srcを検索
-        if (!mp4Url) {
-            mp4Url = await page.evaluate(() => {
-                const scripts = Array.from(document.querySelectorAll('script'));
-                for (const s of scripts) {
-                    const m = s.textContent.match(/"src"\s*:\s*"(\/\/[^"]+\.mp4[^"]*)"/);
-                    if (m) return 'https:' + m[1];
-                    const m2 = s.textContent.match(/src\s*:\s*["'](\/\/[^"']+\.mp4[^"']*)/);
-                    if (m2) return 'https:' + m2[1];
-                }
-                return null;
-            });
-            if (mp4Url) console.log(`Found MP4 URL in script: ${mp4Url}`);
-        }
-
-    } finally {
-        await browser.close();
     }
 
-    return mp4Url;
+    console.log(`Trying ${candidates.length} CDN URL patterns for cid=${cid}...`);
+
+    for (const url of candidates) {
+        try {
+            const res = await axios.head(url, { timeout: 8000 });
+            if (res.status === 200) {
+                console.log(`Found valid MP4 URL: ${url}`);
+                return url;
+            }
+        } catch (e) {
+            // 404や接続エラーは無視して次を試す
+        }
+    }
+
+    return null; // 全パターン失敗
 }
 
 /**
  * 動画ファイルをローカルにダウンロードする
- * @param {string} videoUrl ダウンロードする動画のURL
+ * @param {string} videoUrl ダウンロードする動画のURL（またはcontent ID）
  * @returns {Promise<string>} ダウンロードしたファイルのローカルパス
  */
 async function downloadVideo(videoUrl) {
     let mp4Url = null;
 
-    // litevideo/part URL の場合は Playwright でMP4 URLを取得する
-    if (videoUrl.includes('/litevideo/-/part/')) {
-        console.log('Using Playwright to extract MP4 URL...');
-        mp4Url = await getMp4UrlViaPlaywright(videoUrl);
+    // content IDが渡された場合（litevideo URLではなくIDそのもの）はCDN URLを構築する
+    const isContentId = !videoUrl.startsWith('http');
+    const isLitevideoUrl = videoUrl.includes('/litevideo/-/part/');
+
+    if (isContentId || isLitevideoUrl) {
+        // content IDを取得する
+        let cid = videoUrl;
+        if (isLitevideoUrl) {
+            const m = videoUrl.match(/cid=([^/&]+)/);
+            cid = m ? m[1] : videoUrl;
+        }
+        console.log(`Resolving MP4 URL for content ID: ${cid}`);
+        mp4Url = await findMp4UrlByCid(cid);
 
         if (!mp4Url) {
-            throw new Error('Could not find MP4 URL via Playwright. Page may require login or has changed structure.');
+            throw new Error(`Could not find valid MP4 URL for cid=${cid}. All CDN patterns failed.`);
         }
         videoUrl = mp4Url;
     }
