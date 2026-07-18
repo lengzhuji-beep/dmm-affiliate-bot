@@ -8,14 +8,12 @@ const DMM_AFFILIATE_ID = process.env.DMM_AFFILIATE_ID;
 const TEMP_DIR = path.join(__dirname, 'temp_videos');
 
 // テンポラリディレクトリの作成
-if (!fs.existsSync(TEMP_DIR)){
+if (!fs.existsSync(TEMP_DIR)) {
     fs.mkdirSync(TEMP_DIR);
 }
 
 /**
  * DMM APIから商品情報を取得する
- * @param {string} keyword 検索キーワード（任意）
- * @returns {Promise<Object>} 商品情報（タイトル、アフィリエイトリンク、動画URLなど）
  */
 async function fetchDmmProduct(keyword = '') {
     if (!DMM_API_ID || !DMM_AFFILIATE_ID) {
@@ -30,8 +28,8 @@ async function fetchDmmProduct(keyword = '') {
             site: 'DMM.R18',
             service: 'digital',
             floor: 'videoa',
-            hits: 100, // 人気上位100件を取得
-            sort: 'rank', // 人気順（ランキング）で取得
+            hits: 100,
+            sort: 'rank',
             output: 'json'
         };
         if (keyword) params.keyword = keyword;
@@ -43,14 +41,14 @@ async function fetchDmmProduct(keyword = '') {
             throw new Error('No items found.');
         }
 
-        // --- 過去の投稿履歴を読み込む ---
+        // 過去の投稿履歴を読み込む
         const postedIdsFile = path.join(__dirname, 'posted_ids.json');
         let postedIds = [];
         if (fs.existsSync(postedIdsFile)) {
             try {
                 postedIds = JSON.parse(fs.readFileSync(postedIdsFile, 'utf8'));
             } catch (e) {
-                console.warn('Failed to parse posted_ids.json, starting fresh.');
+                console.warn('Could not parse posted_ids.json:', e.message);
             }
         }
 
@@ -65,20 +63,12 @@ async function fetchDmmProduct(keyword = '') {
             throw new Error('All fetched items have been posted already.');
         }
 
-        // --- 人気かつ新しい商品を選ぶロジック ---
-        // 1. 取得した未投稿の人気商品を、発売日が新しい順に並び替える
+        // 発売日が新しい順に並び替えて上位20件からランダム選択
         const sortedByDate = itemsWithVideo.sort((a, b) => {
-            const dateA = new Date(a.date.replace(' ', 'T'));
-            const dateB = new Date(b.date.replace(' ', 'T'));
-            return dateB - dateA;
+            return new Date(b.date.replace(' ', 'T')) - new Date(a.date.replace(' ', 'T'));
         });
-
-        // 2. その中の上位20件（人気100位以内かつ未投稿の最新20本）を候補とする
         const recentPopularCandidates = sortedByDate.slice(0, 20);
-
-        // 3. 候補の中からランダムに1つ選ぶ
-        const randomIndex = Math.floor(Math.random() * recentPopularCandidates.length);
-        const itemWithVideo = recentPopularCandidates[randomIndex];
+        const itemWithVideo = recentPopularCandidates[Math.floor(Math.random() * recentPopularCandidates.length)];
 
         const contentId = itemWithVideo.content_id || itemWithVideo.product_id || '';
         const rawUrl = `https://www.dmm.co.jp/litevideo/-/detail/=/cid=${contentId}/`;
@@ -113,8 +103,8 @@ async function fetchDmmProduct(keyword = '') {
         }
 
         // ハッシュタグの生成
-        const keywordTags = itemWithVideo.iteminfo && itemWithVideo.iteminfo.keyword ? itemWithVideo.iteminfo.keyword.map(k=>`#${k.name}`) : [];
-        const genreTags = itemWithVideo.iteminfo && itemWithVideo.iteminfo.genre ? itemWithVideo.iteminfo.genre.map(g=>`#${g.name}`) : [];
+        const keywordTags = itemWithVideo.iteminfo && itemWithVideo.iteminfo.keyword ? itemWithVideo.iteminfo.keyword.map(k => `#${k.name}`) : [];
+        const genreTags = itemWithVideo.iteminfo && itemWithVideo.iteminfo.genre ? itemWithVideo.iteminfo.genre.map(g => `#${g.name}`) : [];
         const allTags = [...new Set([...keywordTags, ...genreTags])].join(' ');
 
         return {
@@ -134,183 +124,224 @@ async function fetchDmmProduct(keyword = '') {
 }
 
 /**
- * content IDからDMMサンプル動画のMP4 URLを取得する
- * __NEXT_DATA__ → html5_player → args.src の3ステップで取得
- * @param {string} contentId DMM商品のcontent ID
- * @returns {Promise<string>} MP4ファイルのURL
+ * content IDからMP4 URLを取得する（複数戦略）
+ *
+ * 戦略1: html5_playerに固定mtypeで直接アクセス（DMMのlitevideoページを経由しない）
+ *        → mtype=AhRVShI_ はDMM litevideoのguestアクセス用固定トークン
+ *        → html5_playerエンドポイントはlitevideoページと別のIP制限を持つ可能性がある
+ *
+ * 戦略2: PlaywrightでJSを実行してページをレンダリング
+ *        → litevideoページがJSチャレンジ方式の場合はPlaywrightが突破できる
+ *        → windowオブジェクトからmtypeを抽出してhtml5_playerへアクセス
  */
-async function getMp4UrlByContentId(contentId) {
-    const cid = contentId;
+async function getMp4UrlForCid(cid) {
+    const headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+        'Accept-Language': 'ja,en-US;q=0.9,en;q=0.8',
+        'Referer': `https://www.dmm.co.jp/litevideo/-/part/=/cid=${cid}/size=720_480/`,
+    };
 
-    // Step1: litevideo/partページから mtype トークンを取得
-    console.log(`Step1: Fetching litevideo part page for cid=${cid}...`);
-    const partUrl = `https://www.dmm.co.jp/litevideo/-/part/=/cid=${cid}/size=720_480/`;
-    const res1 = await axios.get(partUrl, {
-        headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-            'Accept-Language': 'ja,en-US;q=0.9,en;q=0.8',
-            'Referer': 'https://www.dmm.co.jp/',
-        },
-        timeout: 15000
-    });
+    // ---- 戦略1: 固定mtype（AhRVShI_）でhtml5_playerに直接アクセス ----
+    // mtype "AhRVShI_" はDMMのguest（非ログイン）向けlitevideoアクセス用の固定トークン
+    console.log('[Strategy 1] Trying html5_player with fixed guest mtype...');
+    const GUEST_MTYPE = 'AhRVShI_';
+    try {
+        const playerUrl = `https://www.dmm.co.jp/service/digitalapi/-/html5_player/=/cid=${cid}/mtype=${GUEST_MTYPE}/service=litevideo/mode=part/width=720/height=480/affi_id=${DMM_AFFILIATE_ID}/`;
+        const res = await axios.get(playerUrl, { headers, timeout: 15000 });
+        const html = res.data;
+        console.log(`[Strategy 1] html5_player response: ${html.length} bytes, has args: ${html.includes('const args')}`);
 
-    const nextDataMatch = res1.data.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
-    if (!nextDataMatch) {
-        throw new Error(`__NEXT_DATA__ not found in litevideo part page for cid=${cid}`);
+        const argsMatch = html.match(/const\s+args\s*=\s*(\{[^;]+\});/);
+        if (argsMatch) {
+            const args = JSON.parse(argsMatch[1]);
+            if (args.src) {
+                const mp4Url = args.src.startsWith('//') ? 'https:' + args.src : args.src;
+                console.log(`[Strategy 1] OK: ${mp4Url}`);
+                return mp4Url;
+            }
+        }
+        const mp4Match = html.match(/(\/\/cc\d+\.dmm\.co\.jp\/[^\s"'<>]+\.mp4[^\s"'<>]*)/);
+        if (mp4Match) {
+            console.log(`[Strategy 1] OK (fallback): https:${mp4Match[1]}`);
+            return 'https:' + mp4Match[1];
+        }
+        console.warn('[Strategy 1] MP4 URL not found in html5_player response.');
+    } catch (e) {
+        console.warn(`[Strategy 1] Failed: ${e.message}`);
     }
-    const nextData = JSON.parse(nextDataMatch[1]);
-    const queries = nextData?.props?.pageProps?.dehydratedState?.queries || [];
-    const mtypeQuery = queries.find(q => Array.isArray(q.queryKey) && q.queryKey.includes('dmm-base64-encode'));
-    const mtype = mtypeQuery?.state?.data;
-    if (!mtype) {
-        throw new Error(`mtype token not found in __NEXT_DATA__ for cid=${cid}`);
+
+    // ---- 戦略2: Playwrightでlitevideoページをレンダリングしてmtypeを取得 ----
+    // litevideoページはJSチャレンジ方式（純粋なIPブロックでない可能性）
+    console.log('[Strategy 2] Using Playwright to render litevideo page...');
+    try {
+        const mp4Url = await getMp4ViaPlaywright(cid);
+        if (mp4Url) {
+            console.log(`[Strategy 2] OK: ${mp4Url}`);
+            return mp4Url;
+        }
+        console.warn('[Strategy 2] Playwright did not find MP4 URL.');
+    } catch (e) {
+        console.warn(`[Strategy 2] Failed: ${e.message}`);
     }
-    console.log(`Step1 OK: mtype=${mtype}`);
+
+    throw new Error(`Could not get MP4 URL for cid=${cid}. Both strategies failed. DMM may be geo-blocking this IP.`);
+}
 
 /**
- * サンプル画像URLリストからスライドショー動画を生成する
- * pics.dmm.co.jp はIP制限がなく海外からもアクセス可能
- * @param {string[]} imageUrls 画像URLの配列
- * @returns {Promise<string>} 生成した動画ファイルのパス
+ * PlaywrightでDMMのlitevideoページをレンダリングしてMP4 URLを取得する
+ * JSチャレンジを突破できる可能性がある
  */
-async function createSlideshowVideo(imageUrls) {
+async function getMp4ViaPlaywright(cid) {
+    const { chromium } = require('playwright');
+
+    const browser = await chromium.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+    });
+
+    let mp4Url = null;
+
+    try {
+        const context = await browser.newContext({
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+            locale: 'ja-JP',
+        });
+        const page = await context.newPage();
+
+        // ネットワークインターセプトで.mp4 URLを捕捉
+        page.on('request', req => {
+            const url = req.url();
+            if (url.includes('.mp4') && !mp4Url) {
+                console.log(`[Playwright] Intercepted MP4 request: ${url}`);
+                mp4Url = url;
+            }
+        });
+
+        const partUrl = `https://www.dmm.co.jp/litevideo/-/part/=/cid=${cid}/size=720_480/`;
+        await page.goto(partUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+
+        // Next.jsのハイドレーション完了を待つ
+        try {
+            await page.waitForFunction(
+                () => typeof window !== 'undefined' && window.__NEXT_DATA__ && window.__NEXT_DATA__.props,
+                { timeout: 10000 }
+            );
+            console.log('[Playwright] Next.js data found in window!');
+        } catch (e) {
+            console.warn('[Playwright] Next.js did not hydrate:', e.message);
+        }
+
+        // window.__NEXT_DATA__からmtypeを抽出
+        const mtype = await page.evaluate(() => {
+            if (!window.__NEXT_DATA__) return null;
+            const queries = window.__NEXT_DATA__?.props?.pageProps?.dehydratedState?.queries || [];
+            const q = queries.find(q => Array.isArray(q.queryKey) && q.queryKey.includes('dmm-base64-encode'));
+            return q?.state?.data || null;
+        });
+
+        console.log(`[Playwright] mtype from window: ${mtype}`);
+
+        if (mtype && !mp4Url) {
+            const playerUrl = `https://www.dmm.co.jp/service/digitalapi/-/html5_player/=/cid=${cid}/mtype=${mtype}/service=litevideo/mode=part/width=720/height=480/affi_id=${DMM_AFFILIATE_ID}/`;
+            await page.goto(playerUrl, { waitUntil: 'networkidle', timeout: 30000 });
+            await page.waitForTimeout(5000);
+        }
+
+        // DOM内のvideo/sourceタグを確認
+        if (!mp4Url) {
+            mp4Url = await page.evaluate(() => {
+                const video = document.querySelector('video[src*=".mp4"]');
+                if (video) return video.src;
+                const source = document.querySelector('source[src*=".mp4"]');
+                if (source) return source.src;
+                // scriptタグ内のsrcを検索
+                for (const s of document.querySelectorAll('script')) {
+                    const m = s.textContent.match(/"src"\s*:\s*"(\/\/cc\d+\.dmm\.co\.jp\/[^"]+\.mp4[^"]*)"/);
+                    if (m) return 'https:' + m[1];
+                }
+                return null;
+            });
+        }
+
+    } finally {
+        await browser.close();
+    }
+
+    return mp4Url;
+}
+
+/**
+ * 動画ファイルをローカルにダウンロードしてffmpegで処理する
+ * @param {string} videoUrl litevideo URL または直接の MP4 URL
+ */
+async function downloadVideo(videoUrl) {
+    let mp4Url = videoUrl;
+
+    // litevideo URL の場合はMP4 URLを解決する
+    if (videoUrl.includes('/litevideo/-/part/') || !videoUrl.startsWith('http')) {
+        let cid = videoUrl;
+        if (videoUrl.includes('/litevideo/-/')) {
+            const m = videoUrl.match(/cid=([^/&]+)/);
+            cid = m ? m[1] : videoUrl;
+        }
+        console.log(`Resolving MP4 URL for cid=${cid}...`);
+        mp4Url = await getMp4UrlForCid(cid);
+    }
+
+    console.log(`Downloading MP4 from: ${mp4Url}`);
+    const filePath = path.join(TEMP_DIR, `sample_${Date.now()}.mp4`);
+    const writer = fs.createWriteStream(filePath);
+
+    const response = await axios({
+        url: mp4Url,
+        method: 'GET',
+        responseType: 'stream',
+        timeout: 120000,
+        headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Referer': 'https://www.dmm.co.jp/',
+        }
+    });
+
+    response.data.pipe(writer);
+    await new Promise((resolve, reject) => {
+        writer.on('finish', resolve);
+        writer.on('error', reject);
+    });
+
+    console.log(`Downloaded to ${filePath}. Processing with ffmpeg...`);
+
     const ffmpeg = require('fluent-ffmpeg');
     const ffmpegInstaller = require('@ffmpeg-installer/ffmpeg');
     ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 
-    if (!imageUrls || imageUrls.length === 0) {
-        throw new Error('No image URLs provided for slideshow creation.');
-    }
-
-    console.log(`Creating slideshow from ${imageUrls.length} images...`);
-
-    // 画像をダウンロード
-    const imageFiles = [];
-    for (let i = 0; i < imageUrls.length; i++) {
-        const url = imageUrls[i];
-        const imgPath = path.join(TEMP_DIR, `slide_${Date.now()}_${i}.jpg`);
-        try {
-            const res = await axios({ url, method: 'GET', responseType: 'stream', timeout: 10000 });
-            const writer = fs.createWriteStream(imgPath);
-            res.data.pipe(writer);
-            await new Promise((resolve, reject) => {
-                writer.on('finish', resolve);
-                writer.on('error', reject);
-            });
-            imageFiles.push(imgPath);
-            console.log(`Downloaded image ${i + 1}/${imageUrls.length}`);
-        } catch (e) {
-            console.warn(`Failed to download image ${i + 1}: ${e.message}`);
-        }
-    }
-
-    if (imageFiles.length === 0) {
-        throw new Error('All image downloads failed.');
-    }
-
-    // ffmpegのconcat用ファイルリストを作成（1枚あたり3秒）
-    const listPath = path.join(TEMP_DIR, `concat_${Date.now()}.txt`);
-    const listContent = imageFiles.map(f => `file '${f.replace(/'/g, "\\'")}'\nduration 3`).join('\n')
-        + `\nfile '${imageFiles[imageFiles.length - 1].replace(/'/g, "\\'")}'\n`;
-    fs.writeFileSync(listPath, listContent);
-
-    const outputPath = path.join(TEMP_DIR, `slideshow_${Date.now()}.mp4`);
+    const processedFilePath = path.join(TEMP_DIR, `processed_${Date.now()}.mp4`);
 
     await new Promise((resolve, reject) => {
-        ffmpeg()
-            .input(listPath)
-            .inputOptions(['-f', 'concat', '-safe', '0'])
-            .outputOptions([
-                '-vf', 'scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2:black,format=yuv420p',
-                '-c:v', 'libx264',
-                '-preset', 'fast',
-                '-crf', '23',
-                '-movflags', '+faststart',
-                '-r', '30',
-            ])
-            .save(outputPath)
-            .on('end', () => {
-                console.log(`Slideshow created: ${outputPath}`);
-                // 一時ファイルを削除
-                imageFiles.forEach(f => cleanupVideo(f));
-                cleanupVideo(listPath);
-                resolve();
-            })
+        ffmpeg(filePath)
+            .setStartTime(8)
+            .outputOptions('-c copy')
+            .save(processedFilePath)
+            .on('end', () => { cleanupVideo(filePath); resolve(); })
             .on('error', (err) => {
-                console.error('FFmpeg slideshow error:', err.message);
-                imageFiles.forEach(f => cleanupVideo(f));
-                cleanupVideo(listPath);
+                console.error('FFmpeg error:', err.message);
+                cleanupVideo(filePath);
                 reject(err);
             });
     });
 
-    return outputPath;
+    console.log(`Video processed: ${processedFilePath}`);
+    return processedFilePath;
 }
-
-/**
- * 動画ファイルをURLからダウンロードしてffmpegで処理する
- * @param {string} videoUrl ダウンロードする動画のURL
- * @returns {Promise<string>} ダウンロードしたファイルのローカルパス
- */
-async function downloadVideo(videoUrl) {
-    console.log(`Downloading direct MP4 from: ${videoUrl}`);
-    const fileName = `sample_${Date.now()}.mp4`;
-    const filePath = path.join(TEMP_DIR, fileName);
-    const writer = fs.createWriteStream(filePath);
-
-    try {
-        const response = await axios({
-            url: videoUrl,
-            method: 'GET',
-            responseType: 'stream',
-            timeout: 60000,
-        });
-
-        response.data.pipe(writer);
-        await new Promise((resolve, reject) => {
-            writer.on('finish', resolve);
-            writer.on('error', reject);
-        });
-
-        console.log(`Downloaded to ${filePath}. Trimming the black screen...`);
-
-        const ffmpeg = require('fluent-ffmpeg');
-        const ffmpegInstaller = require('@ffmpeg-installer/ffmpeg');
-        ffmpeg.setFfmpegPath(ffmpegInstaller.path);
-
-        const processedFilePath = path.join(TEMP_DIR, `processed_${Date.now()}.mp4`);
-
-        await new Promise((resolve, reject) => {
-            ffmpeg(filePath)
-                .setStartTime(8)
-                .outputOptions('-c copy')
-                .save(processedFilePath)
-                .on('end', () => { cleanupVideo(filePath); resolve(); })
-                .on('error', (err) => {
-                    console.error('FFmpeg processing error:', err.message);
-                    reject(err);
-                });
-        });
-
-        console.log(`Video processed. New path: ${processedFilePath}`);
-        return processedFilePath;
-
-    } catch (error) {
-        console.error('Error downloading video:', error.message);
-        throw error;
-    }
-}
-
 
 /**
  * ダウンロードした動画ファイルを削除する
- * @param {string} filePath 削除するファイルのパス
  */
 function cleanupVideo(filePath) {
     try {
         if (fs.existsSync(filePath)) {
             fs.unlinkSync(filePath);
-            console.log(`Cleaned up temp video: ${filePath}`);
+            console.log(`Cleaned up: ${filePath}`);
         }
     } catch (e) {
         console.error('Error cleaning up video:', e.message);
@@ -320,6 +351,5 @@ function cleanupVideo(filePath) {
 module.exports = {
     fetchDmmProduct,
     downloadVideo,
-    createSlideshowVideo,
     cleanupVideo
 };

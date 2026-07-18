@@ -11,14 +11,21 @@ permissions:
 
 jobs:
   run-bot:
-    runs-on: self-hosted  # ← あなたのPC（日本IP）で実行
+    runs-on: ubuntu-latest
 
     steps:
       # 1. ソースコードのチェックアウト
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2. 依存パッケージのインストール
+      # 2. Node.js環境のセットアップ
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # 3. 依存パッケージのインストール
       - name: Install dependencies
         run: npm install
 
