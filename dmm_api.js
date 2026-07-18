@@ -136,7 +136,9 @@ async function fetchDmmProduct(keyword = '') {
 async function downloadVideo(videoUrl) {
     if (videoUrl.includes('/litevideo/-/part/')) {
         const res1 = await axios.get(videoUrl);
-        const iframeMatch = res1.data.match(/<iframe[^>]+src=["']([^"']+)["']/i);
+        // Google Tag Managerのiframeを誤検出しないよう、html5_playerやlitevideoを含むURLを優先的にマッチさせます
+        const iframeMatch = res1.data.match(/<iframe[^>]+src=["']([^"']*(?:html5_player|litevideo)[^"']*)["']/i)
+                         || res1.data.match(/<iframe[^>]+src=["']((?!googletagmanager)[^"']+)["']/i);
         if (iframeMatch) {
             videoUrl = iframeMatch[1].replace(/&amp;/g, '&');
         }

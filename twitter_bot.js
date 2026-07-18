@@ -295,6 +295,7 @@ async function postToTwitter(text, replyText, videoPath) {
 
     } catch (error) {
         console.error('Error during Twitter post:', error);
+        throw error; // エラーを再スローして、GitHub Actions側で「失敗」を検知できるようにします
     } finally {
         await page.waitForTimeout(3000);
         await context.close();
