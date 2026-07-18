@@ -2,39 +2,31 @@ name: DMM Affiliate Auto Post Bot
 
 on:
   schedule:
-    # 2時間おきに実行 (UTC時間。日本時間+9時間なので、奇数時間・偶数時間どちらでも2時間ごと)
-    # 例: 毎日日本時間 0:00, 2:00, 4:00 ... に相当するUTC時間 (前日15:00, 17:00, 19:00 ...)
+    # 2時間おきに実行 (UTC時間。日本時間+9時間)
     - cron: '0 */2 * * *'
-  workflow_dispatch: # 手動で即座に実行できるようにする設定
+  workflow_dispatch: # 手動実行
 
 permissions:
-  contents: write # posted_ids.json を自動更新してコミットするために必要
+  contents: write
 
 jobs:
   run-bot:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted  # ← あなたのPC（日本IP）で実行
 
     steps:
       # 1. ソースコードのチェックアウト
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2. Node.js環境のセットアップ
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      # 3. 依存パッケージのインストール
+      # 2. 依存パッケージのインストール
       - name: Install dependencies
         run: npm install
 
-      # 4. PlaywrightのChromiumブラウザとシステム依存関係のインストール
+      # 3. PlaywrightのChromiumブラウザのインストール
       - name: Install Playwright Browsers
         run: npx playwright install chromium --with-deps
 
-      # 5. セッションCookie의復元
+      # 4. セッションCookieの復元
       - name: Restore Twitter Cookies
         run: |
           if [ -n "$TWITTER_COOKIES" ]; then
@@ -46,7 +38,7 @@ jobs:
         env:
           TWITTER_COOKIES: ${{ secrets.TWITTER_COOKIES }}
 
-      # 6. ボットの実行
+      # 5. ボットの実行
       - name: Run Bot Script
         run: node index.js
         env:
@@ -56,15 +48,13 @@ jobs:
           TWITTER_PASSWORD: ${{ secrets.TWITTER_PASSWORD }}
           TWITTER_EMAIL: ${{ secrets.TWITTER_EMAIL }}
           TWITTER_SESSION_PATH: ./twitter_session
-          HEADLESS: 'true' # GitHub Actions環境では画面がないため、必ず headless=true にする
+          HEADLESS: 'true'
 
-      # 7. posted_ids.json の更新をGitにコミットしてプッシュ
+      # 6. posted_ids.json の更新をGitにコミット
       - name: Commit and push posted_ids.json
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
-          # 変更があるか確認
           if git diff --quiet posted_ids.json; then
             echo "No changes in posted_ids.json. Skipping commit."
           else

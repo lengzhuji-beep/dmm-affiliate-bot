@@ -1,4 +1,4 @@
-const { fetchDmmProduct, downloadVideo, createSlideshowVideo, cleanupVideo } = require('./dmm_api');
+const { fetchDmmProduct, downloadVideo, cleanupVideo } = require('./dmm_api');
 const { postToTwitter } = require('./twitter_bot');
 
 const MAX_RETRIES = 3;
@@ -15,15 +15,15 @@ async function main() {
         
         console.log('Title:', productInfo.title);
         console.log('Affiliate URL:', productInfo.affiliateUrl);
-        console.log('Sample Images:', productInfo.sampleImages ? productInfo.sampleImages.length + ' images' : 'none');
+        console.log('Sample Video URL:', productInfo.sampleVideoUrl);
 
-        // 2. スライドショー動画をサンプル画像から生成（pics.dmm.co.jp はIP制限なし）
-        if (productInfo.sampleImages && productInfo.sampleImages.length > 0) {
-            console.log('Creating slideshow video from sample images...');
-            videoPath = await createSlideshowVideo(productInfo.sampleImages);
-            console.log(`Slideshow video created at: ${videoPath}`);
+        // 2. 動画のダウンロード
+        if (productInfo.sampleVideoUrl) {
+            console.log('Downloading sample video...');
+            videoPath = await downloadVideo(productInfo.sampleVideoUrl);
+            console.log(`Video downloaded to: ${videoPath}`);
         } else {
-            console.log('No sample images found. Will post text only.');
+            console.log('No video URL found. Will post text only.');
         }
 
         // 3. Twitter投稿用のテキストを組み立てる（文字数制限を厳密に管理）

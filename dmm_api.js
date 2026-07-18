@@ -54,15 +54,10 @@ async function fetchDmmProduct(keyword = '') {
             }
         }
 
-        // サンプル画像または動画がある未投稿商品を抽出（sampleMovieURLがなくても画像があればOK）
+        // サンプル動画がある未投稿商品を抽出
         const itemsWithVideo = items.filter(item => {
             const contentId = item.content_id || item.product_id;
-            const hasMedia = (item.sampleMovieURL && item.sampleMovieURL.size_720_480)
-                          || (item.sampleImageURL && (
-                                (item.sampleImageURL.sample_l && item.sampleImageURL.sample_l.image && item.sampleImageURL.sample_l.image.length > 0)
-                             || (item.sampleImageURL.sample_s && item.sampleImageURL.sample_s.image && item.sampleImageURL.sample_s.image.length > 0)
-                             ));
-            return hasMedia && !postedIds.includes(contentId);
+            return item.sampleMovieURL && item.sampleMovieURL.size_720_480 && !postedIds.includes(contentId);
         });
 
         if (!itemsWithVideo || itemsWithVideo.length === 0) {
@@ -117,13 +112,6 @@ async function fetchDmmProduct(keyword = '') {
             console.warn('Failed to fetch description (may be IP-blocked):', e.message);
         }
 
-        // サンプル画像URLを取得（pics.dmm.co.jp はIP制限なし）
-        const sampleImages = (
-            itemWithVideo.sampleImageURL?.sample_l?.image ||
-            itemWithVideo.sampleImageURL?.sample_s?.image ||
-            []
-        ).slice(0, 8); // 最大8枚
-
         // ハッシュタグの生成
         const keywordTags = itemWithVideo.iteminfo && itemWithVideo.iteminfo.keyword ? itemWithVideo.iteminfo.keyword.map(k=>`#${k.name}`) : [];
         const genreTags = itemWithVideo.iteminfo && itemWithVideo.iteminfo.genre ? itemWithVideo.iteminfo.genre.map(g=>`#${g.name}`) : [];
@@ -133,7 +121,7 @@ async function fetchDmmProduct(keyword = '') {
             contentId: contentId,
             title: itemWithVideo.title,
             affiliateUrl: customAffiliateUrl,
-            sampleImages: sampleImages, // 画像URLリスト（スライドショー生成に使用）
+            sampleVideoUrl: itemWithVideo.sampleMovieURL.size_720_480,
             url: rawUrl,
             tags: allTags,
             text: productText
