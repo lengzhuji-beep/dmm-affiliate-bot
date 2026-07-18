@@ -129,46 +129,76 @@ async function fetchDmmProduct(keyword = '') {
 }
 
 /**
- * content IDからDMM CDNのMP4 URLを複数パターン試行して有効なURLを返す
+ * content IDからDMMサンプル動画のMP4 URLを取得する
+ * __NEXT_DATA__ → html5_player → args.src の3ステップで取得
  * @param {string} contentId DMM商品のcontent ID
- * @returns {Promise<string>} 有効なMP4ファイルのURL
+ * @returns {Promise<string>} MP4ファイルのURL
  */
-async function findMp4UrlByCid(contentId) {
-    // DMMのCDNサーバーでのサンプル動画URLパターン
-    // 例: cid=pfes00115 → /p/pfe/pfes00115/pfes00115_sm_w.mp4
+async function getMp4UrlByContentId(contentId) {
     const cid = contentId;
-    const dir1 = cid.charAt(0);          // 先頭1文字
-    const dir2 = cid.substring(0, 3);    // 先頭3文字
 
-    // 試行するファイル名サフィックスパターン（品質順）
-    const suffixes = ['_dmb_w.mp4', '_sm_w.mp4', '_mhb_w.mp4', '_dm_w.mp4'];
-    const cdnHosts = [
-        'https://cc3001.dmm.co.jp',
-        'https://cc3002.dmm.co.jp',
-    ];
+    // Step1: litevideo/partページから mtype トークンを取得
+    console.log(`Step1: Fetching litevideo part page for cid=${cid}...`);
+    const partUrl = `https://www.dmm.co.jp/litevideo/-/part/=/cid=${cid}/size=720_480/`;
+    const res1 = await axios.get(partUrl, {
+        headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+            'Accept-Language': 'ja,en-US;q=0.9,en;q=0.8',
+            'Referer': 'https://www.dmm.co.jp/',
+        },
+        timeout: 15000
+    });
 
-    const candidates = [];
-    for (const host of cdnHosts) {
-        for (const suffix of suffixes) {
-            candidates.push(`${host}/litevideo/freepv/${dir1}/${dir2}/${cid}/${cid}${suffix}`);
-        }
+    const nextDataMatch = res1.data.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
+    if (!nextDataMatch) {
+        throw new Error(`__NEXT_DATA__ not found in litevideo part page for cid=${cid}`);
     }
+    const nextData = JSON.parse(nextDataMatch[1]);
+    const queries = nextData?.props?.pageProps?.dehydratedState?.queries || [];
+    const mtypeQuery = queries.find(q => Array.isArray(q.queryKey) && q.queryKey.includes('dmm-base64-encode'));
+    const mtype = mtypeQuery?.state?.data;
+    if (!mtype) {
+        throw new Error(`mtype token not found in __NEXT_DATA__ for cid=${cid}`);
+    }
+    console.log(`Step1 OK: mtype=${mtype}`);
 
-    console.log(`Trying ${candidates.length} CDN URL patterns for cid=${cid}...`);
+    // Step2: html5_player ページから args.src を取得
+    const playerUrl = `https://www.dmm.co.jp/service/digitalapi/-/html5_player/=/cid=${cid}/mtype=${mtype}/service=litevideo/mode=part/width=720/height=480/affi_id=${DMM_AFFILIATE_ID}/`;
+    console.log(`Step2: Fetching html5_player page...`);
+    const res2 = await axios.get(playerUrl, {
+        headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+            'Referer': partUrl,
+        },
+        timeout: 15000
+    });
 
-    for (const url of candidates) {
+    const playerHtml = res2.data;
+
+    // args.src を抽出（複数行対応のため /s フラグは不要だが念のため試行する）
+    const argsMatch = playerHtml.match(/const\s+args\s*=\s*(\{[^;]+\});/);
+    if (argsMatch) {
         try {
-            const res = await axios.head(url, { timeout: 8000 });
-            if (res.status === 200) {
-                console.log(`Found valid MP4 URL: ${url}`);
-                return url;
+            const args = JSON.parse(argsMatch[1]);
+            if (args.src) {
+                const mp4Url = args.src.startsWith('//') ? 'https:' + args.src : args.src;
+                console.log(`Step2 OK: args.src=${mp4Url}`);
+                return mp4Url;
             }
         } catch (e) {
-            // 404や接続エラーは無視して次を試す
+            console.warn('Failed to parse args JSON:', e.message);
         }
     }
 
-    return null; // 全パターン失敗
+    // フォールバック: .mp4 を含むURL を直接検索
+    const mp4Match = playerHtml.match(/(\/\/cc\d+\.dmm\.co\.jp\/[^\s"'<>]+\.mp4[^\s"'<>]*)/);
+    if (mp4Match) {
+        const mp4Url = 'https:' + mp4Match[1];
+        console.log(`Step2 OK (fallback): ${mp4Url}`);
+        return mp4Url;
+    }
+
+    throw new Error(`Could not extract MP4 URL from html5_player page for cid=${cid}`);
 }
 
 /**
@@ -179,25 +209,21 @@ async function findMp4UrlByCid(contentId) {
 async function downloadVideo(videoUrl) {
     let mp4Url = null;
 
-    // content IDが渡された場合（litevideo URLではなくIDそのもの）はCDN URLを構築する
+    // content IDが渡された場合（litevideo URLではなくIDそのもの）はMP4 URLを解決する
     const isContentId = !videoUrl.startsWith('http');
     const isLitevideoUrl = videoUrl.includes('/litevideo/-/part/');
 
     if (isContentId || isLitevideoUrl) {
-        // content IDを取得する
         let cid = videoUrl;
         if (isLitevideoUrl) {
             const m = videoUrl.match(/cid=([^/&]+)/);
             cid = m ? m[1] : videoUrl;
         }
         console.log(`Resolving MP4 URL for content ID: ${cid}`);
-        mp4Url = await findMp4UrlByCid(cid);
-
-        if (!mp4Url) {
-            throw new Error(`Could not find valid MP4 URL for cid=${cid}. All CDN patterns failed.`);
-        }
+        mp4Url = await getMp4UrlByContentId(cid);
         videoUrl = mp4Url;
     }
+
 
     console.log(`Downloading direct MP4 from: ${videoUrl}`);
     const fileName = `sample_${Date.now()}.mp4`;
