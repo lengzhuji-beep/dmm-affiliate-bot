@@ -14,7 +14,7 @@ cleanup_vpn() {
 }
 
 # スクリプトが途中でエラー終了した時のクリーンアップ
-trap cleanup_vpn ERR
+trap cleanup_vpn ERR EXIT
 
 while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
   echo "========================================="
@@ -64,13 +64,29 @@ while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
 
   if [ "$CONNECTED" = true ]; then
     echo "VPN connection established. Ready to run bot."
-    exit 0
+    
+    # ボットの実行
+    echo "========================================="
+    echo "Running Bot Script..."
+    echo "========================================="
+    node index.js
+    BOT_EXIT_CODE=$?
+    
+    if [ $BOT_EXIT_CODE -eq 0 ]; then
+      echo "Bot script completed successfully!"
+      exit 0
+    else
+      echo "Bot script failed with exit code $BOT_EXIT_CODE."
+      echo "Cleaning up current VPN and trying another server..."
+      cleanup_vpn
+      RETRY_COUNT=$((RETRY_COUNT + 1))
+    fi
   else
     echo "Connection timeout or failed. Trying next server..."
+    cleanup_vpn
     RETRY_COUNT=$((RETRY_COUNT + 1))
   fi
 done
 
-echo "Error: Could not establish a VPN connection after $MAX_RETRIES attempts."
-cleanup_vpn
+echo "Error: Could not complete bot execution after $MAX_RETRIES attempts."
 exit 1

@@ -39,12 +39,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y openvpn
 
-      # 3.6 日本のVPNへの接続
-      - name: Connect to Japan VPN
-        run: |
-          chmod +x vpn_connect.sh
-          ./vpn_connect.sh
-
       # 4. セッションCookieの復元
       - name: Restore Twitter Cookies
         run: |
@@ -57,9 +51,11 @@ jobs:
         env:
           TWITTER_COOKIES: ${{ secrets.TWITTER_COOKIES }}
 
-      # 5. ボットの実行
-      - name: Run Bot Script
-        run: node index.js
+      # 5. 日本のVPNへの接続とボットの実行 (エラー時は別サーバーで自動リトライ)
+      - name: Connect to Japan VPN & Run Bot
+        run: |
+          chmod +x vpn_connect.sh
+          ./vpn_connect.sh
         env:
           DMM_API_ID: ${{ secrets.DMM_API_ID }}
           DMM_AFFILIATE_ID: ${{ secrets.DMM_AFFILIATE_ID }}
