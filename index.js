@@ -100,7 +100,7 @@ async function runWithRetry() {
                 await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
             } else {
                 console.error(`[Final] Failed after ${attempt} attempt(s).`);
-                return;
+                process.exit(1);
             }
         }
     }
