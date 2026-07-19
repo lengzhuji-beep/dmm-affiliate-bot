@@ -102,10 +102,11 @@ async function fetchDmmProduct(keyword = '') {
             console.warn('Failed to fetch description (may be IP-blocked):', e.message);
         }
 
-        // ハッシュタグの生成
+        // ハッシュタグの生成 (女優名を最優先にするため、配列の先頭に配置)
+        const actressTags = itemWithVideo.iteminfo && itemWithVideo.iteminfo.actress ? itemWithVideo.iteminfo.actress.map(a => `#${a.name}`) : [];
         const keywordTags = itemWithVideo.iteminfo && itemWithVideo.iteminfo.keyword ? itemWithVideo.iteminfo.keyword.map(k => `#${k.name}`) : [];
         const genreTags = itemWithVideo.iteminfo && itemWithVideo.iteminfo.genre ? itemWithVideo.iteminfo.genre.map(g => `#${g.name}`) : [];
-        const allTags = [...new Set([...keywordTags, ...genreTags])].join(' ');
+        const allTags = [...new Set([...actressTags, ...keywordTags, ...genreTags])].join(' ');
 
         return {
             contentId: contentId,
