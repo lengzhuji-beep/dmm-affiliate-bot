@@ -33,6 +33,18 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install chromium --with-deps
 
+      # 3.5 OpenVPNのインストール
+      - name: Install OpenVPN
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openvpn
+
+      # 3.6 日本のVPNへの接続
+      - name: Connect to Japan VPN
+        run: |
+          chmod +x vpn_connect.sh
+          ./vpn_connect.sh
+
       # 4. セッションCookieの復元
       - name: Restore Twitter Cookies
         run: |
@@ -70,3 +82,9 @@ jobs:
             git push origin HEAD
             echo "Successfully updated posted_ids.json in repository."
           fi
+
+      # 7. VPNの切断
+      - name: Disconnect VPN
+        if: always()
+        run: |
+          sudo killall openvpn 2>/dev/null || true
