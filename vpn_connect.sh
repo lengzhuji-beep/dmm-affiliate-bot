@@ -49,9 +49,13 @@ while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
     echo "Checking connection status (Attempt $i/10)..."
     sleep 3
 
-    # 現在のグローバルIPと国コードを取得
-    CURRENT_COUNTRY=$(curl -s --connect-timeout 5 https://ipinfo.io/country | tr -d '\r\n')
-    CURRENT_IP=$(curl -s --connect-timeout 5 https://ipinfo.io/ip | tr -d '\r\n')
+    # 現在のグローバルIPと国コードを取得 (ipinfo.ioはレートリミットが厳しいため、db-ipとipapi.coをフォールバックとして使用)
+    CURRENT_COUNTRY=$(curl -s --connect-timeout 5 https://api.db-ip.com/v2/free/self/countryCode | tr -d '\r\n')
+    if [ -z "$CURRENT_COUNTRY" ] || [ ${#CURRENT_COUNTRY} -gt 2 ]; then
+      CURRENT_COUNTRY=$(curl -s --connect-timeout 5 https://ipapi.co/country/ | tr -d '\r\n')
+    fi
+    
+    CURRENT_IP=$(curl -s --connect-timeout 5 https://ifconfig.me/ | tr -d '\r\n')
 
     echo "Current IP: $CURRENT_IP, Country: $CURRENT_COUNTRY"
 
