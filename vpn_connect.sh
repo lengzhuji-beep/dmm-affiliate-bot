@@ -21,27 +21,9 @@ while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
   echo "Attempting to connect to VPN (Try $((RETRY_COUNT + 1))/$MAX_RETRIES)..."
   echo "========================================="
 
-  # 既存のOpenVPNプロセスがあれば終了
+  # 既存 of OpenVPNプロセスがあれば終了
   sudo killall openvpn 2>/dev/null || true
   sleep 1
-
-  # 元のデフォルトゲートウェイを取得
-  ORIGINAL_GW=$(ip route show default | grep '^default' | awk '{print $3}' | head -n 1)
-  echo "Original Gateway: $ORIGINAL_GW"
-
-  # cc3001.dmm.co.jp のIPアドレスを解決してルーティングを追加
-  if [ -n "$ORIGINAL_GW" ]; then
-    echo "Adding static routes for cc3001.dmm.co.jp to bypass VPN..."
-    DMM_CDN_IPS=$(getent ahosts cc3001.dmm.co.jp | awk '{print $1}' | sort -u)
-    for ip in $DMM_CDN_IPS; do
-      if [[ $ip =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        echo "Routing $ip via $ORIGINAL_GW"
-        sudo ip route add "$ip" via "$ORIGINAL_GW" || true
-      fi
-    done
-  else
-    echo "Warning: Could not determine original gateway. Skipping route bypass."
-  fi
 
   # VPN Gateから設定ファイルを取得 (引数にインデックスを渡す)
   node vpn_connect.js "$RETRY_COUNT"

@@ -290,24 +290,15 @@ async function downloadVideo(videoUrl) {
 
     console.log(`Downloading MP4 from: ${mp4Url}`);
     const filePath = path.join(TEMP_DIR, `sample_${Date.now()}.mp4`);
-    const writer = fs.createWriteStream(filePath);
-
-    const response = await axios({
-        url: mp4Url,
-        method: 'GET',
-        responseType: 'stream',
-        timeout: 120000,
-        headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            'Referer': 'https://www.dmm.co.jp/',
-        }
-    });
-
-    response.data.pipe(writer);
-    await new Promise((resolve, reject) => {
-        writer.on('finish', resolve);
-        writer.on('error', reject);
-    });
+    const { execSync } = require('child_process');
+    try {
+        const curlCommand = `curl -L --retry 5 --retry-delay 3 --connect-timeout 20 --max-time 300 -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" -H "Referer: https://www.dmm.co.jp/" "${mp4Url.replace(/"/g, '\\"')}" -o "${filePath}"`;
+        console.log(`Executing download: ${curlCommand}`);
+        execSync(curlCommand, { stdio: 'inherit' });
+    } catch (curlError) {
+        console.error('Download failed via curl:', curlError);
+        throw curlError;
+    }
 
     console.log(`Downloaded to ${filePath}. Processing with ffmpeg...`);
 
