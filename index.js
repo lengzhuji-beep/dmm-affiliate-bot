@@ -1,10 +1,70 @@
+const fs = require('fs');
+const path = require('path');
 const { fetchDmmProduct, downloadVideo, cleanupVideo } = require('./dmm_api');
 const { postToTwitter } = require('./twitter_bot');
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 30000; // 30秒
+const SCHEDULE_FILE = path.join(__dirname, 'post_schedule.json');
+
+// 実行すべきか判定する関数
+function checkScheduleAndMaybeExit() {
+    console.log('Checking schedule...');
+    if (!fs.existsSync(SCHEDULE_FILE)) {
+        console.log('No schedule file found. First execution. Will proceed.');
+        return; // 初回は実行
+    }
+
+    try {
+        const schedule = JSON.parse(fs.readFileSync(SCHEDULE_FILE, 'utf8'));
+        if (!schedule.lastPostTime || !schedule.nextIntervalMinutes) {
+            console.log('Schedule file is invalid. Will proceed.');
+            return;
+        }
+
+        const lastPost = new Date(schedule.lastPostTime);
+        const nextInterval = schedule.nextIntervalMinutes;
+        const now = new Date();
+
+        const diffMinutes = Math.floor((now - lastPost) / (1000 * 60));
+        console.log(`Last post: ${lastPost.toISOString()}`);
+        console.log(`Time elapsed: ${diffMinutes} minutes. Required interval: ${nextInterval} minutes.`);
+
+        if (diffMinutes < nextInterval) {
+            console.log(`Not enough time has elapsed. Skipping execution.`);
+            process.exit(0); // 正常終了（実行しない）
+        }
+
+        console.log(`Required interval of ${nextInterval} minutes has passed. Proceeding with execution.`);
+    } catch (e) {
+        console.error('Error parsing schedule file. Proceeding anyway:', e);
+    }
+}
+
+// 次回スケジュールを更新して保存する関数
+function updateSchedule() {
+    // 1時間〜2時間の間（60分〜120分）のランダム値
+    const nextInterval = Math.floor(Math.random() * (120 - 60 + 1)) + 60;
+    const now = new Date();
+
+    const schedule = {
+        lastPostTime: now.toISOString(),
+        nextIntervalMinutes: nextInterval
+    };
+
+    try {
+        fs.writeFileSync(SCHEDULE_FILE, JSON.stringify(schedule, null, 2), 'utf8');
+        console.log(`Schedule updated: Last post = ${schedule.lastPostTime}, Next interval = ${schedule.nextIntervalMinutes} mins`);
+    } catch (e) {
+        console.error('Failed to save schedule file:', e);
+    }
+}
+
 
 async function main() {
+    // スケジュール確認 (条件を満たしていなければここで即時終了します)
+    checkScheduleAndMaybeExit();
+
     console.log('--- Start DMM Affiliate to Twitter Bot ---');
     let videoPath = null;
 
@@ -51,10 +111,8 @@ async function main() {
         console.log('Posting to Twitter (Main and Reply)...');
         await postToTwitter(mainText, replyText, videoPath);
 
-        // 5. 投稿成功したらIDを記録する
+        // 5. 投稿成功したらIDを記録し、次回スケジュールを決定する
         if (productInfo.contentId) {
-            const fs = require('fs');
-            const path = require('path');
             const postedIdsFile = path.join(__dirname, 'posted_ids.json');
             let postedIds = [];
             if (fs.existsSync(postedIdsFile)) {
@@ -66,6 +124,9 @@ async function main() {
             // 重複を排除して保存
             fs.writeFileSync(postedIdsFile, JSON.stringify([...new Set(postedIds)], null, 2));
             console.log(`Saved posted ID: ${productInfo.contentId}`);
+            
+            // 次回のスケジュールをランダムに決定して更新
+            updateSchedule();
         }
 
     } catch (error) {

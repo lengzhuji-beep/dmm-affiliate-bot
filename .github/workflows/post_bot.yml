@@ -2,8 +2,8 @@ name: DMM Affiliate Auto Post Bot
 
 on:
   schedule:
-    # 2時間おきに実行 (UTC時間。日本時間+9時間)
-    - cron: '0 */2 * * *'
+    # 30分おきに実行
+    - cron: '*/30 * * * *'
   workflow_dispatch: # 手動実行
 
 permissions:
@@ -65,18 +65,18 @@ jobs:
           TWITTER_SESSION_PATH: ./twitter_session
           HEADLESS: 'true'
 
-      # 6. posted_ids.json の更新をGitにコミット
-      - name: Commit and push posted_ids.json
+      # 6. posted_ids.json と post_schedule.json の更新をGitにコミット
+      - name: Commit and push changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if git diff --quiet posted_ids.json; then
-            echo "No changes in posted_ids.json. Skipping commit."
+          git add posted_ids.json post_schedule.json 2>/dev/null || true
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No changes to commit. Skipping commit."
           else
-            git add posted_ids.json
-            git commit -m "chore: update posted_ids.json [skip ci]"
+            git commit -m "chore: update posted_ids.json and post_schedule.json [skip ci]"
             git push origin HEAD
-            echo "Successfully updated posted_ids.json in repository."
+            echo "Successfully updated changes in repository."
           fi
 
       # 7. VPNの切断
