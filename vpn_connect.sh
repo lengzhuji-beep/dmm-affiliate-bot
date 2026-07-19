@@ -39,9 +39,9 @@ while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
     continue
   fi
 
-  # OpenVPNをバックグラウンドで開始
+  # OpenVPNをバックグラウンドで開始 (MTU/MSS問題を避けるため --mssfix 1400 を指定)
   echo "Starting OpenVPN daemon..."
-  sudo openvpn --config "$OVPN_FILE" --daemon vpn_process
+  sudo openvpn --config "$OVPN_FILE" --mssfix 1400 --daemon vpn_process
 
   # 接続確認ループ (最大30秒)
   CONNECTED=false
