@@ -1,4 +1,4 @@
-name: DMM Affiliate Auto Post Bot
+name: X Buzz Reply Bot
 
 on:
   schedule:
@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 jobs:
-  run-bot:
+  run-reply-bot:
     runs-on: ubuntu-latest
 
     steps:
@@ -29,17 +29,17 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # 3. PlaywrightのChromiumブラウザのインストール
+      # 4. PlaywrightのChromiumブラウザのインストール
       - name: Install Playwright Browsers
         run: npx playwright install chromium --with-deps
 
-      # 3.5 OpenVPNのインストール
+      # 4.5 OpenVPNのインストール
       - name: Install OpenVPN
         run: |
           sudo apt-get update
           sudo apt-get install -y openvpn
 
-      # 4. セッションCookieの復元
+      # 5. セッションCookieの復元
       - name: Restore Twitter Cookies
         run: |
           if [ -n "$TWITTER_COOKIES" ]; then
@@ -51,35 +51,34 @@ jobs:
         env:
           TWITTER_COOKIES: ${{ secrets.TWITTER_COOKIES }}
 
-      # 5. 日本のVPNへの接続とボットの実行 (エラー時は別サーバーで自動リトライ)
-      - name: Connect to Japan VPN & Run Bot
+      # 6. 日本のVPNへの接続と自動リプライボットの実行 (引数に reply_bot.js を指定)
+      - name: Connect to Japan VPN & Run Reply Bot
         run: |
           chmod +x vpn_connect.sh
-          ./vpn_connect.sh
+          ./vpn_connect.sh reply_bot.js
         env:
-          DMM_API_ID: ${{ secrets.DMM_API_ID }}
-          DMM_AFFILIATE_ID: ${{ secrets.DMM_AFFILIATE_ID }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           TWITTER_USERNAME: ${{ secrets.TWITTER_USERNAME }}
           TWITTER_PASSWORD: ${{ secrets.TWITTER_PASSWORD }}
           TWITTER_EMAIL: ${{ secrets.TWITTER_EMAIL }}
           TWITTER_SESSION_PATH: ./twitter_session
           HEADLESS: 'true'
 
-      # 6. posted_ids.json と post_schedule.json の更新をGitにコミット
+      # 7. post_schedule.json の更新をGitにコミット
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add posted_ids.json post_schedule.json 2>/dev/null || true
+          git add post_schedule.json 2>/dev/null || true
           if git diff --quiet && git diff --cached --quiet; then
             echo "No changes to commit. Skipping commit."
           else
-            git commit -m "chore: update posted_ids.json and post_schedule.json [skip ci]"
+            git commit -m "chore: update post_schedule.json for reply bot [skip ci]"
             git push origin HEAD
             echo "Successfully updated changes in repository."
           fi
 
-      # 7. VPNの切断
+      # 8. VPNの切断
       - name: Disconnect VPN
         if: always()
         run: |

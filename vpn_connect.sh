@@ -69,11 +69,14 @@ while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
   if [ "$CONNECTED" = true ]; then
     echo "VPN connection established. Ready to run bot."
     
+    # 実行するスクリプトを引数から取得 (デフォルト: index.js)
+    BOT_SCRIPT="${1:-index.js}"
+
     # ボットの実行
     echo "========================================="
-    echo "Running Bot Script..."
+    echo "Running Bot Script: node $BOT_SCRIPT"
     echo "========================================="
-    node index.js
+    node "$BOT_SCRIPT"
     BOT_EXIT_CODE=$?
     
     if [ $BOT_EXIT_CODE -eq 0 ]; then
