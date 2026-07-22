@@ -1,4 +1,9 @@
 {
   "lastPostTime": "2026-07-22T09:36:53.521Z",
-  "nextIntervalMinutes": 67
+  "nextIntervalMinutes": 67,
+  "reply": {
+    "lastReplyTime": "2026-07-20T07:00:00.000Z",
+    "todayCount": 0,
+    "lastResetDate": "2026-07-20"
+  }
 }

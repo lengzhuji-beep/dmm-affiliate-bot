@@ -65,6 +65,17 @@ jobs:
           TWITTER_SESSION_PATH: ./twitter_session
           HEADLESS: 'true'
 
+      # 5.5 リプライ欄バズ狙いボットの実行 (同一のVPN接続を共有)
+      - name: Run Reply Bot
+        run: node reply_bot.js
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TWITTER_USERNAME: ${{ secrets.TWITTER_USERNAME }}
+          TWITTER_PASSWORD: ${{ secrets.TWITTER_PASSWORD }}
+          TWITTER_EMAIL: ${{ secrets.TWITTER_EMAIL }}
+          TWITTER_SESSION_PATH: ./twitter_session
+          HEADLESS: 'true'
+
       # 6. posted_ids.json と post_schedule.json の更新をGitにコミット
       - name: Commit and push changes
         run: |
