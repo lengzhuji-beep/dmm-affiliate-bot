@@ -108,7 +108,7 @@ async function generateReplyText(targetTweetText) {
     }
 
     console.log('Calling Gemini API to generate reply...');
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
     
     const prompt = `あなたは親しみやすく、共感力の高いユーザーです。以下のツイートに対して、自然で好意的な返信（リプライ）を1つ作成してください。
 
