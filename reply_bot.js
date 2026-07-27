@@ -102,7 +102,10 @@ function updateReplySchedule(schedule) {
 
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-// Gemini APIを利用して返信文を生成する（公式SDKを使用）
+// 待機用ヘルパー
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Gemini APIを利用して返信文を生成する（429レートリミット自動待機付き）
 async function generateReplyText(targetTweetText) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
@@ -111,12 +114,12 @@ async function generateReplyText(targetTweetText) {
 
     const genAI = new GoogleGenerativeAI(apiKey);
 
-    // 試行するモデル候補のリスト
+    // 有効なモデルのリスト (gemini-2.0-flash を最優先)
     const modelCandidates = [
-        'gemini-1.5-flash',
         'gemini-2.0-flash',
-        'gemini-1.5-flash-8b',
-        'gemini-1.5-pro'
+        'gemini-2.0-flash-exp',
+        'gemini-1.5-flash-latest',
+        'gemini-1.5-flash'
     ];
 
     const prompt = `あなたは親しみやすく、共感力の高いユーザーです。以下のツイートに対して、自然で好意的な返信（リプライ）を1つ作成してください。
@@ -134,20 +137,31 @@ ${targetTweetText}
 - 返信文のみを出力してください（余計な挨拶や解説、クォーテーションは不要です）。`;
 
     for (const modelName of modelCandidates) {
-        try {
-            console.log(`Trying Gemini SDK with model: ${modelName}...`);
-            const model = genAI.getGenerativeModel({ model: modelName });
-            const result = await model.generateContent(prompt);
-            const response = await result.response;
-            const replyText = response.text().trim();
-            console.log(`Successfully generated reply with model: ${modelName}`);
-            return replyText;
-        } catch (err) {
-            console.warn(`Model ${modelName} failed via SDK: ${err.message}. Trying next...`);
+        console.log(`Trying Gemini model: ${modelName}...`);
+        const model = genAI.getGenerativeModel({ model: modelName });
+
+        // レート制限(429)対策として各モデル最大3回リトライ
+        for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+                const result = await model.generateContent(prompt);
+                const response = await result.response;
+                const replyText = response.text().trim();
+                console.log(`Successfully generated reply with model: ${modelName}`);
+                return replyText;
+            } catch (err) {
+                const isRateLimit = err.message && (err.message.includes('429') || err.message.includes('Quota exceeded') || err.message.includes('Too Many Requests'));
+                if (isRateLimit && attempt < 3) {
+                    console.warn(`Rate limit (429) encountered for ${modelName} (Attempt ${attempt}/3). Waiting 25 seconds before retrying...`);
+                    await sleep(25000); // 25秒待機して再試行
+                } else {
+                    console.warn(`Model ${modelName} failed (Attempt ${attempt}/3): ${err.message}`);
+                    break; // 429以外のエラー（404等）なら次のモデル候補へ
+                }
+            }
         }
     }
 
-    throw new Error('All Gemini models failed via SDK. Please check API Key permissions in Google AI Studio.');
+    throw new Error('All Gemini models failed. Please check API Key rate limits.');
 }
 
 // X上のオーバーレイを閉じるヘルパー
