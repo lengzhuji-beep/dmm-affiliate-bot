@@ -55,7 +55,7 @@ jobs:
       - name: Connect to Japan VPN & Run Reply Bot
         run: |
           chmod +x vpn_connect.sh
-          ./vpn_connect.sh test_gemini.js
+          ./vpn_connect.sh reply_bot.js
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           TWITTER_USERNAME: ${{ secrets.TWITTER_USERNAME }}
