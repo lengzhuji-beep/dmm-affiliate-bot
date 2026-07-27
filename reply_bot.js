@@ -105,7 +105,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 // 待機用ヘルパー
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Gemini APIを利用して返信文を生成する（高品質モデルから順にフォールバック）
+// Gemini APIを利用して返信文を生成する (gemini-2.0-flash + 60秒自動クォータリセット待機)
 async function generateReplyText(targetTweetText) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
@@ -113,15 +113,8 @@ async function generateReplyText(targetTweetText) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-
-    // 無料枠で利用可能なモデルの優先順位リスト (高レベル・高機能順)
-    const modelCandidates = [
-        { id: 'gemini-2.0-flash', desc: 'Gemini 2.0 Flash (最高性能)' },
-        { id: 'gemini-2.0-flash-exp', desc: 'Gemini 2.0 Flash Exp' },
-        { id: 'gemini-1.5-pro', desc: 'Gemini 1.5 Pro (高精度モデル)' },
-        { id: 'gemini-1.5-flash', desc: 'Gemini 1.5 Flash (標準高速モデル)' },
-        { id: 'gemini-1.5-flash-8b', desc: 'Gemini 1.5 Flash 8B (軽量モデル)' }
-    ];
+    const modelName = 'gemini-2.0-flash';
+    const model = genAI.getGenerativeModel({ model: modelName });
 
     const prompt = `あなたは親しみやすく、共感力の高いユーザーです。以下のツイートに対して、自然で好意的な返信（リプライ）を1つ作成してください。
 
@@ -137,34 +130,31 @@ ${targetTweetText}
 - アダルト系の単語や宣伝・アフィリエイト文句はリプライ欄では絶対に使用せず、あくまで普通の一般ユーザーが好意的な感想を送っているように見せてください。
 - 返信文のみを出力してください（余計な挨拶や解説、クォーテーションは不要です）。`;
 
-    for (const candidate of modelCandidates) {
-        console.log(`Trying model: ${candidate.desc} (${candidate.id})...`);
-        const model = genAI.getGenerativeModel({ model: candidate.id });
-
-        // 各モデルにつき、一時的な制限(429)があれば短時間リトライ、不可なら即座に下位モデルへフォールバック
-        for (let attempt = 1; attempt <= 2; attempt++) {
-            try {
-                const result = await model.generateContent(prompt);
-                const response = await result.response;
-                const replyText = response.text().trim();
-                console.log(`==> Successfully generated reply using model: ${candidate.desc} (${candidate.id})`);
-                return replyText;
-            } catch (err) {
-                const errStr = err.message || '';
-                const isRateLimit = errStr.includes('429') || errStr.includes('Quota exceeded') || errStr.includes('Too Many Requests');
-                
-                if (isRateLimit && attempt < 2) {
-                    console.warn(`[Rate Limit] ${candidate.id} hit rate limit. Waiting 5s before retry (${attempt}/2)...`);
-                    await sleep(5000);
-                } else {
-                    console.warn(`[Fallback] ${candidate.id} failed (${errStr.split('\n')[0]}). Switching to lower level model...`);
-                    break; // このモデルを諦めて次の1つ下のレベルのモデルへ試行を移す
-                }
+    const MAX_ATTEMPTS = 5;
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+        try {
+            console.log(`Calling Gemini API (${modelName}), Attempt ${attempt}/${MAX_ATTEMPTS}...`);
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            const replyText = response.text().trim();
+            console.log(`==> Successfully generated reply using model: ${modelName}!`);
+            return replyText;
+        } catch (err) {
+            const errStr = err.message || '';
+            const isRateLimit = errStr.includes('429') || errStr.includes('Quota exceeded') || errStr.includes('Too Many Requests');
+            
+            if (isRateLimit && attempt < MAX_ATTEMPTS) {
+                console.warn(`[Rate Limit 429] Free tier quota limit reached. Waiting 60 seconds for 1-minute window reset (Attempt ${attempt}/${MAX_ATTEMPTS})...`);
+                await sleep(60000); // 1分間待機して1分枠のクォータリセットを待つ
+            } else {
+                console.error(`Gemini API error (Attempt ${attempt}/${MAX_ATTEMPTS}):`, errStr.split('\n')[0]);
+                if (attempt === MAX_ATTEMPTS) throw err;
+                await sleep(5000);
             }
         }
     }
 
-    throw new Error('All Gemini model candidates failed. Please check API Key permissions or quotas in Google AI Studio.');
+    throw new Error('Failed to generate content after 5 attempts.');
 }
 
 // X上のオーバーレイを閉じるヘルパー
