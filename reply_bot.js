@@ -100,19 +100,23 @@ function updateReplySchedule(schedule) {
     }
 }
 
-// Gemini APIを利用して返信文を生成する（複数モデルによる自動フォールバック）
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+
+// Gemini APIを利用して返信文を生成する（公式SDKを使用）
 async function generateReplyText(targetTweetText) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
         throw new Error('GEMINI_API_KEY is not set in environment variables');
     }
 
-    // 試行するモデルの優先順位リスト
-    const models = [
+    const genAI = new GoogleGenerativeAI(apiKey);
+
+    // 試行するモデル候補のリスト
+    const modelCandidates = [
         'gemini-1.5-flash',
-        'gemini-1.5-flash-latest',
-        'gemini-1.5-pro',
-        'gemini-pro'
+        'gemini-2.0-flash',
+        'gemini-1.5-flash-8b',
+        'gemini-1.5-pro'
     ];
 
     const prompt = `あなたは親しみやすく、共感力の高いユーザーです。以下のツイートに対して、自然で好意的な返信（リプライ）を1つ作成してください。
@@ -129,63 +133,21 @@ ${targetTweetText}
 - アダルト系の単語や宣伝・アフィリエイト文句はリプライ欄では絶対に使用せず、あくまで普通の一般ユーザーが好意的な感想を送っているように見せてください。
 - 返信文のみを出力してください（余計な挨拶や解説、クォーテーションは不要です）。`;
 
-    const postData = JSON.stringify({
-        contents: [{
-            parts: [{
-                text: prompt
-            }]
-        }]
-    });
-
-    for (const model of models) {
-        console.log(`Trying to call Gemini API with model: ${model}...`);
-        // v1beta の方が対応モデルが広い傾向があるため、v1betaでフォールバックを実行
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-
+    for (const modelName of modelCandidates) {
         try {
-            const reply = await new Promise((resolve, reject) => {
-                const req = https.request(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Content-Length': Buffer.byteLength(postData)
-                    }
-                }, (res) => {
-                    let data = '';
-                    res.on('data', (chunk) => { data += chunk; });
-                    res.on('end', () => {
-                        try {
-                            const json = JSON.parse(data);
-                            if (json.error) {
-                                reject(new Error(json.error.message || 'API Error'));
-                                return;
-                            }
-                            if (!json.candidates || json.candidates.length === 0) {
-                                reject(new Error('No candidates in Gemini response'));
-                                return;
-                            }
-                            const replyText = json.candidates[0].content.parts[0].text.trim();
-                            resolve(replyText);
-                        } catch (e) {
-                            reject(new Error(`Failed to parse response: ${e.message}`));
-                        }
-                    });
-                });
-
-                req.on('error', (e) => reject(e));
-                req.write(postData);
-                req.end();
-            });
-
-            console.log(`Successfully generated reply with model: ${model}`);
-            return reply; // 成功したら即時返還
-
+            console.log(`Trying Gemini SDK with model: ${modelName}...`);
+            const model = genAI.getGenerativeModel({ model: modelName });
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            const replyText = response.text().trim();
+            console.log(`Successfully generated reply with model: ${modelName}`);
+            return replyText;
         } catch (err) {
-            console.warn(`Model ${model} failed: ${err.message}. Trying next model...`);
+            console.warn(`Model ${modelName} failed via SDK: ${err.message}. Trying next...`);
         }
     }
 
-    throw new Error('All Gemini models failed to generate content. Please check API Key permissions.');
+    throw new Error('All Gemini models failed via SDK. Please check API Key permissions in Google AI Studio.');
 }
 
 // X上のオーバーレイを閉じるヘルパー
