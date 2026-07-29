@@ -18,20 +18,28 @@ function getJstDate() {
     return new Date(now.getTime() + (9 * 60 * 60 * 1000));
 }
 
-// スケジュールと制限のチェック
+// スケジュールと制限のチェック (JST 7:00〜23:00、30分〜60分のランダム間隔)
 function checkReplyScheduleAndMaybeExit() {
     console.log('Checking reply schedule...');
     if (!fs.existsSync(SCHEDULE_FILE)) {
-        console.log('Schedule file not found. Skipping reply.');
-        process.exit(0);
+        console.log('Schedule file not found. Initializing new schedule...');
+        const initialSchedule = {
+            reply: {
+                lastReplyTime: new Date(0).toISOString(),
+                nextAllowedTime: new Date(0).toISOString(),
+                todayCount: 0,
+                lastResetDate: ''
+            }
+        };
+        fs.writeFileSync(SCHEDULE_FILE, JSON.stringify(initialSchedule, null, 2), 'utf8');
     }
 
     try {
         const schedule = JSON.parse(fs.readFileSync(SCHEDULE_FILE, 'utf8'));
         if (!schedule.reply) {
-            console.log('No reply schedule config. Initializing...');
             schedule.reply = {
                 lastReplyTime: new Date(0).toISOString(),
+                nextAllowedTime: new Date(0).toISOString(),
                 todayCount: 0,
                 lastResetDate: ''
             };
@@ -39,45 +47,35 @@ function checkReplyScheduleAndMaybeExit() {
 
         const jstNow = getJstDate();
         const jstTodayStr = jstNow.toISOString().split('T')[0]; // "YYYY-MM-DD"
-        const currentHour = jstNow.getUTCHours(); // getJstDate()で+9時間しているので、この時間の時間部分はJSTの時
+        const currentHour = jstNow.getUTCHours(); // JSTの時刻 (0〜23)
 
         console.log(`Current JST Time: ${jstNow.toISOString()}, Hour: ${currentHour}`);
 
         // 1. 時間帯制限 (日本時間 7:00 〜 23:00)
-        if (currentHour < 7 || currentHour >= 23) {
+        if (currentHour < 7 || currentHour > 23) {
             console.log('Outside active hours (7:00 - 23:00 JST). Skipping reply.');
             process.exit(0);
         }
 
         // 2. 日付変更時にカウントをリセット
         if (schedule.reply.lastResetDate !== jstTodayStr) {
-            console.log(`New day detected (${jstTodayStr}). Resetting reply count to 0.`);
+            console.log(`New day detected (${jstTodayStr}). Resetting daily reply count to 0.`);
             schedule.reply.todayCount = 0;
             schedule.reply.lastResetDate = jstTodayStr;
             fs.writeFileSync(SCHEDULE_FILE, JSON.stringify(schedule, null, 2), 'utf8');
         }
 
-        // 3. 1日の上限回数制限 (最大3回)
-        if (schedule.reply.todayCount >= 3) {
-            console.log(`Reply limit reached for today (${schedule.reply.todayCount}/3). Skipping.`);
+        // 3. ランダムインターバル制限 (30分〜60分)
+        const now = new Date();
+        const nextAllowed = new Date(schedule.reply.nextAllowedTime || 0);
+        
+        if (now < nextAllowed) {
+            const remainingMins = Math.ceil((nextAllowed - now) / (1000 * 60));
+            console.log(`Random interval active. Next allowed reply in ${remainingMins} mins (at ${nextAllowed.toISOString()}). Skipping.`);
             process.exit(0);
         }
 
-        // 4. 前回の送信からのインターバル制限 (最低180分 = 3時間)
-        const lastReply = new Date(schedule.reply.lastReplyTime);
-        const diffMinutes = Math.floor((new Date() - lastReply) / (1000 * 60));
-        const REQUIRED_INTERVAL = 180;
-
-        console.log(`Last reply: ${lastReply.toISOString()}`);
-        console.log(`Minutes elapsed since last reply: ${diffMinutes} mins (Required: ${REQUIRED_INTERVAL} mins).`);
-        console.log(`Replies sent today: ${schedule.reply.todayCount}/3`);
-
-        if (diffMinutes < REQUIRED_INTERVAL) {
-            console.log(`Not enough time has elapsed since last reply. Skipping.`);
-            process.exit(0);
-        }
-
-        console.log('Reply schedule check passed. Proceeding with reply bot...');
+        console.log(`Reply schedule check passed. (Replies sent today: ${schedule.reply.todayCount}). Proceeding with reply bot...`);
         return schedule;
 
     } catch (e) {
@@ -86,15 +84,21 @@ function checkReplyScheduleAndMaybeExit() {
     }
 }
 
-// 送信成功時のスケジュール更新
+// 送信成功時のスケジュール更新 (次回許可時刻を現在から30分〜60分のランダム値に設定)
 function updateReplySchedule(schedule) {
     try {
         const now = new Date();
+        // 30分〜60分のランダム分数を計算 (30〜60)
+        const randomMinutes = Math.floor(Math.random() * 31) + 30;
+        const nextAllowed = new Date(now.getTime() + randomMinutes * 60 * 1000);
+
         schedule.reply.lastReplyTime = now.toISOString();
-        schedule.reply.todayCount += 1;
+        schedule.reply.nextAllowedTime = nextAllowed.toISOString();
+        schedule.reply.lastRandomIntervalMinutes = randomMinutes;
+        schedule.reply.todayCount = (schedule.reply.todayCount || 0) + 1;
         
         fs.writeFileSync(SCHEDULE_FILE, JSON.stringify(schedule, null, 2), 'utf8');
-        console.log(`Reply schedule updated. Count: ${schedule.reply.todayCount}/3, Time: ${schedule.reply.lastReplyTime}`);
+        console.log(`Reply schedule updated! Replies today: ${schedule.reply.todayCount}. Next reply allowed in ${randomMinutes} mins (${nextAllowed.toISOString()})`);
     } catch (e) {
         console.error('Failed to update reply schedule:', e);
     }
@@ -111,17 +115,15 @@ async function generateReplyViaBrowser(page, targetTweetText) {
         await geminiPage.goto('https://gemini.google.com/', { waitUntil: 'commit', timeout: 60000 });
         await geminiPage.waitForTimeout(4000);
 
-        const prompt = `あなたはTwitterで日常を楽しむフレンドリーで親しみやすい一般ユーザーです。以下の【対象ツイート】の具体的な文章やシチュエーションの内容をしっかり読んで、その中身に直接触れた自然で柔らかい感想リプライ（1つのみ）を作成してください。
+        const prompt = `あなたはTwitterで日常を楽しむ親しみやすいユーザーです。以下の【対象ツイート】の文章や内容をしっかり読んで、タメ口（敬語なし）で自然でフランクな感想リプライ（1つのみ）を作成してください。
 
 【対象ツイート】
 ${targetTweetText}
 
-【ルール・雰囲気】
-- 【対象ツイート】に書かれている具体的な言葉やシチュエーション（写真の雰囲気、発言内容など）に自然に触れてコメントしてください（例: 「日焼け止め」なら「塗ってあげたいです！」、「夏」なら「夏らしさ満点ですね！」など）。
-- 単なる定型文（「素敵ですね」等の汎用句だけ）は避け、投稿者に「ツイートをちゃんと読んで共感してくれた」と感じさせる具体的なリアクションにしてください。
-- 親しみやすく柔らかい口調（語尾に✨や😊などの絵文字を1〜2個添えて自然に）。
-- 固いビジネス調や問合せ風の言葉（「何かお手伝いできますか」等）は絶対に禁止。
-- 100文字以内で簡潔に。
+【ルール・口調】
+- **敬語（〜です、〜ます、〜ください、〜でしょうか等）は絶対禁止**。友達に話しかけるようなタメ口・フランクな口調にすること。（例: 「めちゃくちゃ可愛い！」「日焼け止め塗ってあげたい」「スタイル良すぎてやばい✨」「最高すぎる😊」など）
+- 【対象ツイート】の具体的な言葉や状況（写真の雰囲気、発言内容など）に直接触れてコメントしてください。
+- 100文字以内で簡潔に。絵文字（✨😊🔥👍など）を1〜2個添えて自然にする。
 - アダルト表現や宣伝・営業文句は含めず、純粋なファンのような褒め言葉・共感のコメントにする。
 - 返信文のみを出力。`;
 
@@ -267,8 +269,7 @@ async function main() {
             }
         }
 
-        // 検索クエリでバズツイートを取得
-        // アダルト/ファン層と親和性の高い人気ハッシュタグからランダムに選択（#グラビア、#コスプレ、#水着、#自撮り部、#美女）
+        // 検索クエリでバズツイートを取得 (いいね数が 500 以上の投稿)
         const tagCandidates = [
             { tag: '#グラビア', query: '%23%E3%82%B0%E3%83%A9%E3%83%93%E3%82%A2' },
             { tag: '#コスプレ', query: '%23%E3%82%B3%E3%82%B9%E3%83%97%E3%83%AC' },
@@ -277,8 +278,8 @@ async function main() {
             { tag: '#美女',     query: '%23%E7%BE%8E%E5%A5%B3' }
         ];
         const selectedTag = tagCandidates[Math.floor(Math.random() * tagCandidates.length)];
-        const searchUrl = `https://x.com/search?q=${selectedTag.query}%20min_faves%3A300&f=live`;
-        console.log(`Selected target hashtag: ${selectedTag.tag}`);
+        const searchUrl = `https://x.com/search?q=${selectedTag.query}%20min_faves%3A500&f=live`;
+        console.log(`Selected target hashtag: ${selectedTag.tag} (min_faves: 500)`);
         console.log(`Navigating to search page: ${searchUrl}`);
         await page.goto(searchUrl, { waitUntil: 'commit', timeout: 60000 });
         await page.waitForTimeout(10000);

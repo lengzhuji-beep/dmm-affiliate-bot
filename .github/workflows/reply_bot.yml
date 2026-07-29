@@ -2,8 +2,8 @@ name: X Buzz Reply Bot
 
 on:
   schedule:
-    # 30分おきに実行
-    - cron: '*/30 * * * *'
+    # 15分おきにチェック（30分〜60分のランダム間隔で実行）
+    - cron: '*/15 * * * *'
   workflow_dispatch: # 手動実行
 
 permissions:
