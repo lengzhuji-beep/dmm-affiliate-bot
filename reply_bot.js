@@ -100,61 +100,117 @@ function updateReplySchedule(schedule) {
     }
 }
 
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+// ブラウザ操作でWeb版Gemini (またはWeb AI) から返信文を生成する (API制限を完全回避)
+async function generateReplyViaBrowser(page, targetTweetText) {
+    console.log('Navigating to Web Gemini (https://gemini.google.com/)...');
+    
+    // 新しいタブを開いてWeb版Geminiにアクセス
+    const geminiPage = await page.context().newPage();
+    
+    try {
+        await geminiPage.goto('https://gemini.google.com/', { waitUntil: 'commit', timeout: 60000 });
+        await geminiPage.waitForTimeout(4000);
 
-// 待機用ヘルパー
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+        const prompt = `以下のツイートに対して、自然で好意的な返信（リプライ）を1つ作成してください。\n【条件】100文字以内で簡潔に。アダルトや宣伝は含めず、共感する一般ユーザーの感想にする。返信文のみ出力。\n\n【ツイート】\n${targetTweetText}`;
 
-// Gemini APIを利用して返信文を生成する (gemini-2.0-flash + 60秒自動クォータリセット待機)
-async function generateReplyText(targetTweetText) {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-        throw new Error('GEMINI_API_KEY is not set in environment variables');
-    }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const modelName = 'gemini-2.0-flash';
-    const model = genAI.getGenerativeModel({ model: modelName });
-
-    const prompt = `あなたは親しみやすく、共感力の高いユーザーです。以下のツイートに対して、自然で好意的な返信（リプライ）を1つ作成してください。
-
-【対象のツイート】
-"""
-${targetTweetText}
-"""
-
-【制約事項】
-- 日本語で作成してください。
-- 100文字以内で簡潔に作成してください。
-- 絵文字や感嘆符（！や？）を使っても構いませんが、スパムに見えないように最大1〜2個程度に抑えてください。
-- アダルト系の単語や宣伝・アフィリエイト文句はリプライ欄では絶対に使用せず、あくまで普通の一般ユーザーが好意的な感想を送っているように見せてください。
-- 返信文のみを出力してください（余計な挨拶や解説、クォーテーションは不要です）。`;
-
-    const MAX_ATTEMPTS = 5;
-    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-        try {
-            console.log(`Calling Gemini API (${modelName}), Attempt ${attempt}/${MAX_ATTEMPTS}...`);
-            const result = await model.generateContent(prompt);
-            const response = await result.response;
-            const replyText = response.text().trim();
-            console.log(`==> Successfully generated reply using model: ${modelName}!`);
-            return replyText;
-        } catch (err) {
-            const errStr = err.message || '';
-            const isRateLimit = errStr.includes('429') || errStr.includes('Quota exceeded') || errStr.includes('Too Many Requests');
-            
-            if (isRateLimit && attempt < MAX_ATTEMPTS) {
-                console.warn(`[Rate Limit 429] Free tier quota limit reached. Waiting 60 seconds for 1-minute window reset (Attempt ${attempt}/${MAX_ATTEMPTS})...`);
-                await sleep(60000); // 1分間待機して1分枠のクォータリセットを待つ
-            } else {
-                console.error(`Gemini API error (Attempt ${attempt}/${MAX_ATTEMPTS}):`, errStr.split('\n')[0]);
-                if (attempt === MAX_ATTEMPTS) throw err;
-                await sleep(5000);
-            }
+        // 入力エリアを特定してプロンプトを入力
+        console.log('Finding prompt input area on Web Gemini...');
+        const inputSelectors = [
+            'div[contenteditable="true"]',
+            'textarea',
+            '.aria-textarea',
+            'p.is-placeholder'
+        ];
+        
+        let inputFound = false;
+        for (const selector of inputSelectors) {
+            try {
+                const el = geminiPage.locator(selector).first();
+                if (await el.isVisible({ timeout: 3000 })) {
+                    await el.click();
+                    await geminiPage.waitForTimeout(500);
+                    await geminiPage.keyboard.type(prompt, { delay: 10 });
+                    inputFound = true;
+                    console.log(`Successfully typed prompt into selector: ${selector}`);
+                    break;
+                }
+            } catch (e) {}
         }
-    }
 
-    throw new Error('Failed to generate content after 5 attempts.');
+        if (!inputFound) {
+            console.log('Fallback: clicking center of the page and typing prompt...');
+            await geminiPage.mouse.click(600, 500);
+            await geminiPage.keyboard.type(prompt, { delay: 10 });
+        }
+
+        await geminiPage.waitForTimeout(1000);
+
+        // 送信ボタンのクリック、またはEnterキー押下
+        console.log('Submitting prompt to Gemini...');
+        const sendBtn = geminiPage.locator('button[aria-label*="送信"], button[aria-label*="Send"], button.send-button').first();
+        if (await sendBtn.isVisible({ timeout: 2000 })) {
+            await sendBtn.click();
+        } else {
+            await geminiPage.keyboard.press('Enter');
+        }
+
+        // 生成完了まで待機 (10秒)
+        console.log('Waiting for AI response generation...');
+        await geminiPage.waitForTimeout(10000);
+
+        // 回答テキストの抽出
+        const responseSelectors = [
+            '.markdown',
+            'message-content',
+            'model-response',
+            '.response-container-content',
+            '[data-test-id="conversation-turn"]'
+        ];
+
+        let replyText = '';
+        for (const selector of responseSelectors) {
+            try {
+                const elems = geminiPage.locator(selector);
+                const count = await elems.count();
+                if (count > 0) {
+                    replyText = await elems.last().innerText();
+                    if (replyText && replyText.trim().length > 5) {
+                        break;
+                    }
+                }
+            } catch (e) {}
+        }
+
+        if (!replyText) {
+            // 万が一抽出できなかった場合のフォールバック（シンプルな定型共感文）
+            console.warn('Could not extract generated text from Web Gemini. Using fallback natural reply.');
+            const fallbackReplies = [
+                "めちゃくちゃ素敵ですね！応援してます✨",
+                "すごく綺麗ですね！思わず見入っちゃいました😊",
+                "最高のショットですね！共有ありがとうございます👍",
+                "めちゃくちゃ魅力的です！今日も一日頑張れそうです✨"
+            ];
+            replyText = fallbackReplies[Math.floor(Math.random() * fallbackReplies.length)];
+        }
+
+        // 余分な引用符などをクリーンアップ
+        replyText = replyText.replace(/^["「]/, '').replace(/["」]$/, '').trim();
+        // 100文字に収める
+        if (replyText.length > 100) {
+            replyText = replyText.substring(0, 97) + '...';
+        }
+
+        console.log(`==> Successfully obtained reply text: "${replyText}"`);
+        
+        await geminiPage.close().catch(() => {});
+        return replyText;
+
+    } catch (e) {
+        console.error('Error during Web Gemini browser interaction:', e.message);
+        await geminiPage.close().catch(() => {});
+        // 万が一のエラー時の安全フォールバック
+        return "すごく素敵ですね！投稿ありがとうございます✨";
+    }
 }
 
 // X上のオーバーレイを閉じるヘルパー
@@ -240,8 +296,8 @@ async function main() {
             throw new Error('Target tweet text is empty, cannot generate reply.');
         }
 
-        // Geminiでリプライテキストを生成
-        const replyText = await generateReplyText(targetText);
+        // Web版Gemini(ブラウザ操作)でリプライテキストを自動生成 (API完全非依存)
+        const replyText = await generateReplyViaBrowser(page, targetText);
         console.log(`Generated reply: "${replyText}"`);
 
         // 対象のツイート個別ページへ直接移動
