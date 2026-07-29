@@ -209,8 +209,19 @@ ${targetTweetText}
 
         // 余分な引用符などをクリーンアップ
         replyText = replyText.replace(/^["「]/, '').replace(/["」]$/, '').trim();
-        // 100文字に収める
-        if (replyText.length > 100) {
+
+        // 解説風テキスト（「〜とは」「〜を指します」等）が入ってしまった場合のクリーンアップガード
+        const isExplanatory = replyText.includes('とは') || replyText.includes('用語') || replyText.includes('を指します') || replyText.includes('解説');
+        if (isExplanatory || replyText.length > 90) {
+            console.warn(`Generated text appeared explanatory or too long ("${replyText.substring(0, 30)}..."). Using natural casual fallback.`);
+            const naturalFallbacks = [
+                "めちゃくちゃ素敵！写真の雰囲気最高✨",
+                "すごく綺麗で見入っちゃった😊応援してる！",
+                "最高のショットだね！めちゃくちゃ魅力的✨",
+                "すごく素敵だね！今日も一日頑張れそう😊"
+            ];
+            replyText = naturalFallbacks[Math.floor(Math.random() * naturalFallbacks.length)];
+        } else if (replyText.length > 100) {
             replyText = replyText.substring(0, 97) + '...';
         }
 
@@ -296,30 +307,44 @@ async function main() {
             throw new Error('No tweets found on search page.');
         }
 
-        // 一番上のツイートの情報を取得
-        const firstTweet = tweets.first();
-        
-        // ツイート詳細へのリンク（status URL）の取得
-        const linkElement = firstTweet.locator('a[href*="/status/"]').first();
-        const tweetHref = await linkElement.getAttribute('href');
-        if (!tweetHref) {
-            throw new Error('Could not find status URL for target tweet.');
+        // ツイート一覧から、ハッシュタグ以外の本文テキストが10文字以上ある投稿を探索・厳選
+        let targetTweetUrl = '';
+        let targetText = '';
+        let cleanText = '';
+
+        for (let i = 0; i < Math.min(count, 10); i++) {
+            const tweet = tweets.nth(i);
+            
+            // ツイート本文の取得
+            const textElement = tweet.locator('[data-testid="tweetText"]').first();
+            const rawText = await textElement.innerText().catch(() => '');
+            
+            // ハッシュタグ(#...)を削除した「純粋な本文テキスト」を抽出
+            const textWithoutHashtags = rawText.replace(/#[\w\u3000-\u30FF\u4E00-\u9FFF\uFF00-\uFFEF]+/g, '').trim();
+
+            // ハッシュタグを除いた本文テキストが10文字以上存在する場合のみ採用
+            if (textWithoutHashtags.length >= 10) {
+                const linkElement = tweet.locator('a[href*="/status/"]').first();
+                const tweetHref = await linkElement.getAttribute('href').catch(() => null);
+                if (tweetHref) {
+                    targetTweetUrl = `https://x.com${tweetHref}`;
+                    targetText = rawText;
+                    cleanText = textWithoutHashtags;
+                    console.log(`Found valid target tweet (Index ${i}): ${targetTweetUrl}`);
+                    console.log(`Clean body text preview: "${cleanText.substring(0, 60)}..."`);
+                    break;
+                }
+            } else {
+                console.log(`Skipping tweet Index ${i}: Hashtag-only or body text too short (${textWithoutHashtags.length} chars).`);
+            }
         }
-        
-        const targetTweetUrl = `https://x.com${tweetHref}`;
-        console.log(`Target tweet URL: ${targetTweetUrl}`);
 
-        // ツイート本文の取得
-        const textElement = firstTweet.locator('[data-testid="tweetText"]').first();
-        const targetText = await textElement.innerText().catch(() => '');
-        console.log(`Target tweet text preview: "${targetText.substring(0, 50)}..."`);
-
-        if (!targetText) {
-            throw new Error('Target tweet text is empty, cannot generate reply.');
+        if (!targetTweetUrl || !cleanText) {
+            throw new Error('Could not find any tweet with substantial non-hashtag body text (min 10 chars).');
         }
 
         // Web版Gemini(ブラウザ操作)でリプライテキストを自動生成 (API完全非依存)
-        const replyText = await generateReplyViaBrowser(page, targetText);
+        const replyText = await generateReplyViaBrowser(page, cleanText);
         console.log(`Generated reply: "${replyText}"`);
 
         // 対象のツイート個別ページへ直接移動
