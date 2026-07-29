@@ -111,7 +111,17 @@ async function generateReplyViaBrowser(page, targetTweetText) {
         await geminiPage.goto('https://gemini.google.com/', { waitUntil: 'commit', timeout: 60000 });
         await geminiPage.waitForTimeout(4000);
 
-        const prompt = `以下のツイートに対して、自然で好意的な返信（リプライ）を1つ作成してください。\n【条件】100文字以内で簡潔に。アダルトや宣伝は含めず、共感する一般ユーザーの感想にする。返信文のみ出力。\n\n【ツイート】\n${targetTweetText}`;
+        const prompt = `あなたはTwitterで日常を楽しむフレンドリーで親しみやすい一般ユーザーです。以下のツイートに対して、好意的で柔らかいトーンの感想リプライ（1つのみ）を作成してください。
+
+【対象ツイート】
+${targetTweetText}
+
+【ルール・雰囲気】
+- 親しみやすく柔らかい口調（例: 「めちゃくちゃ素敵ですね✨」「すごく綺麗で見入っちゃいました😊」「応援してます！」など）
+- 固いビジネス調や問合せ風の挨拶（「何かお手伝いできることはありますか」等）は絶対に禁止。
+- 100文字以内で簡潔に。絵文字を1〜2個添えて自然に。
+- アダルト表現や宣伝・営業文句は含めず、純粋なファンのような褒め言葉・共感のコメントにする。
+- 返信文のみを出力。`;
 
         // 入力エリアを特定してプロンプトを入力
         console.log('Finding prompt input area on Web Gemini...');
