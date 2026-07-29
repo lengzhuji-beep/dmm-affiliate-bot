@@ -69,7 +69,9 @@ function checkReplyScheduleAndMaybeExit() {
         const now = new Date();
         const nextAllowed = new Date(schedule.reply.nextAllowedTime || 0);
         
-        if (now < nextAllowed) {
+        if (process.env.FORCE_RUN === 'true') {
+            console.log('Force run active (manual execution). Bypassing interval wait.');
+        } else if (now < nextAllowed) {
             const remainingMins = Math.ceil((nextAllowed - now) / (1000 * 60));
             console.log(`Random interval active. Next allowed reply in ${remainingMins} mins (at ${nextAllowed.toISOString()}). Skipping.`);
             process.exit(0);
