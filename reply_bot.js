@@ -111,15 +111,17 @@ async function generateReplyViaBrowser(page, targetTweetText) {
         await geminiPage.goto('https://gemini.google.com/', { waitUntil: 'commit', timeout: 60000 });
         await geminiPage.waitForTimeout(4000);
 
-        const prompt = `あなたはTwitterで日常を楽しむフレンドリーで親しみやすい一般ユーザーです。以下のツイートに対して、好意的で柔らかいトーンの感想リプライ（1つのみ）を作成してください。
+        const prompt = `あなたはTwitterで日常を楽しむフレンドリーで親しみやすい一般ユーザーです。以下の【対象ツイート】の具体的な文章やシチュエーションの内容をしっかり読んで、その中身に直接触れた自然で柔らかい感想リプライ（1つのみ）を作成してください。
 
 【対象ツイート】
 ${targetTweetText}
 
 【ルール・雰囲気】
-- 親しみやすく柔らかい口調（例: 「めちゃくちゃ素敵ですね✨」「すごく綺麗で見入っちゃいました😊」「応援してます！」など）
-- 固いビジネス調や問合せ風の挨拶（「何かお手伝いできることはありますか」等）は絶対に禁止。
-- 100文字以内で簡潔に。絵文字を1〜2個添えて自然に。
+- 【対象ツイート】に書かれている具体的な言葉やシチュエーション（写真の雰囲気、発言内容など）に自然に触れてコメントしてください（例: 「日焼け止め」なら「塗ってあげたいです！」、「夏」なら「夏らしさ満点ですね！」など）。
+- 単なる定型文（「素敵ですね」等の汎用句だけ）は避け、投稿者に「ツイートをちゃんと読んで共感してくれた」と感じさせる具体的なリアクションにしてください。
+- 親しみやすく柔らかい口調（語尾に✨や😊などの絵文字を1〜2個添えて自然に）。
+- 固いビジネス調や問合せ風の言葉（「何かお手伝いできますか」等）は絶対に禁止。
+- 100文字以内で簡潔に。
 - アダルト表現や宣伝・営業文句は含めず、純粋なファンのような褒め言葉・共感のコメントにする。
 - 返信文のみを出力。`;
 
@@ -266,8 +268,17 @@ async function main() {
         }
 
         // 検索クエリでバズツイートを取得
-        // アダルトアカウントと親和性の高い「グラビア」や「コスプレ」タグで、いいねが300以上のツイートを検索
-        const searchUrl = 'https://x.com/search?q=%23%E3%82%B0%E3%83%A9%E3%83%93%E3%82%A2%20min_faves%3A300&f=live';
+        // アダルト/ファン層と親和性の高い人気ハッシュタグからランダムに選択（#グラビア、#コスプレ、#水着、#自撮り部、#美女）
+        const tagCandidates = [
+            { tag: '#グラビア', query: '%23%E3%82%B0%E3%83%A9%E3%83%93%E3%82%A2' },
+            { tag: '#コスプレ', query: '%23%E3%82%B3%E3%82%B9%E3%83%97%E3%83%AC' },
+            { tag: '#水着',     query: '%23%E6%B0%B4%E7%9D%80' },
+            { tag: '#自撮り部', query: '%23%E8%87%AA%E6%92%AE%E3%82%8A%E9%83%A8' },
+            { tag: '#美女',     query: '%23%E7%BE%8E%E5%A5%B3' }
+        ];
+        const selectedTag = tagCandidates[Math.floor(Math.random() * tagCandidates.length)];
+        const searchUrl = `https://x.com/search?q=${selectedTag.query}%20min_faves%3A300&f=live`;
+        console.log(`Selected target hashtag: ${selectedTag.tag}`);
         console.log(`Navigating to search page: ${searchUrl}`);
         await page.goto(searchUrl, { waitUntil: 'commit', timeout: 60000 });
         await page.waitForTimeout(10000);
