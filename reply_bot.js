@@ -86,11 +86,10 @@ function checkReplyScheduleAndMaybeExit() {
     }
 }
 
-// 送信成功時のスケジュール更新 (次回許可時刻を現在から30分〜60分のランダム値に設定)
-function updateReplySchedule(schedule) {
+// 送信成功時のスケジュール更新 (次回許可時刻を現在から30分〜60分のランダム値に設定し、処理済みURLを記録)
+function updateReplySchedule(schedule, targetTweetUrl) {
     try {
         const now = new Date();
-        // 30分〜60分のランダム分数を計算 (30〜60)
         const randomMinutes = Math.floor(Math.random() * 31) + 30;
         const nextAllowed = new Date(now.getTime() + randomMinutes * 60 * 1000);
 
@@ -99,8 +98,20 @@ function updateReplySchedule(schedule) {
         schedule.reply.lastRandomIntervalMinutes = randomMinutes;
         schedule.reply.todayCount = (schedule.reply.todayCount || 0) + 1;
         
+        // 処理済みURL履歴の追加 (重複防止)
+        if (!schedule.processedTweetUrls) {
+            schedule.processedTweetUrls = [];
+        }
+        if (targetTweetUrl && !schedule.processedTweetUrls.includes(targetTweetUrl)) {
+            schedule.processedTweetUrls.push(targetTweetUrl);
+            // 履歴が長くなりすぎないよう直近 200 件を保持
+            if (schedule.processedTweetUrls.length > 200) {
+                schedule.processedTweetUrls = schedule.processedTweetUrls.slice(-200);
+            }
+        }
+        
         fs.writeFileSync(SCHEDULE_FILE, JSON.stringify(schedule, null, 2), 'utf8');
-        console.log(`Reply schedule updated! Replies today: ${schedule.reply.todayCount}. Next reply allowed in ${randomMinutes} mins (${nextAllowed.toISOString()})`);
+        console.log(`Reply schedule updated! Replies today: ${schedule.reply.todayCount}. Recorded URL: ${targetTweetUrl}`);
     } catch (e) {
         console.error('Failed to update reply schedule:', e);
     }
@@ -307,12 +318,20 @@ async function main() {
         }
 
         // 検索クエリでバズツイートを取得 (いいね数が 500 以上の投稿)
+        // アダルト/ファン層と親和性の高い人気ハッシュタグ 12選からランダム選択
         const tagCandidates = [
             { tag: '#グラビア', query: '%23%E3%82%B0%E3%83%A9%E3%83%93%E3%82%A2' },
             { tag: '#コスプレ', query: '%23%E3%82%B3%E3%82%B9%E3%83%97%E3%83%AC' },
             { tag: '#水着',     query: '%23%E6%B0%B4%E7%9D%80' },
             { tag: '#自撮り部', query: '%23%E8%87%AA%E6%92%AE%E3%82%8A%E9%83%A8' },
-            { tag: '#美女',     query: '%23%E7%BE%8E%E5%A5%B3' }
+            { tag: '#美女',     query: '%23%E7%BE%8E%E5%A5%B3' },
+            { tag: '#グラビアアイドル', query: '%23%E3%82%B0%E3%83%A9%E3%83%93%E3%82%A2%E3%82%A2%E3%82%A4%E3%83%89%E3%83%AB' },
+            { tag: '#コスプレイヤー',   query: '%23%E3%82%B3%E3%82%B9%E3%83%97%E3%83%AC%E3%82%A4%E3%83%84%E3%83%BC' },
+            { tag: '#ポートレート',     query: '%23%E3%83%9D%E3%83%BC%E3%83%88%E3%83%AC%E3%83%BC%E3%83%88' },
+            { tag: '#自撮り女子',       query: '%23%E8%87%AA%E6%92%AE%E3%82%8A%E5%A5%B3%E5%AD%90' },
+            { tag: '#美少女',           query: '%23%E7%BE%8E%E5%B0%91%E5%A5%B3' },
+            { tag: '#横顔美女',         query: '%23%E6%A8%AA%E9%A1%94%E7%BE%8E%E5%A5%B3' },
+            { tag: '#1ミリでもいいなと思ったらRT', query: '%231%E3%83%9F%E3%83%AA%E3%81%A7%E3%82%82%E3%81%84%E3%81%AA%E3%81%A8%E6%80%9D%E3%81%A3%E3%81%9F%E3%82%89RT' }
         ];
         const selectedTag = tagCandidates[Math.floor(Math.random() * tagCandidates.length)];
         const searchUrl = `https://x.com/search?q=${selectedTag.query}%20min_faves%3A500&f=live`;
@@ -333,12 +352,13 @@ async function main() {
             throw new Error('No tweets found on search page.');
         }
 
-        // ツイート一覧から、ハッシュタグ以外の本文テキストが10文字以上ある投稿を探索・厳選
+        // ツイート一覧から、ハッシュタグ以外の本文テキストが10文字以上あり、過去未処理の投稿を探索・厳選
         let targetTweetUrl = '';
         let targetText = '';
         let cleanText = '';
+        const processedUrls = scheduleData.processedTweetUrls || [];
 
-        for (let i = 0; i < Math.min(count, 10); i++) {
+        for (let i = 0; i < Math.min(count, 15); i++) {
             const tweet = tweets.nth(i);
             
             // ツイート本文の取得
@@ -348,20 +368,29 @@ async function main() {
             // ハッシュタグ(#...)を削除した「純粋な本文テキスト」を抽出
             const textWithoutHashtags = rawText.replace(/#[\w\u3000-\u30FF\u4E00-\u9FFF\uFF00-\uFFEF]+/g, '').trim();
 
-            // ハッシュタグを除いた本文テキストが10文字以上存在する場合のみ採用
-            if (textWithoutHashtags.length >= 10) {
-                const linkElement = tweet.locator('a[href*="/status/"]').first();
-                const tweetHref = await linkElement.getAttribute('href').catch(() => null);
-                if (tweetHref) {
-                    targetTweetUrl = `https://x.com${tweetHref}`;
+            const linkElement = tweet.locator('a[href*="/status/"]').first();
+            const tweetHref = await linkElement.getAttribute('href').catch(() => null);
+            
+            if (tweetHref) {
+                const fullUrl = `https://x.com${tweetHref}`;
+                
+                // 過去にリプライ/引用リポスト済みのURLは重複防止のためスキップ
+                if (processedUrls.includes(fullUrl)) {
+                    console.log(`Skipping tweet Index ${i} (${fullUrl}): Already processed before.`);
+                    continue;
+                }
+
+                // ハッシュタグを除いた本文テキストが10文字以上存在する場合のみ採用
+                if (textWithoutHashtags.length >= 10) {
+                    targetTweetUrl = fullUrl;
                     targetText = rawText;
                     cleanText = textWithoutHashtags;
                     console.log(`Found valid target tweet (Index ${i}): ${targetTweetUrl}`);
                     console.log(`Clean body text preview: "${cleanText.substring(0, 60)}..."`);
                     break;
+                } else {
+                    console.log(`Skipping tweet Index ${i}: Hashtag-only or body text too short (${textWithoutHashtags.length} chars).`);
                 }
-            } else {
-                console.log(`Skipping tweet Index ${i}: Hashtag-only or body text too short (${textWithoutHashtags.length} chars).`);
             }
         }
 
@@ -416,7 +445,7 @@ async function main() {
 
         // 成功を記録
         console.log('Reply post sequence completed successfully!');
-        updateReplySchedule(scheduleData);
+        updateReplySchedule(scheduleData, targetTweetUrl);
 
     } catch (error) {
         console.error('Error in reply bot execution:', error);

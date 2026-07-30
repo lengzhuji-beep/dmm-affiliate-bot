@@ -83,8 +83,8 @@ function checkQuoteScheduleAndMaybeExit() {
     }
 }
 
-// 送信成功時のスケジュール更新
-function updateQuoteSchedule(schedule) {
+// 送信成功時のスケジュール更新 (次回許可時刻を現在から30分〜60分のランダム値に設定し、処理済みURLを記録)
+function updateQuoteSchedule(schedule, targetTweetUrl) {
     try {
         const now = new Date();
         const randomMinutes = Math.floor(Math.random() * 31) + 30; // 30〜60分
@@ -95,8 +95,19 @@ function updateQuoteSchedule(schedule) {
         schedule.quote.lastRandomIntervalMinutes = randomMinutes;
         schedule.quote.todayCount = (schedule.quote.todayCount || 0) + 1;
         
+        // 処理済みURL履歴の追加 (重複防止)
+        if (!schedule.processedTweetUrls) {
+            schedule.processedTweetUrls = [];
+        }
+        if (targetTweetUrl && !schedule.processedTweetUrls.includes(targetTweetUrl)) {
+            schedule.processedTweetUrls.push(targetTweetUrl);
+            if (schedule.processedTweetUrls.length > 200) {
+                schedule.processedTweetUrls = schedule.processedTweetUrls.slice(-200);
+            }
+        }
+        
         fs.writeFileSync(SCHEDULE_FILE, JSON.stringify(schedule, null, 2), 'utf8');
-        console.log(`Quote schedule updated! Quotes today: ${schedule.quote.todayCount}. Next allowed in ${randomMinutes} mins (${nextAllowed.toISOString()})`);
+        console.log(`Quote schedule updated! Quotes today: ${schedule.quote.todayCount}. Recorded URL: ${targetTweetUrl}`);
     } catch (e) {
         console.error('Failed to update quote schedule:', e);
     }
@@ -280,7 +291,14 @@ async function main() {
             { tag: '#コスプレ', query: '%23%E3%82%B3%E3%82%B9%E3%83%97%E3%83%AC' },
             { tag: '#水着',     query: '%23%E6%B0%B4%E7%9D%80' },
             { tag: '#自撮り部', query: '%23%E8%87%AA%E6%92%AE%E3%82%8A%E9%83%A8' },
-            { tag: '#美女',     query: '%23%E7%BE%8E%E5%A5%B3' }
+            { tag: '#美女',     query: '%23%E7%BE%8E%E5%A5%B3' },
+            { tag: '#グラビアアイドル', query: '%23%E3%82%B0%E3%83%A9%E3%83%93%E3%82%A2%E3%82%A2%E3%82%A4%E3%83%89%E3%83%AB' },
+            { tag: '#コスプレイヤー',   query: '%23%E3%82%B3%E3%82%B9%E3%83%97%E3%83%AC%E3%82%A4%E3%83%84%E3%83%BC' },
+            { tag: '#ポートレート',     query: '%23%E3%83%9D%E3%83%BC%E3%83%88%E3%83%AC%E3%83%BC%E3%83%88' },
+            { tag: '#自撮り女子',       query: '%23%E8%87%AA%E6%92%AE%E3%82%8A%E5%A5%B3%E5%AD%90' },
+            { tag: '#美少女',           query: '%23%E7%BE%8E%E5%B0%91%E5%A5%B3' },
+            { tag: '#横顔美女',         query: '%23%E6%A8%AA%E9%A1%94%E7%BE%8E%E5%A5%B3' },
+            { tag: '#1ミリでもいいなと思ったらRT', query: '%231%E3%83%9F%E3%83%AA%E3%81%A7%E3%82%82%E3%81%84%E3%81%84%E3%81%AA%E3%81%A8%E6%80%9D%E3%81%A3%E3%81%9F%E3%82%89RT' }
         ];
         const selectedTag = tagCandidates[Math.floor(Math.random() * tagCandidates.length)];
         const searchUrl = `https://x.com/search?q=${selectedTag.query}%20min_faves%3A500&f=live`;
@@ -301,18 +319,26 @@ async function main() {
         let targetText = '';
         let cleanText = '';
         let targetTweetElement = null;
+        const processedUrls = scheduleData.processedTweetUrls || [];
 
-        for (let i = 0; i < Math.min(count, 10); i++) {
+        for (let i = 0; i < Math.min(count, 15); i++) {
             const tweet = tweets.nth(i);
             const textElement = tweet.locator('[data-testid="tweetText"]').first();
             const rawText = await textElement.innerText().catch(() => '');
             const textWithoutHashtags = rawText.replace(/#[\w\u3000-\u30FF\u4E00-\u9FFF\uFF00-\uFFEF]+/g, '').trim();
 
-            if (textWithoutHashtags.length >= 10) {
-                const linkElement = tweet.locator('a[href*="/status/"]').first();
-                const tweetHref = await linkElement.getAttribute('href').catch(() => null);
-                if (tweetHref) {
-                    targetTweetUrl = `https://x.com${tweetHref}`;
+            const linkElement = tweet.locator('a[href*="/status/"]').first();
+            const tweetHref = await linkElement.getAttribute('href').catch(() => null);
+
+            if (tweetHref) {
+                const fullUrl = `https://x.com${tweetHref}`;
+                if (processedUrls.includes(fullUrl)) {
+                    console.log(`Skipping quote tweet Index ${i} (${fullUrl}): Already processed before.`);
+                    continue;
+                }
+
+                if (textWithoutHashtags.length >= 10) {
+                    targetTweetUrl = fullUrl;
                     targetText = rawText;
                     cleanText = textWithoutHashtags;
                     targetTweetElement = tweet;
@@ -364,7 +390,7 @@ async function main() {
 
         console.log('Quote Tweet submitted successfully!');
 
-        updateQuoteSchedule(scheduleData);
+        updateQuoteSchedule(scheduleData, targetTweetUrl);
         console.log('Quote bot script completed successfully!');
 
     } catch (err) {
