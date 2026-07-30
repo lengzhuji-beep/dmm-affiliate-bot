@@ -5,7 +5,6 @@ const https = require('https');
 const { chromium } = require('playwright-extra');
 const stealth = require('puppeteer-extra-plugin-stealth')();
 
-// Playwright-extraにstealthプラグインを登録
 chromium.use(stealth);
 
 const SESSION_DIR = process.env.TWITTER_SESSION_PATH || './twitter_session';
@@ -14,18 +13,16 @@ const SCHEDULE_FILE = path.join(__dirname, 'post_schedule.json');
 // 日本時間 (JST) の現在時刻を取得するヘルパー
 function getJstDate() {
     const now = new Date();
-    // UTCから日本時間(+9時間)に変換
     return new Date(now.getTime() + (9 * 60 * 60 * 1000));
 }
 
-// スケジュールと制限のチェック (JST 7:00〜23:00、30分〜60分のランダム間隔)
-function checkReplyScheduleAndMaybeExit() {
-    console.log('Checking reply schedule...');
+// 引用リポスト用スケジュールのチェック
+function checkQuoteScheduleAndMaybeExit() {
+    console.log('Checking quote schedule...');
     if (!fs.existsSync(SCHEDULE_FILE)) {
-        console.log('Schedule file not found. Initializing new schedule...');
         const initialSchedule = {
-            reply: {
-                lastReplyTime: new Date(0).toISOString(),
+            quote: {
+                lastQuoteTime: new Date(0).toISOString(),
                 nextAllowedTime: new Date(0).toISOString(),
                 todayCount: 0,
                 lastResetDate: ''
@@ -36,9 +33,9 @@ function checkReplyScheduleAndMaybeExit() {
 
     try {
         const schedule = JSON.parse(fs.readFileSync(SCHEDULE_FILE, 'utf8'));
-        if (!schedule.reply) {
-            schedule.reply = {
-                lastReplyTime: new Date(0).toISOString(),
+        if (!schedule.quote) {
+            schedule.quote = {
+                lastQuoteTime: new Date(0).toISOString(),
                 nextAllowedTime: new Date(0).toISOString(),
                 todayCount: 0,
                 lastResetDate: ''
@@ -46,80 +43,76 @@ function checkReplyScheduleAndMaybeExit() {
         }
 
         const jstNow = getJstDate();
-        const jstTodayStr = jstNow.toISOString().split('T')[0]; // "YYYY-MM-DD"
-        const currentHour = jstNow.getUTCHours(); // JSTの時刻 (0〜23)
+        const jstTodayStr = jstNow.toISOString().split('T')[0];
+        const currentHour = jstNow.getUTCHours();
 
         console.log(`Current JST Time: ${jstNow.toISOString()}, Hour: ${currentHour}`);
 
         // 1. 時間帯制限 (日本時間 7:00 〜 23:00)
         if (currentHour < 7 || currentHour > 23) {
-            console.log('Outside active hours (7:00 - 23:00 JST). Skipping reply.');
+            console.log('Outside active hours (7:00 - 23:00 JST). Skipping quote post.');
             process.exit(0);
         }
 
         // 2. 日付変更時にカウントをリセット
-        if (schedule.reply.lastResetDate !== jstTodayStr) {
-            console.log(`New day detected (${jstTodayStr}). Resetting daily reply count to 0.`);
-            schedule.reply.todayCount = 0;
-            schedule.reply.lastResetDate = jstTodayStr;
+        if (schedule.quote.lastResetDate !== jstTodayStr) {
+            console.log(`New day detected (${jstTodayStr}). Resetting daily quote count to 0.`);
+            schedule.quote.todayCount = 0;
+            schedule.quote.lastResetDate = jstTodayStr;
             fs.writeFileSync(SCHEDULE_FILE, JSON.stringify(schedule, null, 2), 'utf8');
         }
 
         // 3. ランダムインターバル制限 (30分〜60分)
         const now = new Date();
-        const nextAllowed = new Date(schedule.reply.nextAllowedTime || 0);
+        const nextAllowed = new Date(schedule.quote.nextAllowedTime || 0);
         
         if (process.env.FORCE_RUN === 'true') {
             console.log('Force run active (manual execution). Bypassing interval wait.');
         } else if (now < nextAllowed) {
             const remainingMins = Math.ceil((nextAllowed - now) / (1000 * 60));
-            console.log(`Random interval active. Next allowed reply in ${remainingMins} mins (at ${nextAllowed.toISOString()}). Skipping.`);
+            console.log(`Random interval active. Next allowed quote in ${remainingMins} mins (at ${nextAllowed.toISOString()}). Skipping.`);
             process.exit(0);
         }
 
-        console.log(`Reply schedule check passed. (Replies sent today: ${schedule.reply.todayCount}). Proceeding with reply bot...`);
+        console.log(`Quote schedule check passed. (Quotes sent today: ${schedule.quote.todayCount}). Proceeding with quote bot...`);
         return schedule;
 
     } catch (e) {
-        console.error('Error checking reply schedule:', e);
+        console.error('Error checking quote schedule:', e);
         process.exit(1);
     }
 }
 
-// 送信成功時のスケジュール更新 (次回許可時刻を現在から30分〜60分のランダム値に設定)
-function updateReplySchedule(schedule) {
+// 送信成功時のスケジュール更新
+function updateQuoteSchedule(schedule) {
     try {
         const now = new Date();
-        // 30分〜60分のランダム分数を計算 (30〜60)
-        const randomMinutes = Math.floor(Math.random() * 31) + 30;
+        const randomMinutes = Math.floor(Math.random() * 31) + 30; // 30〜60分
         const nextAllowed = new Date(now.getTime() + randomMinutes * 60 * 1000);
 
-        schedule.reply.lastReplyTime = now.toISOString();
-        schedule.reply.nextAllowedTime = nextAllowed.toISOString();
-        schedule.reply.lastRandomIntervalMinutes = randomMinutes;
-        schedule.reply.todayCount = (schedule.reply.todayCount || 0) + 1;
+        schedule.quote.lastQuoteTime = now.toISOString();
+        schedule.quote.nextAllowedTime = nextAllowed.toISOString();
+        schedule.quote.lastRandomIntervalMinutes = randomMinutes;
+        schedule.quote.todayCount = (schedule.quote.todayCount || 0) + 1;
         
         fs.writeFileSync(SCHEDULE_FILE, JSON.stringify(schedule, null, 2), 'utf8');
-        console.log(`Reply schedule updated! Replies today: ${schedule.reply.todayCount}. Next reply allowed in ${randomMinutes} mins (${nextAllowed.toISOString()})`);
+        console.log(`Quote schedule updated! Quotes today: ${schedule.quote.todayCount}. Next allowed in ${randomMinutes} mins (${nextAllowed.toISOString()})`);
     } catch (e) {
-        console.error('Failed to update reply schedule:', e);
+        console.error('Failed to update quote schedule:', e);
     }
 }
 
-// ブラウザ操作でWeb版Gemini (またはWeb AI) から返信文を生成する (API制限を完全回避)
-async function generateReplyViaBrowser(page, targetTweetText) {
+// ブラウザ操作でWeb版Geminiからリアルな引用テキストを生成
+async function generateQuoteViaBrowser(page, targetTweetText) {
     console.log('Navigating to Web Gemini (https://gemini.google.com/)...');
-    
-    // 新しいタブを開いてWeb版Geminiにアクセス
     const geminiPage = await page.context().newPage();
     
     try {
         await geminiPage.goto('https://gemini.google.com/', { waitUntil: 'commit', timeout: 60000 });
         await geminiPage.waitForTimeout(4000);
 
-        // プロンプトを改行誤送信が起きない安全な形式に整形
         const cleanTargetText = targetTweetText.replace(/[\r\n]+/g, ' ').trim();
-        const prompt = `あなたはTwitterに生息するリアルな一般オタク・ファンユーザーです。以下の【対象ツイート】を読んで、リアルなネットスラングや感嘆表現を含めたフランクな口調でリプライを1つ作成してください。
+        const prompt = `あなたはTwitterに生息するリアルな一般オタク・ファンユーザーです。以下の【対象ツイート】を読んで、他人のツイートを「引用リポスト（引用ツイート）」する際の、リアルなネットスラングや感嘆表現を含めた短くフランクなコメントを1つ作成してください。
 
 【対象ツイート】
 ${cleanTargetText}
@@ -139,11 +132,9 @@ ${cleanTargetText}
 【ルール・口調】
 - **敬語（〜です、〜ます、〜ください等）は絶対禁止**。本物のTwitter民のリアルな口調・語尾（〜なんだが、〜すぎ、〜だわ、笑、ｗｗ、✨等）にすること。
 - 【対象ツイート】の具体的内容（「${cleanTargetText.substring(0, 15)}」等）に軽く触れてコメントすること。
-- 60文字以内で短くフランクに。
+- 50文字以内で短くフランクに。
 - 返信文のみを出力。余計な挨拶やメタ解説は一切不要。`;
 
-        // 入力エリアを特定してプロンプトを一括代入
-        console.log('Finding prompt input area on Web Gemini...');
         const inputSelectors = [
             'div[contenteditable="true"]',
             'textarea',
@@ -158,8 +149,6 @@ ${cleanTargetText}
                 if (await el.isVisible({ timeout: 3000 })) {
                     await el.click();
                     await geminiPage.waitForTimeout(500);
-                    
-                    // evaluate を使用してプロンプト全体を一括セット（改行誤送信を完全に回避）
                     await el.evaluate((node, text) => {
                         if (node.tagName === 'TEXTAREA' || node.tagName === 'INPUT') {
                             node.value = text;
@@ -168,24 +157,19 @@ ${cleanTargetText}
                         }
                         node.dispatchEvent(new Event('input', { bubbles: true }));
                     }, prompt);
-
                     inputFound = true;
-                    console.log(`Successfully set prompt value into selector: ${selector}`);
                     break;
                 }
             } catch (e) {}
         }
 
         if (!inputFound) {
-            console.log('Fallback: clicking center of the page and typing prompt...');
             await geminiPage.mouse.click(600, 500);
             await geminiPage.keyboard.type(prompt.replace(/\n/g, ' '), { delay: 5 });
         }
 
         await geminiPage.waitForTimeout(1000);
 
-        // 送信ボタンのクリック、またはEnterキー押下
-        console.log('Submitting prompt to Gemini...');
         const sendBtn = geminiPage.locator('button[aria-label*="送信"], button[aria-label*="Send"], button.send-button').first();
         if (await sendBtn.isVisible({ timeout: 2000 })) {
             await sendBtn.click();
@@ -193,11 +177,8 @@ ${cleanTargetText}
             await geminiPage.keyboard.press('Enter');
         }
 
-        // 生成完了まで待機 (10秒)
-        console.log('Waiting for AI response generation...');
         await geminiPage.waitForTimeout(10000);
 
-        // 回答テキストの抽出
         const responseSelectors = [
             '.markdown',
             'message-content',
@@ -213,22 +194,18 @@ ${cleanTargetText}
                 const count = await elems.count();
                 if (count > 0) {
                     replyText = await elems.last().innerText();
-                    if (replyText && replyText.trim().length > 5) {
-                        break;
-                    }
+                    if (replyText && replyText.trim().length > 5) break;
                 }
             } catch (e) {}
         }
 
-        // 余分な引用符などをクリーンアップ
         replyText = (replyText || '').replace(/^["「]/, '').replace(/["」]$/, '').trim();
 
-        // AIのメタ返答（「対象ツイートが記載されていない」「文章を教えて」等）や解説文の検知フィルター
         const ngKeywords = ['対象ツイート', '記載されていない', '文章を教えて', 'リプライ', 'AI', 'プロンプト', 'モデル', 'とは', '用語', 'を指します'];
         const isNgResponse = ngKeywords.some(kw => replyText.includes(kw));
 
         if (!replyText || isNgResponse || replyText.length > 90) {
-            console.warn(`Generated text was invalid or contained AI meta text ("${replyText.substring(0, 30)}..."). Using natural contextual fallback.`);
+            console.warn(`Generated quote text was invalid. Using natural casual fallback.`);
             const naturalFallbacks = [
                 "待ってめちゃくちゃ可愛いんだがｗｗ",
                 "刺さりすぎてやばい、即保存したわ笑",
@@ -246,21 +223,14 @@ ${cleanTargetText}
             replyText = replyText.substring(0, 97) + '...';
         }
 
-        console.log(`==> Successfully obtained reply text: "${replyText}"`);
-        
-        await geminiPage.close().catch(() => {});
-        return replyText;
-
-        console.log(`==> Successfully obtained reply text: "${replyText}"`);
-        
+        console.log(`==> Successfully obtained quote text: "${replyText}"`);
         await geminiPage.close().catch(() => {});
         return replyText;
 
     } catch (e) {
-        console.error('Error during Web Gemini browser interaction:', e.message);
+        console.error('Error during Web Gemini browser interaction for quote:', e.message);
         await geminiPage.close().catch(() => {});
-        // 万が一のエラー時の安全フォールバック
-        return "すごく素敵ですね！投稿ありがとうございます✨";
+        return "最高すぎる！！マジで目の保養だわ✨";
     }
 }
 
@@ -274,9 +244,9 @@ async function dismissOverlays(page) {
 
 // メイン処理
 async function main() {
-    const scheduleData = checkReplyScheduleAndMaybeExit();
+    const scheduleData = checkQuoteScheduleAndMaybeExit();
 
-    console.log('Launching browser for reply bot...');
+    console.log('Launching browser for quote bot...');
     const isHeadless = process.env.HEADLESS === 'true';
     const context = await chromium.launchPersistentContext(SESSION_DIR, {
         headless: isHeadless,
@@ -287,7 +257,6 @@ async function main() {
     const page = await context.newPage();
 
     try {
-        // Cookieの復元
         if (isHeadless) {
             const cookiePath = path.join(__dirname, 'twitter_cookies.json');
             if (fs.existsSync(cookiePath)) {
@@ -306,7 +275,6 @@ async function main() {
             }
         }
 
-        // 検索クエリでバズツイートを取得 (いいね数が 500 以上の投稿)
         const tagCandidates = [
             { tag: '#グラビア', query: '%23%E3%82%B0%E3%83%A9%E3%83%93%E3%82%A2' },
             { tag: '#コスプレ', query: '%23%E3%82%B3%E3%82%B9%E3%83%97%E3%83%AC' },
@@ -316,39 +284,30 @@ async function main() {
         ];
         const selectedTag = tagCandidates[Math.floor(Math.random() * tagCandidates.length)];
         const searchUrl = `https://x.com/search?q=${selectedTag.query}%20min_faves%3A500&f=live`;
-        console.log(`Selected target hashtag: ${selectedTag.tag} (min_faves: 500)`);
+        console.log(`Selected target hashtag for Quote: ${selectedTag.tag} (min_faves: 500)`);
         console.log(`Navigating to search page: ${searchUrl}`);
         await page.goto(searchUrl, { waitUntil: 'commit', timeout: 60000 });
         await page.waitForTimeout(10000);
         await dismissOverlays(page);
 
-        // 最初のツイート要素の探索
-        console.log('Finding target tweet...');
+        console.log('Finding target tweet for Quote...');
         const tweetSelector = '[data-testid="tweet"]';
         await page.waitForSelector(tweetSelector, { timeout: 15000 });
         
         const tweets = page.locator(tweetSelector);
         const count = await tweets.count();
-        if (count === 0) {
-            throw new Error('No tweets found on search page.');
-        }
 
-        // ツイート一覧から、ハッシュタグ以外の本文テキストが10文字以上ある投稿を探索・厳選
         let targetTweetUrl = '';
         let targetText = '';
         let cleanText = '';
+        let targetTweetElement = null;
 
         for (let i = 0; i < Math.min(count, 10); i++) {
             const tweet = tweets.nth(i);
-            
-            // ツイート本文の取得
             const textElement = tweet.locator('[data-testid="tweetText"]').first();
             const rawText = await textElement.innerText().catch(() => '');
-            
-            // ハッシュタグ(#...)を削除した「純粋な本文テキスト」を抽出
             const textWithoutHashtags = rawText.replace(/#[\w\u3000-\u30FF\u4E00-\u9FFF\uFF00-\uFFEF]+/g, '').trim();
 
-            // ハッシュタグを除いた本文テキストが10文字以上存在する場合のみ採用
             if (textWithoutHashtags.length >= 10) {
                 const linkElement = tweet.locator('a[href*="/status/"]').first();
                 const tweetHref = await linkElement.getAttribute('href').catch(() => null);
@@ -356,78 +315,67 @@ async function main() {
                     targetTweetUrl = `https://x.com${tweetHref}`;
                     targetText = rawText;
                     cleanText = textWithoutHashtags;
-                    console.log(`Found valid target tweet (Index ${i}): ${targetTweetUrl}`);
-                    console.log(`Clean body text preview: "${cleanText.substring(0, 60)}..."`);
+                    targetTweetElement = tweet;
+                    console.log(`Found valid target tweet for Quote (Index ${i}): ${targetTweetUrl}`);
                     break;
                 }
-            } else {
-                console.log(`Skipping tweet Index ${i}: Hashtag-only or body text too short (${textWithoutHashtags.length} chars).`);
             }
         }
 
         if (!targetTweetUrl || !cleanText) {
-            throw new Error('Could not find any tweet with substantial non-hashtag body text (min 10 chars).');
+            throw new Error('Could not find any tweet with substantial non-hashtag body text for Quote.');
         }
 
-        // Web版Gemini(ブラウザ操作)でリプライテキストを自動生成 (API完全非依存)
-        const replyText = await generateReplyViaBrowser(page, cleanText);
-        console.log(`Generated reply: "${replyText}"`);
+        const quoteComment = await generateQuoteViaBrowser(page, cleanText);
+        console.log(`Generated Quote comment: "${quoteComment}"`);
 
-        // 対象のツイート個別ページへ直接移動
-        console.log(`Navigating directly to tweet page...`);
-        await page.goto(targetTweetUrl, { waitUntil: 'commit', timeout: 60000 });
-        await page.waitForTimeout(7000);
-        await dismissOverlays(page);
-
-        // リプライボタンをクリック
-        console.log('Clicking reply button...');
-        await page.waitForSelector('[data-testid="reply"]', { timeout: 15000 });
-        await page.locator('[data-testid="reply"]').first().click();
+        // 引用リポスト操作
+        console.log('Performing Quote Tweet action...');
         
-        // 入力エリアを待機
-        await page.waitForSelector('[data-testid="tweetTextarea_0"]', { state: 'visible', timeout: 15000 });
-        await page.waitForTimeout(2000);
+        // リポストボタンのクリック
+        const retweetButton = targetTweetElement.locator('[data-testid="retweet"]').first();
+        await retweetButton.click();
+        await page.waitForTimeout(1500);
 
-        // 人間らしい遅延（ランダムなタイピングディレイ）を入れて入力
-        console.log('Typing reply with human delay...');
-        const textarea = page.locator('[data-testid="tweetTextarea_0"]').first();
-        await textarea.click({ force: true });
-        await page.waitForTimeout(1000);
-        
-        // 1文字ずつランダムなディレイを入れてタイピング
-        for (const char of replyText) {
+        // 「引用 (Quote)」メニューの選択
+        console.log('Selecting Quote option...');
+        const quoteMenuItem = page.locator('a[href*="/retweet"], [role="menuitem"]:has-text("引用"), [role="menuitem"]:has-text("Quote")').first();
+        await quoteMenuItem.click();
+        await page.waitForTimeout(3000);
+
+        // ダイアログ内のテキスト入力エリア
+        console.log('Typing quote comment...');
+        const quoteInput = page.locator('[data-testid="tweetTextarea_0"], div[contenteditable="true"]').first();
+        await quoteInput.click();
+        await page.waitForTimeout(500);
+
+        // 人間らしい入力速度でタイピング
+        for (const char of quoteComment) {
             await page.keyboard.type(char);
-            // 50ms 〜 150ms のランダムな待機
-            const delay = Math.floor(Math.random() * (150 - 50 + 1)) + 50;
-            await page.waitForTimeout(delay);
+            await page.waitForTimeout(Math.floor(Math.random() * 50) + 30);
         }
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(1000);
 
-        // リプライ送信ボタンをクリック (オーバーレイをバイパスするためJSクリック)
-        console.log('Submitting reply...');
-        await page.evaluate(() => {
-            const btn = document.querySelector('[data-testid="tweetButton"]')
-                     || document.querySelector('[data-testid="tweetButtonInline"]');
-            if (btn) btn.click();
-        });
-
-        console.log('Waiting for post success...');
+        // 「ポストする / Post」ボタンのクリック
+        console.log('Submitting Quote Tweet...');
+        const postButton = page.locator('[data-testid="tweetButton"], [data-testid="tweetButtonInline"]').first();
+        await postButton.click();
         await page.waitForTimeout(5000);
 
-        // 成功を記録
-        console.log('Reply post sequence completed successfully!');
-        updateReplySchedule(scheduleData);
+        console.log('Quote Tweet submitted successfully!');
 
-    } catch (error) {
-        console.error('Error in reply bot execution:', error);
-        throw error;
+        updateQuoteSchedule(scheduleData);
+        console.log('Quote bot script completed successfully!');
+
+    } catch (err) {
+        console.error('Error in quote bot execution:', err);
+        throw err;
     } finally {
-        await page.waitForTimeout(2000);
-        await context.close();
+        await context.close().catch(() => {});
     }
 }
 
-main().catch(err => {
-    console.error('Fatal error in reply bot:', err);
+main().catch((err) => {
+    console.error('Fatal error in quote bot:', err);
     process.exit(1);
 });

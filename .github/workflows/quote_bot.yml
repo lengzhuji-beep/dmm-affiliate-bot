@@ -1,0 +1,86 @@
+name: X Buzz Quote Bot
+
+on:
+  schedule:
+    # 30分おきにチェック（30分〜60分のランダム間隔で実行）
+    - cron: '*/30 * * * *'
+  workflow_dispatch: # 手動実行
+
+permissions:
+  contents: write
+
+jobs:
+  run-quote-bot:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. ソースコードのチェックアウト
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Node.js環境のセットアップ
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      # 3. 依存パッケージのインストール
+      - name: Install dependencies
+        run: npm install
+
+      # 4. PlaywrightのChromiumブラウザのインストール
+      - name: Install Playwright Browsers
+        run: npx playwright install chromium --with-deps
+
+      # 4.5 OpenVPNのインストール
+      - name: Install OpenVPN
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openvpn
+
+      # 5. セッションCookieの復元
+      - name: Restore Twitter Cookies
+        run: |
+          if [ -n "$TWITTER_COOKIES" ]; then
+            echo "$TWITTER_COOKIES" > twitter_cookies.json
+            echo "Successfully restored twitter_cookies.json"
+          else
+            echo "WARNING: TWITTER_COOKIES secret is empty!"
+          fi
+        env:
+          TWITTER_COOKIES: ${{ secrets.TWITTER_COOKIES }}
+
+      # 6. 日本のVPNへの接続と自動引用リポストボットの実行 (引数に quote_bot.js を指定)
+      - name: Connect to Japan VPN & Run Quote Bot
+        run: |
+          chmod +x vpn_connect.sh
+          ./vpn_connect.sh quote_bot.js
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TWITTER_USERNAME: ${{ secrets.TWITTER_USERNAME }}
+          TWITTER_PASSWORD: ${{ secrets.TWITTER_PASSWORD }}
+          TWITTER_EMAIL: ${{ secrets.TWITTER_EMAIL }}
+          TWITTER_SESSION_PATH: ./twitter_session
+          HEADLESS: 'true'
+          FORCE_RUN: ${{ github.event_name == 'workflow_dispatch' && 'true' || 'false' }}
+
+      # 7. post_schedule.json の更新をGitにコミット
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add post_schedule.json 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "No changes to commit. Skipping commit."
+          else
+            git commit -m "chore: update post_schedule.json for quote bot [skip ci]"
+            git push origin HEAD
+            echo "Successfully updated changes in repository."
+          fi
+
+      # 8. VPNの切断
+      - name: Disconnect VPN
+        if: always()
+        run: |
+          sudo killall openvpn 2>/dev/null || true
