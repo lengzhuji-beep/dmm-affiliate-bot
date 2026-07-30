@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-07-30T22:38:55.795Z",
-  "nextIntervalMinutes": 63
+  "nextIntervalMinutes": 63,
+  "reply": {
+    "lastReplyTime": "2026-07-30T23:01:07.566Z",
+    "nextAllowedTime": "2026-07-31T00:01:07.566Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-07-31",
+    "lastRandomIntervalMinutes": 60
+  },
+  "processedTweetUrls": [
+    "https://x.com/ZlpMMHg11435857/status/2082819668830781896"
+  ]
 }
