@@ -21,12 +21,19 @@ function checkQuoteScheduleAndMaybeExit() {
     console.log('Checking quote schedule...');
     if (!fs.existsSync(SCHEDULE_FILE)) {
         const initialSchedule = {
+            reply: {
+                lastReplyTime: new Date(0).toISOString(),
+                nextAllowedTime: new Date(0).toISOString(),
+                todayCount: 0,
+                lastResetDate: ''
+            },
             quote: {
                 lastQuoteTime: new Date(0).toISOString(),
                 nextAllowedTime: new Date(0).toISOString(),
                 todayCount: 0,
                 lastResetDate: ''
-            }
+            },
+            processedTweetUrls: []
         };
         fs.writeFileSync(SCHEDULE_FILE, JSON.stringify(initialSchedule, null, 2), 'utf8');
     }
@@ -83,7 +90,7 @@ function checkQuoteScheduleAndMaybeExit() {
     }
 }
 
-// 送信成功時のスケジュール更新 (次回許可時刻を現在から30分〜60分のランダム値に設定し、処理済みURLを記録)
+// 送信成功時のスケジュール更新
 function updateQuoteSchedule(schedule, targetTweetUrl) {
     try {
         const now = new Date();
@@ -286,103 +293,145 @@ async function main() {
             }
         }
 
-        const tagCandidates = [
-            { tag: '#グラビア', query: '%23%E3%82%B0%E3%83%A9%E3%83%93%E3%82%A2' },
-            { tag: '#コスプレ', query: '%23%E3%82%B3%E3%82%B9%E3%83%97%E3%83%AC' },
-            { tag: '#水着',     query: '%23%E6%B0%B4%E7%9D%80' },
-            { tag: '#自撮り部', query: '%23%E8%87%AA%E6%92%AE%E3%82%8A%E9%83%A8' },
-            { tag: '#美女',     query: '%23%E7%BE%8E%E5%A5%B3' },
-            { tag: '#グラビアアイドル', query: '%23%E3%82%B0%E3%83%A9%E3%83%93%E3%82%A2%E3%82%A2%E3%82%A4%E3%83%89%E3%83%AB' },
-            { tag: '#コスプレイヤー',   query: '%23%E3%82%B3%E3%82%B9%E3%83%97%E3%83%AC%E3%82%A4%E3%83%84%E3%83%BC' },
-            { tag: '#ポートレート',     query: '%23%E3%83%9D%E3%83%BC%E3%83%88%E3%83%AC%E3%83%BC%E3%83%88' },
-            { tag: '#自撮り女子',       query: '%23%E8%87%AA%E6%92%AE%E3%82%8A%E5%A5%B3%E5%AD%90' },
-            { tag: '#美少女',           query: '%23%E7%BE%8E%E5%B0%91%E5%A5%B3' },
-            { tag: '#横顔美女',         query: '%23%E6%A8%AA%E9%A1%94%E7%BE%8E%E5%A5%B3' },
-            { tag: '#1ミリでもいいなと思ったらRT', query: '%231%E3%83%9F%E3%83%AA%E3%81%A7%E3%82%82%E3%81%84%E3%81%84%E3%81%AA%E3%81%A8%E6%80%9D%E3%81%A3%E3%81%9F%E3%82%89RT' }
-        ];
-        const selectedTag = tagCandidates[Math.floor(Math.random() * tagCandidates.length)];
-        const searchUrl = `https://x.com/search?q=${selectedTag.query}%20min_faves%3A500&f=live`;
-        console.log(`Selected target hashtag for Quote: ${selectedTag.tag} (min_faves: 500)`);
-        console.log(`Navigating to search page: ${searchUrl}`);
-        await page.goto(searchUrl, { waitUntil: 'commit', timeout: 60000 });
-        await page.waitForTimeout(10000);
-        await dismissOverlays(page);
-
-        console.log('Finding target tweet for Quote...');
-        const tweetSelector = '[data-testid="tweet"]';
-        await page.waitForSelector(tweetSelector, { timeout: 15000 });
-        
-        const tweets = page.locator(tweetSelector);
-        const count = await tweets.count();
-
+        // ターゲットツイートの探索
+        // 優先度1: Xの「おすすめ (For You)」タイムラインから超バズ投稿（100万インプレッション級）を優先抽出
+        // 優先度2: おすすめタブで見つからない場合は12大ハッシュタグ検索へフォールバック
         let targetTweetUrl = '';
         let targetText = '';
         let cleanText = '';
         let targetTweetElement = null;
         const processedUrls = scheduleData.processedTweetUrls || [];
 
-        for (let i = 0; i < Math.min(count, 15); i++) {
-            const tweet = tweets.nth(i);
-            const textElement = tweet.locator('[data-testid="tweetText"]').first();
-            const rawText = await textElement.innerText().catch(() => '');
-            const textWithoutHashtags = rawText.replace(/#[\w\u3000-\u30FF\u4E00-\u9FFF\uFF00-\uFFEF]+/g, '').trim();
+        console.log('Navigating to Twitter Home / For You timeline (https://x.com/home)...');
+        await page.goto('https://x.com/home', { waitUntil: 'commit', timeout: 60000 });
+        await page.waitForTimeout(6000);
+        await dismissOverlays(page);
 
-            const linkElement = tweet.locator('a[href*="/status/"]').first();
-            const tweetHref = await linkElement.getAttribute('href').catch(() => null);
+        console.log('Searching for top viral posts on "For You" timeline for Quote...');
+        for (let scroll = 0; scroll < 6; scroll++) {
+            const tweets = page.locator('[data-testid="tweet"]');
+            const count = await tweets.count();
 
-            if (tweetHref) {
-                const fullUrl = `https://x.com${tweetHref}`;
-                if (processedUrls.includes(fullUrl)) {
-                    console.log(`Skipping quote tweet Index ${i} (${fullUrl}): Already processed before.`);
-                    continue;
-                }
+            for (let i = 0; i < count; i++) {
+                try {
+                    const tweet = tweets.nth(i);
+                    const linkElement = tweet.locator('a[href*="/status/"]').first();
+                    const tweetHref = await linkElement.getAttribute('href').catch(() => null);
+                    if (!tweetHref) continue;
 
-                if (textWithoutHashtags.length >= 10) {
-                    targetTweetUrl = fullUrl;
-                    targetText = rawText;
-                    cleanText = textWithoutHashtags;
-                    targetTweetElement = tweet;
-                    console.log(`Found valid target tweet for Quote (Index ${i}): ${targetTweetUrl}`);
-                    break;
+                    const fullUrl = `https://x.com${tweetHref}`;
+                    if (processedUrls.includes(fullUrl)) continue;
+
+                    const textElement = tweet.locator('[data-testid="tweetText"]').first();
+                    const rawText = await textElement.innerText().catch(() => '');
+                    const textWithoutHashtags = rawText.replace(/#[\w\u3000-\u30FF\u4E00-\u9FFF\uFF00-\uFFEF]+/g, '').trim();
+
+                    if (textWithoutHashtags.length >= 10) {
+                        targetTweetUrl = fullUrl;
+                        targetText = rawText;
+                        cleanText = textWithoutHashtags;
+                        targetTweetElement = tweet;
+                        console.log(`Found top viral tweet from "For You" timeline for Quote: ${targetTweetUrl}`);
+                        break;
+                    }
+                } catch (e) {}
+            }
+
+            if (targetTweetUrl) break;
+            await page.mouse.wheel(0, 1800);
+            await page.waitForTimeout(2000);
+        }
+
+        // フォールバック: ハッシュタグ検索
+        if (!targetTweetUrl) {
+            console.log('No suitable post on For You timeline. Falling back to hashtag search...');
+            const tagCandidates = [
+                { tag: '#グラビア', query: '%23%E3%82%B0%E3%83%A9%E3%83%93%E3%82%A2' },
+                { tag: '#コスプレ', query: '%23%E3%82%B3%E3%82%B9%E3%83%97%E3%83%AC' },
+                { tag: '#水着',     query: '%23%E6%B0%B4%E7%9D%80' },
+                { tag: '#自撮り部', query: '%23%E8%87%AA%E6%92%AE%E3%82%8A%E9%83%A8' },
+                { tag: '#美女',     query: '%23%E7%BE%8E%E5%A5%B3' },
+                { tag: '#グラビアアイドル', query: '%23%E3%82%B0%E3%83%A9%E3%83%93%E3%82%A2%E3%82%A2%E3%82%A4%E3%83%89%E3%83%AB' },
+                { tag: '#コスプレイヤー',   query: '%23%E3%82%B3%E3%82%B9%E3%83%97%E3%83%AC%E3%82%A4%E3%83%84%E3%83%BC' },
+                { tag: '#ポートレート',     query: '%23%E3%83%9D%E3%83%BC%E3%83%88%E3%83%AC%E3%83%BC%E3%83%88' },
+                { tag: '#自撮り女子',       query: '%23%E8%87%AA%E6%92%AE%E3%82%8A%E5%A5%B3%E5%AD%90' },
+                { tag: '#美少女',           query: '%23%E7%BE%8E%E5%B0%91%E5%A5%B3' },
+                { tag: '#横顔美女',         query: '%23%E6%A8%AA%E9%A1%94%E7%BE%8E%E5%A5%B3' },
+                { tag: '#1ミリでもいいなと思ったらRT', query: '%231%E3%83%9F%E3%83%AA%E3%81%A7%E3%82%82%E3%81%84%E3%81%84%E3%81%AA%E3%81%A8%E6%80%9D%E3%81%A3%E3%81%9F%E3%82%89RT' }
+            ];
+            const selectedTag = tagCandidates[Math.floor(Math.random() * tagCandidates.length)];
+            const searchUrl = `https://x.com/search?q=${selectedTag.query}%20min_faves%3A500&f=live`;
+            console.log(`Selected fallback hashtag for Quote: ${selectedTag.tag}`);
+            await page.goto(searchUrl, { waitUntil: 'commit', timeout: 60000 });
+            await page.waitForTimeout(8000);
+            await dismissOverlays(page);
+
+            const tweets = page.locator('[data-testid="tweet"]');
+            const count = await tweets.count();
+
+            for (let i = 0; i < Math.min(count, 15); i++) {
+                const tweet = tweets.nth(i);
+                const textElement = tweet.locator('[data-testid="tweetText"]').first();
+                const rawText = await textElement.innerText().catch(() => '');
+                const textWithoutHashtags = rawText.replace(/#[\w\u3000-\u30FF\u4E00-\u9FFF\uFF00-\uFFEF]+/g, '').trim();
+
+                const linkElement = tweet.locator('a[href*="/status/"]').first();
+                const tweetHref = await linkElement.getAttribute('href').catch(() => null);
+
+                if (tweetHref) {
+                    const fullUrl = `https://x.com${tweetHref}`;
+                    if (processedUrls.includes(fullUrl)) continue;
+
+                    if (textWithoutHashtags.length >= 10) {
+                        targetTweetUrl = fullUrl;
+                        targetText = rawText;
+                        cleanText = textWithoutHashtags;
+                        targetTweetElement = tweet;
+                        console.log(`Found valid fallback tweet for Quote (Index ${i}): ${targetTweetUrl}`);
+                        break;
+                    }
                 }
             }
         }
 
         if (!targetTweetUrl || !cleanText) {
-            throw new Error('Could not find any tweet with substantial non-hashtag body text for Quote.');
+            throw new Error('Could not find any tweet for Quote.');
         }
 
         const quoteComment = await generateQuoteViaBrowser(page, cleanText);
         console.log(`Generated Quote comment: "${quoteComment}"`);
 
+        // もしおすすめタブ等から抽出した場合は直接投稿ページにアクセスして引用操作を行う
+        if (!targetTweetElement) {
+            console.log(`Navigating directly to target tweet page for Quote: ${targetTweetUrl}`);
+            await page.goto(targetTweetUrl, { waitUntil: 'commit', timeout: 60000 });
+            await page.waitForTimeout(6000);
+            await dismissOverlays(page);
+            targetTweetElement = page.locator('[data-testid="tweet"]').first();
+        }
+
         // 引用リポスト操作
         console.log('Performing Quote Tweet action...');
-        
-        // リポストボタンのクリック
         const retweetButton = targetTweetElement.locator('[data-testid="retweet"]').first();
         await retweetButton.click();
         await page.waitForTimeout(1500);
 
-        // 「引用 (Quote)」メニューの選択
         console.log('Selecting Quote option...');
         const quoteMenuItem = page.locator('a[href*="/retweet"], [role="menuitem"]:has-text("引用"), [role="menuitem"]:has-text("Quote")').first();
         await quoteMenuItem.click();
         await page.waitForTimeout(3000);
 
-        // ダイアログ内のテキスト入力エリア
         console.log('Typing quote comment...');
         const quoteInput = page.locator('[data-testid="tweetTextarea_0"], div[contenteditable="true"]').first();
         await quoteInput.click();
         await page.waitForTimeout(500);
 
-        // 人間らしい入力速度でタイピング
         for (const char of quoteComment) {
             await page.keyboard.type(char);
             await page.waitForTimeout(Math.floor(Math.random() * 50) + 30);
         }
         await page.waitForTimeout(1000);
 
-        // 「ポストする / Post」ボタンのクリック
         console.log('Submitting Quote Tweet...');
         const postButton = page.locator('[data-testid="tweetButton"], [data-testid="tweetButtonInline"]').first();
         await postButton.click();
