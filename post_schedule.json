@@ -9,10 +9,10 @@
     "lastRandomIntervalMinutes": 0
   },
   "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "lastRandomIntervalMinutes": 0
+    "lastQuoteTime": "2026-07-30T12:58:48.235Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-07-30",
+    "nextAllowedTime": "2026-07-30T13:43:48.235Z",
+    "lastRandomIntervalMinutes": 45
   }
 }
