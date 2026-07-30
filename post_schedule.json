@@ -1,11 +1,4 @@
 {
-  "lastPostTime": "2026-07-30T05:48:39.983Z",
-  "nextIntervalMinutes": 90,
-  "reply": {
-    "lastReplyTime": "2026-07-30T07:56:33.680Z",
-    "nextAllowedTime": "2026-07-30T08:38:33.680Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-07-30",
-    "lastRandomIntervalMinutes": 42
-  }
+  "lastPostTime": "2026-07-30T08:38:04.379Z",
+  "nextIntervalMinutes": 95
 }
