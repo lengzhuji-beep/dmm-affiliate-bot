@@ -117,19 +117,20 @@ async function generateReplyViaBrowser(page, targetTweetText) {
         await geminiPage.goto('https://gemini.google.com/', { waitUntil: 'commit', timeout: 60000 });
         await geminiPage.waitForTimeout(4000);
 
-        const prompt = `あなたはTwitterで日常を楽しむ親しみやすいユーザーです。以下の【対象ツイート】の文章や内容をしっかり読んで、タメ口（敬語なし）で自然でフランクな感想リプライ（1つのみ）を作成してください。
+        // プロンプトを改行誤送信が起きない安全な形式に整形
+        const cleanTargetText = targetTweetText.replace(/[\r\n]+/g, ' ').trim();
+        const prompt = `あなたはTwitterを楽しむ一般ユーザーです。以下の【対象ツイート】を読んで、敬語を使わないタメ口（敬語禁止）で自然な感想リプライを1つ作成してください。
 
 【対象ツイート】
-${targetTweetText}
+${cleanTargetText}
 
 【ルール・口調】
-- **敬語（〜です、〜ます、〜ください、〜でしょうか等）は絶対禁止**。友達に話しかけるようなタメ口・フランクな口調にすること。（例: 「めちゃくちゃ可愛い！」「日焼け止め塗ってあげたい」「スタイル良すぎてやばい✨」「最高すぎる😊」など）
-- 【対象ツイート】の具体的な言葉や状況（写真の雰囲気、発言内容など）に直接触れてコメントしてください。
-- 100文字以内で簡潔に。絵文字（✨😊🔥👍など）を1〜2個添えて自然にする。
-- アダルト表現や宣伝・営業文句は含めず、純粋なファンのような褒め言葉・共感のコメントにする。
-- 返信文のみを出力。`;
+- **敬語（〜です、〜ます、〜ください等）は一切禁止**。友達に話しかけるタメ口で短くリアクションすること（例: 「めちゃくちゃ可愛い！」「スタイル良すぎてやばい✨」「最高の写真！」など）。
+- 【対象ツイート】の具体的な言葉（「${cleanTargetText.substring(0, 15)}」など）に直接触れて感想を述べること。
+- 100文字以内で簡潔に。絵文字を1〜2個添えて自然にする。
+- 返信文のみを出力。余計な挨拶やメタ解説は一切不要。`;
 
-        // 入力エリアを特定してプロンプトを入力
+        // 入力エリアを特定してプロンプトを一括代入
         console.log('Finding prompt input area on Web Gemini...');
         const inputSelectors = [
             'div[contenteditable="true"]',
@@ -145,9 +146,19 @@ ${targetTweetText}
                 if (await el.isVisible({ timeout: 3000 })) {
                     await el.click();
                     await geminiPage.waitForTimeout(500);
-                    await geminiPage.keyboard.type(prompt, { delay: 10 });
+                    
+                    // evaluate を使用してプロンプト全体を一括セット（改行誤送信を完全に回避）
+                    await el.evaluate((node, text) => {
+                        if (node.tagName === 'TEXTAREA' || node.tagName === 'INPUT') {
+                            node.value = text;
+                        } else {
+                            node.innerText = text;
+                        }
+                        node.dispatchEvent(new Event('input', { bubbles: true }));
+                    }, prompt);
+
                     inputFound = true;
-                    console.log(`Successfully typed prompt into selector: ${selector}`);
+                    console.log(`Successfully set prompt value into selector: ${selector}`);
                     break;
                 }
             } catch (e) {}
@@ -156,7 +167,7 @@ ${targetTweetText}
         if (!inputFound) {
             console.log('Fallback: clicking center of the page and typing prompt...');
             await geminiPage.mouse.click(600, 500);
-            await geminiPage.keyboard.type(prompt, { delay: 10 });
+            await geminiPage.keyboard.type(prompt.replace(/\n/g, ' '), { delay: 5 });
         }
 
         await geminiPage.waitForTimeout(1000);
@@ -197,35 +208,31 @@ ${targetTweetText}
             } catch (e) {}
         }
 
-        if (!replyText) {
-            // 万が一抽出できなかった場合のフォールバック（シンプルな定型共感文）
-            console.warn('Could not extract generated text from Web Gemini. Using fallback natural reply.');
-            const fallbackReplies = [
-                "めちゃくちゃ素敵ですね！応援してます✨",
-                "すごく綺麗ですね！思わず見入っちゃいました😊",
-                "最高のショットですね！共有ありがとうございます👍",
-                "めちゃくちゃ魅力的です！今日も一日頑張れそうです✨"
-            ];
-            replyText = fallbackReplies[Math.floor(Math.random() * fallbackReplies.length)];
-        }
-
         // 余分な引用符などをクリーンアップ
-        replyText = replyText.replace(/^["「]/, '').replace(/["」]$/, '').trim();
+        replyText = (replyText || '').replace(/^["「]/, '').replace(/["」]$/, '').trim();
 
-        // 解説風テキスト（「〜とは」「〜を指します」等）が入ってしまった場合のクリーンアップガード
-        const isExplanatory = replyText.includes('とは') || replyText.includes('用語') || replyText.includes('を指します') || replyText.includes('解説');
-        if (isExplanatory || replyText.length > 90) {
-            console.warn(`Generated text appeared explanatory or too long ("${replyText.substring(0, 30)}..."). Using natural casual fallback.`);
+        // AIのメタ返答（「対象ツイートが記載されていない」「文章を教えて」等）や解説文の検知フィルター
+        const ngKeywords = ['対象ツイート', '記載されていない', '文章を教えて', 'リプライ', 'AI', 'プロンプト', 'モデル', 'とは', '用語', 'を指します'];
+        const isNgResponse = ngKeywords.some(kw => replyText.includes(kw));
+
+        if (!replyText || isNgResponse || replyText.length > 90) {
+            console.warn(`Generated text was invalid or contained AI meta text ("${replyText.substring(0, 30)}..."). Using natural contextual fallback.`);
+            const shortText = cleanTargetText.substring(0, 15);
             const naturalFallbacks = [
-                "めちゃくちゃ素敵！写真の雰囲気最高✨",
-                "すごく綺麗で見入っちゃった😊応援してる！",
-                "最高のショットだね！めちゃくちゃ魅力的✨",
-                "すごく素敵だね！今日も一日頑張れそう😊"
+                `${shortText}めちゃくちゃ素敵！写真の雰囲気最高✨`,
+                `${shortText}すごく綺麗で見入っちゃった😊応援してる！`,
+                `${shortText}最高だね！すごく魅力的✨`,
+                `すごく素敵だね！今日も一日頑張れそう😊`
             ];
             replyText = naturalFallbacks[Math.floor(Math.random() * naturalFallbacks.length)];
         } else if (replyText.length > 100) {
             replyText = replyText.substring(0, 97) + '...';
         }
+
+        console.log(`==> Successfully obtained reply text: "${replyText}"`);
+        
+        await geminiPage.close().catch(() => {});
+        return replyText;
 
         console.log(`==> Successfully obtained reply text: "${replyText}"`);
         
