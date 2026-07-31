@@ -9,6 +9,14 @@
     "lastRandomIntervalMinutes": 57
   },
   "processedTweetUrls": [
-    "https://x.com/zeroban_noriba/status/2082586974775337378"
-  ]
+    "https://x.com/zeroban_noriba/status/2082586974775337378",
+    "https://x.com/WhitmoreBrooks/status/2083028447060976065"
+  ],
+  "reply": {
+    "lastReplyTime": "2026-07-31T09:43:41.335Z",
+    "nextAllowedTime": "2026-07-31T10:24:41.335Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-07-31",
+    "lastRandomIntervalMinutes": 41
+  }
 }
