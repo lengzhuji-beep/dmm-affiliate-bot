@@ -1,25 +1,4 @@
 {
-  "lastPostTime": "2026-07-30T22:38:55.795Z",
-  "nextIntervalMinutes": 63,
-  "reply": {
-    "lastReplyTime": "2026-07-31T03:51:18.293Z",
-    "nextAllowedTime": "2026-07-31T04:41:18.293Z",
-    "todayCount": 3,
-    "lastResetDate": "2026-07-31",
-    "lastRandomIntervalMinutes": 50
-  },
-  "processedTweetUrls": [
-    "https://x.com/ZlpMMHg11435857/status/2082819668830781896",
-    "https://x.com/Suddenattack_ZP/status/2082699268385845343/analytics",
-    "https://x.com/real_eigo_/status/2082745512101401077",
-    "https://x.com/maria_desutte/status/2082971041153040808",
-    "https://x.com/ebitenmania/status/2082808162231648493"
-  ],
-  "quote": {
-    "lastQuoteTime": "2026-07-31T01:07:44.189Z",
-    "nextAllowedTime": "2026-07-31T01:41:44.189Z",
-    "todayCount": 2,
-    "lastResetDate": "2026-07-31",
-    "lastRandomIntervalMinutes": 34
-  }
+  "lastPostTime": "2026-07-31T04:08:06.868Z",
+  "nextIntervalMinutes": 62
 }
