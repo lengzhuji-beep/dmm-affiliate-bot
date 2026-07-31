@@ -9,6 +9,14 @@
     "lastRandomIntervalMinutes": 54
   },
   "processedTweetUrls": [
-    "https://x.com/rinamini/status/2083034580542685459"
-  ]
+    "https://x.com/rinamini/status/2083034580542685459",
+    "https://x.com/SayakaNeon/status/2083005829800947846"
+  ],
+  "reply": {
+    "lastReplyTime": "2026-07-31T06:43:28.515Z",
+    "nextAllowedTime": "2026-07-31T07:19:28.515Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-07-31",
+    "lastRandomIntervalMinutes": 36
+  }
 }
