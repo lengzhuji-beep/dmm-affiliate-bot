@@ -1,24 +1,4 @@
 {
-  "lastPostTime": "2026-07-31T10:08:23.451Z",
-  "nextIntervalMinutes": 117,
-  "quote": {
-    "lastQuoteTime": "2026-07-31T13:18:08.457Z",
-    "nextAllowedTime": "2026-07-31T13:53:08.457Z",
-    "todayCount": 2,
-    "lastResetDate": "2026-07-31",
-    "lastRandomIntervalMinutes": 35
-  },
-  "processedTweetUrls": [
-    "https://x.com/natsui_tanoshi/status/2083023253791277517",
-    "https://x.com/kusuriya_ads/status/2079510957479641600/analytics",
-    "https://x.com/tsu_ne_tune/status/2083134405607129255",
-    "https://x.com/kusui_youtube/status/2083117982209978432"
-  ],
-  "reply": {
-    "lastReplyTime": "2026-07-31T13:51:19.781Z",
-    "nextAllowedTime": "2026-07-31T14:43:19.781Z",
-    "todayCount": 2,
-    "lastResetDate": "2026-07-31",
-    "lastRandomIntervalMinutes": 52
-  }
+  "lastPostTime": "2026-07-31T15:12:14.718Z",
+  "nextIntervalMinutes": 62
 }
