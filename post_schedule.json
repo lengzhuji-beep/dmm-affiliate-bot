@@ -9,6 +9,14 @@
     "lastRandomIntervalMinutes": 50
   },
   "processedTweetUrls": [
-    "https://x.com/morenai_nandeee/status/2083086482848481645"
-  ]
+    "https://x.com/morenai_nandeee/status/2083086482848481645",
+    "https://x.com/bade1hp/status/2083170978260046004"
+  ],
+  "reply": {
+    "lastReplyTime": "2026-07-31T23:44:12.372Z",
+    "nextAllowedTime": "2026-08-01T00:22:12.372Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-01",
+    "lastRandomIntervalMinutes": 38
+  }
 }
