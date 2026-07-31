@@ -9,6 +9,14 @@
     "lastRandomIntervalMinutes": 56
   },
   "processedTweetUrls": [
-    "https://x.com/Suddenattack_ZP/status/2082696917411393560/analytics"
-  ]
+    "https://x.com/Suddenattack_ZP/status/2082696917411393560/analytics",
+    "https://x.com/IfeanyiEmm34386/status/2083186849879630084"
+  ],
+  "reply": {
+    "lastReplyTime": "2026-07-31T22:43:34.364Z",
+    "nextAllowedTime": "2026-07-31T23:27:34.364Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-01",
+    "lastRandomIntervalMinutes": 44
+  }
 }
