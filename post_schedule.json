@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-07-31T10:08:23.451Z",
-  "nextIntervalMinutes": 117
+  "nextIntervalMinutes": 117,
+  "quote": {
+    "lastQuoteTime": "2026-07-31T11:08:47.437Z",
+    "nextAllowedTime": "2026-07-31T11:39:47.437Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-07-31",
+    "lastRandomIntervalMinutes": 31
+  },
+  "processedTweetUrls": [
+    "https://x.com/natsui_tanoshi/status/2083023253791277517"
+  ]
 }
