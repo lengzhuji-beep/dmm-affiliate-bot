@@ -1,22 +1,4 @@
 {
-  "lastPostTime": "2026-07-31T04:08:06.868Z",
-  "nextIntervalMinutes": 62,
-  "quote": {
-    "lastQuoteTime": "2026-07-31T05:01:50.751Z",
-    "nextAllowedTime": "2026-07-31T05:55:50.751Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-07-31",
-    "lastRandomIntervalMinutes": 54
-  },
-  "processedTweetUrls": [
-    "https://x.com/rinamini/status/2083034580542685459",
-    "https://x.com/SayakaNeon/status/2083005829800947846"
-  ],
-  "reply": {
-    "lastReplyTime": "2026-07-31T06:43:28.515Z",
-    "nextAllowedTime": "2026-07-31T07:19:28.515Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-07-31",
-    "lastRandomIntervalMinutes": 36
-  }
+  "lastPostTime": "2026-07-31T07:25:14.884Z",
+  "nextIntervalMinutes": 68
 }
