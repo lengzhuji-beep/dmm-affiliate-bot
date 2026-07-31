@@ -9,6 +9,14 @@
     "lastRandomIntervalMinutes": 31
   },
   "processedTweetUrls": [
-    "https://x.com/natsui_tanoshi/status/2083023253791277517"
-  ]
+    "https://x.com/natsui_tanoshi/status/2083023253791277517",
+    "https://x.com/kusuriya_ads/status/2079510957479641600/analytics"
+  ],
+  "reply": {
+    "lastReplyTime": "2026-07-31T11:52:02.248Z",
+    "nextAllowedTime": "2026-07-31T12:47:02.248Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-07-31",
+    "lastRandomIntervalMinutes": 55
+  }
 }
