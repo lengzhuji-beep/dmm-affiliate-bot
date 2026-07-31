@@ -1,22 +1,4 @@
 {
-  "lastPostTime": "2026-07-31T07:25:14.884Z",
-  "nextIntervalMinutes": 68,
-  "quote": {
-    "lastQuoteTime": "2026-07-31T08:10:46.345Z",
-    "nextAllowedTime": "2026-07-31T09:07:46.345Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-07-31",
-    "lastRandomIntervalMinutes": 57
-  },
-  "processedTweetUrls": [
-    "https://x.com/zeroban_noriba/status/2082586974775337378",
-    "https://x.com/WhitmoreBrooks/status/2083028447060976065"
-  ],
-  "reply": {
-    "lastReplyTime": "2026-07-31T09:43:41.335Z",
-    "nextAllowedTime": "2026-07-31T10:24:41.335Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-07-31",
-    "lastRandomIntervalMinutes": 41
-  }
+  "lastPostTime": "2026-07-31T10:08:23.451Z",
+  "nextIntervalMinutes": 117
 }
