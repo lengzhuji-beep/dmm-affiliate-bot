@@ -2,15 +2,16 @@
   "lastPostTime": "2026-07-30T22:38:55.795Z",
   "nextIntervalMinutes": 63,
   "reply": {
-    "lastReplyTime": "2026-07-30T23:01:07.566Z",
-    "nextAllowedTime": "2026-07-31T00:01:07.566Z",
-    "todayCount": 1,
+    "lastReplyTime": "2026-07-31T00:07:39.824Z",
+    "nextAllowedTime": "2026-07-31T00:54:39.824Z",
+    "todayCount": 2,
     "lastResetDate": "2026-07-31",
-    "lastRandomIntervalMinutes": 60
+    "lastRandomIntervalMinutes": 47
   },
   "processedTweetUrls": [
     "https://x.com/ZlpMMHg11435857/status/2082819668830781896",
-    "https://x.com/Suddenattack_ZP/status/2082699268385845343/analytics"
+    "https://x.com/Suddenattack_ZP/status/2082699268385845343/analytics",
+    "https://x.com/real_eigo_/status/2082745512101401077"
   ],
   "quote": {
     "lastQuoteTime": "2026-07-30T23:09:32.498Z",
