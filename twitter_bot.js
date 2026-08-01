@@ -237,12 +237,25 @@ async function postToTwitter(text, replyText, videoPath) {
             if (btn) btn.click();
         });
 
-        // 投稿完了待機
+        // 投稿完了待機（コンポーザーが閉じるのをしっかり確認）
         console.log('Waiting for post to finish...');
-        await page.waitForTimeout(5000);
-        await page.waitForSelector('[data-testid="toast"]', { timeout: 15000 })
-            .catch(() => console.log('Toast not detected, assuming success.'));
-        await page.waitForTimeout(3000);
+        await page.waitForTimeout(4000);
+        
+        // 親ツイート送信成功判定（コンポーザーが消えたか、またはトーストが出現したか）
+        const isComposerClosed = await page.locator('[data-testid="tweetTextarea_0"]').count()
+            .then(c => c === 0)
+            .catch(() => false);
+
+        const hasToast = await page.waitForSelector('[data-testid="toast"]', { timeout: 8000 })
+            .then(() => true)
+            .catch(() => false);
+
+        if (!isComposerClosed && !hasToast) {
+            console.warn('WARNING: Parent video post did not complete successfully. Skipping reply sequence to prevent orphan link reply!');
+            return;
+        }
+
+        await page.waitForTimeout(2000);
 
         // === リプライの投稿 ===
         if (replyText) {
