@@ -91,13 +91,18 @@ async function main() {
             console.log('No video URL found. Will post text only.');
         }
 
-        // 3. Twitter投稿用のテキストを組み立てる（文字数制限を厳密に管理）
+        // 3. Twitter投稿用のテキストを組み立てる（タイトルを必ず先頭に配置）
+        const title = productInfo.title || '';
         const description = productInfo.text || '';
         const tagsRaw = productInfo.tags || '';
         
-        let summary = description;
-        if (summary.length > 90) {
-            summary = summary.substring(0, 87) + '...';
+        let summary = title;
+        if (description && description.trim() !== '' && description !== title) {
+            summary = `${title}\n${description}`;
+        }
+        
+        if (summary.length > 95) {
+            summary = summary.substring(0, 92) + '...';
         }
         
         const tagArray = tagsRaw.split(' ').filter(t => t.startsWith('#'));

@@ -277,11 +277,34 @@ async function postToTwitter(text, replyText, videoPath) {
             await page.waitForTimeout(6000);
             await dismissOverlays(page);
 
-            // ステータスページ、またはプロフィールタイムラインの一番上（最新投稿）のリプライボタンを探す
-            console.log('Looking for latest post reply button...');
+            // プロフィールタイムラインの投稿一覧から、固定ツイート(Pinned)を除外して最新投稿を特定
+            console.log('Looking for latest post reply button (skipping pinned tweet if present)...');
             await page.waitForSelector('[data-testid="tweet"]', { timeout: 15000 });
-            const latestTweet = page.locator('[data-testid="tweet"]').first();
-            const replyButton = latestTweet.locator('[data-testid="reply"]').first();
+            const tweets = page.locator('[data-testid="tweet"]');
+            const count = await tweets.count();
+
+            let targetTweet = null;
+            for (let i = 0; i < Math.min(count, 5); i++) {
+                const tweet = tweets.nth(i);
+                const isPinned = await tweet.locator('[data-testid="socialContext"]').innerText()
+                    .then(t => t.includes('固定') || t.includes('Pinned'))
+                    .catch(() => false);
+
+                if (!isPinned) {
+                    targetTweet = tweet;
+                    console.log(`Found actual latest unpinned tweet at index ${i}!`);
+                    break;
+                } else {
+                    console.log(`Skipping pinned tweet at index ${i}.`);
+                }
+            }
+
+            if (!targetTweet) {
+                console.log('Fallback: using first tweet element.');
+                targetTweet = tweets.first();
+            }
+
+            const replyButton = targetTweet.locator('[data-testid="reply"]').first();
             await replyButton.click();
             await page.waitForTimeout(2000);
 
