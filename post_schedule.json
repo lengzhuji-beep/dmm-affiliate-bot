@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-01T01:08:52.002Z",
-  "nextIntervalMinutes": 80
+  "nextIntervalMinutes": 80,
+  "reply": {
+    "lastReplyTime": "2026-08-01T01:16:09.224Z",
+    "nextAllowedTime": "2026-08-01T02:16:09.224Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-01",
+    "lastRandomIntervalMinutes": 60
+  },
+  "processedTweetUrls": [
+    "https://x.com/tyopiikun073/status/2083109747679690788"
+  ]
 }
