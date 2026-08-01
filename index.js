@@ -67,76 +67,35 @@ function updateSchedule() {
 
 
 async function main() {
-    // スケジュール確認 (条件を満たしていなければここで即時終了します)
-    checkScheduleAndMaybeExit();
-
-    console.log('--- Start DMM Affiliate to Twitter Bot ---');
+    console.log('--- Start DMM Affiliate to Twitter Bot (VPN Connected) ---');
+    const PREPARED_DATA_FILE = path.join(__dirname, 'prepared_post.json');
     let videoPath = null;
 
     try {
-        // 1. DMMから商品情報を取得
-        console.log('Fetching product from DMM API...');
-        const productInfo = await fetchDmmProduct(); 
-        
+        if (!fs.existsSync(PREPARED_DATA_FILE)) {
+            console.log('No prepared post data found. Skipping execution.');
+            return;
+        }
+
+        const preparedData = JSON.parse(fs.readFileSync(PREPARED_DATA_FILE, 'utf8'));
+        videoPath = preparedData.videoPath;
+        const mainText = preparedData.mainText;
+        const replyText = preparedData.replyText;
+        const productInfo = preparedData.productInfo;
+
         console.log('Title:', productInfo.title);
         console.log('Affiliate URL:', productInfo.affiliateUrl);
-        console.log('Sample Video URL:', productInfo.sampleVideoUrl);
+        console.log('Pre-downloaded Video Path:', videoPath);
 
-        // 2. 動画のダウンロード
-        if (productInfo.sampleVideoUrl) {
-            console.log('Downloading sample video...');
-            videoPath = await downloadVideo(productInfo.sampleVideoUrl);
-            console.log(`Video downloaded to: ${videoPath}`);
-        } else {
-            console.log('No video URL found. Will post text only.');
-        }
-
-        // 3. Twitter投稿用のテキストを組み立てる（タイトルを必ず先頭に配置）
-        const title = productInfo.title || '';
-        const description = productInfo.text || '';
-        const tagsRaw = productInfo.tags || '';
-        
-        let summary = title;
-        if (description && description.trim() !== '' && description !== title) {
-            summary = `${title}\n${description}`;
-        }
-        
-        if (summary.length > 95) {
-            summary = summary.substring(0, 92) + '...';
-        }
-        
-        const tagArray = tagsRaw.split(' ').filter(t => t.startsWith('#'));
-        let finalTags = '';
-        const MAX_TOTAL_CHARS = 135;
-
-        for (let tag of tagArray) {
-            if ((summary.length + finalTags.length + tag.length + 2) > MAX_TOTAL_CHARS) break;
-            finalTags += (finalTags ? ' ' : '\n\n') + tag;
-        }
-
-        const mainText = `${summary}${finalTags}`.trim();
-        const replyText = `👇詳細・続きはこちら\n${productInfo.affiliateUrl}`;
-
-        // 4. PlaywrightでTwitter投稿（メイン + リプライ）
+        // Twitterへの投稿実行
         console.log('Posting to Twitter (Main and Reply)...');
         await postToTwitter(mainText, replyText, videoPath);
 
-        // 5. 投稿成功したらIDを記録し、次回スケジュールを決定する
+        // 成功時の処理：次回スケジュール設定と記録更新
+        updateSchedule();
         if (productInfo.contentId) {
-            const postedIdsFile = path.join(__dirname, 'posted_ids.json');
-            let postedIds = [];
-            if (fs.existsSync(postedIdsFile)) {
-                try {
-                    postedIds = JSON.parse(fs.readFileSync(postedIdsFile, 'utf8'));
-                } catch (e) {}
-            }
-            postedIds.push(productInfo.contentId);
-            // 重複を排除して保存
-            fs.writeFileSync(postedIdsFile, JSON.stringify([...new Set(postedIds)], null, 2));
-            console.log(`Saved posted ID: ${productInfo.contentId}`);
-            
-            // 次回のスケジュールをランダムに決定して更新
-            updateSchedule();
+            const { markAsPosted } = require('./dmm_api');
+            markAsPosted(productInfo.contentId);
         }
 
     } catch (error) {
