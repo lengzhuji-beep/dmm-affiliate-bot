@@ -9,6 +9,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: twitter-bot-group
+  cancel-in-progress: false
+
 jobs:
   run-quote-bot:
     runs-on: ubuntu-latest
