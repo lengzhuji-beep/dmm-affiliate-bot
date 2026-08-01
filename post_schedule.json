@@ -1,14 +1,4 @@
 {
-  "lastPostTime": "2026-08-01T11:53:06.041Z",
-  "nextIntervalMinutes": 117,
-  "reply": {
-    "lastReplyTime": "2026-08-01T12:03:53.890Z",
-    "nextAllowedTime": "2026-08-01T13:02:53.890Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-01",
-    "lastRandomIntervalMinutes": 59
-  },
-  "processedTweetUrls": [
-    "https://x.com/mjkondoria/status/2083476308622028926"
-  ]
+  "lastPostTime": "2026-08-01T12:18:11.955Z",
+  "nextIntervalMinutes": 93
 }
