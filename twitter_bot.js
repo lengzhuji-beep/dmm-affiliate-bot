@@ -212,22 +212,23 @@ async function postToTwitter(text, replyText, videoPath) {
         }
 
         // === 親ツイートの入力・投稿 ===
-        console.log('Typing main text atomically...');
+        console.log('Typing main text with Draft.js state integration...');
         const textarea = page.locator('[data-testid="tweetTextarea_0"]').first();
-        await textarea.waitFor({ state: 'visible', timeout: 10000 });
+        await textarea.waitFor({ state: 'visible', timeout: 15000 });
         await textarea.click({ force: true });
         await page.waitForTimeout(500);
 
-        // evaluate による一括セット（keyboard.type によるフォーカス失われ事故を100%防止）
-        await textarea.evaluate((node, val) => {
-            if (node.tagName === 'TEXTAREA' || node.tagName === 'INPUT') {
-                node.value = val;
-            } else {
-                node.innerText = val;
+        // execCommand('insertText') により React/Draft.js の内部ステートへ確実にテキストを注入
+        await textarea.evaluate((el, textToType) => {
+            el.focus();
+            const success = document.execCommand('insertText', false, textToType);
+            if (!success || !el.innerText || el.innerText.trim() === '') {
+                el.innerText = textToType;
             }
-            node.dispatchEvent(new Event('input', { bubbles: true }));
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            el.dispatchEvent(new Event('change', { bubbles: true }));
         }, text);
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(1500);
 
         // === ポストボタンのクリック ===
         console.log('Waiting for post button to become enabled (video processing)...');
@@ -263,34 +264,26 @@ async function postToTwitter(text, replyText, videoPath) {
 
         // 投稿完了待機（コンポーザーが閉じるのをしっかり確認）
         console.log('Waiting for main post sequence to finish...');
-        await page.waitForTimeout(6000);
-        await page.waitForSelector('[data-testid="toast"]', { timeout: 15000 })
-            .catch(() => console.log('Toast not detected, assuming success.'));
-        await page.waitForTimeout(3000);
+        await page.waitForTimeout(8000);
+        await dismissOverlays(page);
 
         // === リプライの投稿 ===
         if (replyText) {
             console.log('Starting reply sequence...');
             
-            // 確実に自分の投稿にリプライするため、投稿直後の「表示」リンクをクリックするか、URLを確認
-            try {
-                const toast = page.locator('[data-testid="toast"]').first();
-                const viewLink = toast.locator('a').first();
-                if (await viewLink.isVisible({ timeout: 3000 })) {
-                    console.log('Navigating to the status page via toast...');
-                    await viewLink.click();
-                    await page.waitForURL(/status/, { timeout: 15000 });
-                } else {
-                    console.log('Toast link not found, attempting search on current page...');
-                }
-            } catch (e) {
-                console.log('Could not navigate via toast, using fallback...');
-            }
+            // 確実に直前の自分の最新投稿にリプライするため、プロフィールページへ直接移動
+            console.log('Navigating to profile timeline for guaranteed self-reply...');
+            await page.goto('https://x.com/av_favorite_av', { waitUntil: 'commit', timeout: 60000 });
+            await page.waitForTimeout(6000);
+            await dismissOverlays(page);
 
-            // ステータスページ、またはホームの最上部でリプライボタンを探す
-            console.log('Looking for reply button...');
-            await page.waitForSelector('[data-testid="reply"]', { timeout: 15000 });
-            await page.locator('[data-testid="reply"]').first().click();
+            // ステータスページ、またはプロフィールタイムラインの一番上（最新投稿）のリプライボタンを探す
+            console.log('Looking for latest post reply button...');
+            await page.waitForSelector('[data-testid="tweet"]', { timeout: 15000 });
+            const latestTweet = page.locator('[data-testid="tweet"]').first();
+            const replyButton = latestTweet.locator('[data-testid="reply"]').first();
+            await replyButton.click();
+            await page.waitForTimeout(2000);
 
             // リプライ用入力エリアが表示されるのを待つ
             const replyBox = page.locator('[data-testid="tweetTextarea_0"]').first();
@@ -298,16 +291,17 @@ async function postToTwitter(text, replyText, videoPath) {
             await replyBox.click({ force: true });
             await page.waitForTimeout(500);
             
-            console.log('Typing reply text atomically...');
-            await replyBox.evaluate((node, val) => {
-                if (node.tagName === 'TEXTAREA' || node.tagName === 'INPUT') {
-                    node.value = val;
-                } else {
-                    node.innerText = val;
+            console.log('Typing reply text with Draft.js state integration...');
+            await replyBox.evaluate((el, textToType) => {
+                el.focus();
+                const success = document.execCommand('insertText', false, textToType);
+                if (!success || !el.innerText || el.innerText.trim() === '') {
+                    el.innerText = textToType;
                 }
-                node.dispatchEvent(new Event('input', { bubbles: true }));
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                el.dispatchEvent(new Event('change', { bubbles: true }));
             }, replyText);
-            await page.waitForTimeout(1000);
+            await page.waitForTimeout(1500);
 
             // リプライ用投稿ボタン（JavaScriptで直接クリック - オーバーレイをバイパス）
             console.log('Clicking reply post button via JavaScript...');
