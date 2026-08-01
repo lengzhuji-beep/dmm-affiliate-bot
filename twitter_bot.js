@@ -195,200 +195,100 @@ async function postToTwitter(text, replyText, videoPath) {
         // === 動画アップロード ===
         if (videoPath) {
             console.log(`Uploading video: ${videoPath}`);
-            let uploadSuccess = false;
             try {
                 const fileInput = page.locator('input[data-testid="fileInput"]').first();
                 await fileInput.setInputFiles(videoPath);
                 
-                console.log('File set. Waiting for Twitter to process the video attachment...');
+                console.log('File set. Waiting for Twitter to process the video...');
                 await page.waitForSelector('[data-testid="attachments"]', { state: 'visible', timeout: 60000 });
-                uploadSuccess = true;
-                console.log('Video attachment successfully detected!');
-                await page.waitForTimeout(4000);
+                console.log('Video attachment detected!');
+                await page.waitForTimeout(5000);
             } catch (err) {
-                console.error('Primary upload failed, attempting fallback file input:', err.message);
-                try {
-                    const fallbackInput = page.locator('input[type="file"]').first();
-                    await fallbackInput.setInputFiles(videoPath);
-                    await page.waitForSelector('[data-testid="attachments"]', { state: 'visible', timeout: 60000 });
-                    uploadSuccess = true;
-                } catch (e) {
-                    uploadSuccess = false;
-                }
-            }
-
-            if (!uploadSuccess) {
-                throw new Error('FAILED_VIDEO_UPLOAD: Could not attach video to Twitter. Aborting to prevent link-only tweet.');
+                console.error('Primary upload failed:', err.message);
+                const fallbackInput = page.locator('input[type="file"]').first();
+                await fallbackInput.setInputFiles(videoPath);
+                await page.waitForSelector('[data-testid="attachments"]', { state: 'visible', timeout: 60000 });
             }
         }
 
         // === 親ツイートの入力・投稿 ===
-        console.log('Typing main text with multiline ClipboardEvent paste emulation...');
+        console.log('Typing main text...');
         const textarea = page.locator('[data-testid="tweetTextarea_0"]').first();
-        await textarea.waitFor({ state: 'visible', timeout: 15000 });
         await textarea.click({ force: true });
         await page.waitForTimeout(500);
-
-        // ClipboardEvent paste をエミュレートして、改行を含むタイトル・紹介文・ハッシュタグを1文字も落とさず100%一括代入
-        await textarea.evaluate((el, textToType) => {
-            el.focus();
-            const dt = new DataTransfer();
-            dt.setData('text/plain', textToType);
-            const pasteEvent = new ClipboardEvent('paste', {
-                clipboardData: dt,
-                bubbles: true,
-                cancelable: true
-            });
-            const handled = el.dispatchEvent(pasteEvent);
-            
-            // ペーストイベントを受け付けない場合の安全フォールバック
-            if (!handled || !el.innerText || el.innerText.trim() === '') {
-                document.execCommand('insertText', false, textToType);
-            }
-            if (!el.innerText || el.innerText.trim() === '') {
-                el.innerText = textToType;
-            }
-            el.dispatchEvent(new Event('input', { bubbles: true }));
-            el.dispatchEvent(new Event('change', { bubbles: true }));
-        }, text);
-        await page.waitForTimeout(1500);
+        await page.keyboard.type(text, { delay: 30 });
+        await page.waitForTimeout(1000);
 
         // === ポストボタンのクリック ===
-        console.log('Waiting for video processing and clicking post button...');
-        await page.waitForTimeout(10000); // 動画アタッチ後の十分な初期処理待機
+        console.log('Waiting for post button to become enabled...');
+        // Step 1: ボタンのdisabledが解除されるまで最大120秒待つ（動画エンコード待ち）
+        await page.waitForFunction(() => {
+            const btn = document.querySelector('[data-testid="tweetButtonInline"]')
+                     || document.querySelector('[data-testid="tweetButton"]');
+            return btn && !btn.disabled && btn.getAttribute('aria-disabled') !== 'true';
+        }, { timeout: 120000 });
+        console.log('Post button is now enabled!');
 
-        let clicked = false;
-        // 5秒おきに最大60秒間、投稿ボタンのクリックを試行（オーバーレイおよびdisabled属性を強制バイパス）
-        for (let poll = 0; poll < 12; poll++) {
-            clicked = await page.evaluate(() => {
-                const btn = document.querySelector('[data-testid="tweetButtonInline"]')
-                         || document.querySelector('[data-testid="tweetButton"]')
-                         || document.querySelector('button[data-testid*="tweetButton"]');
-                if (btn) {
-                    btn.removeAttribute('disabled');
-                    btn.setAttribute('aria-disabled', 'false');
-                    btn.click();
-                    return true;
-                }
-                return false;
-            }).catch(() => false);
+        // Step 2: JavaScriptで直接クリックイベントを発火（#layersのオーバーレイを完全バイパス）
+        console.log('Clicking post button via JavaScript...');
+        await page.evaluate(() => {
+            const btn = document.querySelector('[data-testid="tweetButtonInline"]')
+                     || document.querySelector('[data-testid="tweetButton"]');
+            if (btn) btn.click();
+        });
 
-            if (clicked) {
-                console.log(`Successfully clicked post button at attempt ${poll + 1}!`);
-                break;
-            }
-            console.log(`Waiting for tweet button readiness... (${(poll + 1) * 5}s elapsed)`);
-            await page.waitForTimeout(5000);
-        }
-
-        if (!clicked) {
-            console.log('Fallback: Force clicking tweet button via Playwright...');
-            await page.locator('[data-testid="tweetButtonInline"], [data-testid="tweetButton"]').first().click({ force: true }).catch(() => {});
-        }
-
-        // 投稿完了待機（コンポーザーが閉じるのをしっかり確認）
-        console.log('Waiting for main post sequence to finish and composer to close...');
-        await page.waitForTimeout(8000);
-        await dismissOverlays(page);
+        // 投稿完了待機
+        console.log('Waiting for post to finish...');
+        await page.waitForTimeout(5000);
+        await page.waitForSelector('[data-testid="toast"]', { timeout: 15000 })
+            .catch(() => console.log('Toast not detected, assuming success.'));
+        await page.waitForTimeout(3000);
 
         // === リプライの投稿 ===
         if (replyText) {
             console.log('Starting reply sequence...');
             
-            // 確実に直前の自分の最新投稿にリプライするため、プロフィールページへ直接移動
-            console.log('Navigating to profile timeline for guaranteed self-reply...');
-            await page.goto('https://x.com/av_favorite_av', { waitUntil: 'commit', timeout: 60000 });
-            await page.waitForTimeout(6000);
-            await dismissOverlays(page);
-
-            // プロフィールタイムラインの投稿一覧から、固定ツイート(Pinned)を除外して最新投稿を特定
-            console.log('Looking for latest post reply button (skipping pinned tweet if present)...');
-            await page.waitForSelector('[data-testid="tweet"]', { timeout: 15000 });
-            const tweets = page.locator('[data-testid="tweet"]');
-            const count = await tweets.count();
-
-            let targetTweet = null;
-            let statusUrl = '';
-
-            for (let i = 0; i < Math.min(count, 5); i++) {
-                const tweet = tweets.nth(i);
-                const isPinned = await tweet.locator('[data-testid="socialContext"]').innerText()
-                    .then(t => t.includes('固定') || t.includes('Pinned'))
-                    .catch(() => false);
-
-                if (!isPinned) {
-                    targetTweet = tweet;
-                    const linkEl = tweet.locator('a[href*="/status/"]').first();
-                    const href = await linkEl.getAttribute('href').catch(() => null);
-                    if (href) {
-                        statusUrl = `https://x.com${href}`;
-                    }
-                    console.log(`Found actual latest unpinned tweet at index ${i}! URL: ${statusUrl}`);
-                    break;
+            // 確実に自分の投稿にリプライするため、投稿直後の「表示」リンクをクリックするか、URLを確認
+            try {
+                const toast = page.locator('[data-testid="toast"]').first();
+                const viewLink = toast.locator('a').first();
+                if (await viewLink.isVisible()) {
+                    console.log('Navigating to the status page via toast...');
+                    await viewLink.click();
+                    await page.waitForURL(/status/, { timeout: 15000 });
                 } else {
-                    console.log(`Skipping pinned tweet at index ${i}.`);
+                    // トーストが見つからない場合は、トップのツイート（自分のもののはず）をリプライ対象にする
+                    console.log('Toast link not found, attempting searching on current page...');
                 }
+            } catch (e) {
+                console.log('Could not navigate via toast, using fallback...');
             }
 
-            if (!targetTweet) {
-                console.log('Fallback: using first tweet element.');
-                targetTweet = tweets.first();
-            }
-
-            // 個別投稿ページに移動して直接リプライを行う（誤爆・独立投稿を100%防止）
-            if (statusUrl) {
-                console.log(`Navigating directly to parent tweet status page: ${statusUrl}`);
-                await page.goto(statusUrl, { waitUntil: 'commit', timeout: 60000 });
-                await page.waitForTimeout(5000);
-                await dismissOverlays(page);
-
-                const replyBtn = page.locator('[data-testid="reply"]').first();
-                await replyBtn.click();
-            } else {
-                const replyButton = targetTweet.locator('[data-testid="reply"]').first();
-                await replyButton.click();
-            }
-            await page.waitForTimeout(2000);
+            // ステータスページ、またはホームの最上部でリプライボタンを探す
+            console.log('Looking for reply button...');
+            await page.waitForSelector('[data-testid="reply"]', { timeout: 10000 });
+            // 自爆リプライの誤爆を防ぐため、一番上のツイートのリプライボタンをクリック
+            await page.locator('[data-testid="reply"]').first().click();
 
             // リプライ用入力エリアが表示されるのを待つ
-            const replyBox = page.locator('[data-testid="tweetTextarea_0"]').first();
-            await replyBox.waitFor({ state: 'visible', timeout: 15000 });
-            await replyBox.click({ force: true });
-            await page.waitForTimeout(500);
+            await page.waitForSelector('[data-testid="tweetTextarea_0"]', { state: 'visible', timeout: 10000 });
+            await page.waitForTimeout(1000);
             
-            console.log('Typing reply text with multiline ClipboardEvent paste emulation...');
-            await replyBox.evaluate((el, textToType) => {
-                el.focus();
-                const dt = new DataTransfer();
-                dt.setData('text/plain', textToType);
-                const pasteEvent = new ClipboardEvent('paste', {
-                    clipboardData: dt,
-                    bubbles: true,
-                    cancelable: true
-                });
-                const handled = el.dispatchEvent(pasteEvent);
-
-                if (!handled || !el.innerText || el.innerText.trim() === '') {
-                    document.execCommand('insertText', false, textToType);
-                }
-                if (!el.innerText || el.innerText.trim() === '') {
-                    el.innerText = textToType;
-                }
-                el.dispatchEvent(new Event('input', { bubbles: true }));
-                el.dispatchEvent(new Event('change', { bubbles: true }));
-            }, replyText);
-            await page.waitForTimeout(1500);
+            console.log('Typing reply text...');
+            await page.keyboard.type(replyText, { delay: 30 });
+            await page.waitForTimeout(1000);
 
             // リプライ用投稿ボタン（JavaScriptで直接クリック - オーバーレイをバイパス）
             console.log('Clicking reply post button via JavaScript...');
             await page.evaluate(() => {
+                // リプライダイアログでは tweetButton が使われる
                 const btn = document.querySelector('[data-testid="tweetButton"]')
                          || document.querySelector('[data-testid="tweetButtonInline"]');
                 if (btn) btn.click();
             });
 
             console.log('Reply successfully posted!');
-            await page.waitForTimeout(4000);
+            await page.waitForTimeout(3000);
         }
 
         console.log('All sequences finished!');

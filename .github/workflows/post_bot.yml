@@ -9,10 +9,6 @@ on:
 permissions:
   contents: write
 
-concurrency:
-  group: twitter-bot-group
-  cancel-in-progress: false
-
 jobs:
   run-bot:
     runs-on: ubuntu-latest
@@ -68,7 +64,6 @@ jobs:
           TWITTER_EMAIL: ${{ secrets.TWITTER_EMAIL }}
           TWITTER_SESSION_PATH: ./twitter_session
           HEADLESS: 'true'
-          FORCE_RUN: ${{ github.event_name == 'workflow_dispatch' && 'true' || 'false' }}
 
       # 6. posted_ids.json と post_schedule.json の更新をGitにコミット
       - name: Commit and push changes
@@ -80,7 +75,6 @@ jobs:
             echo "No changes to commit. Skipping commit."
           else
             git commit -m "chore: update posted_ids.json and post_schedule.json [skip ci]"
-            git pull --rebase origin main || true
             git push origin HEAD
             echo "Successfully updated changes in repository."
           fi

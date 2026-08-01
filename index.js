@@ -10,11 +10,6 @@ const SCHEDULE_FILE = path.join(__dirname, 'post_schedule.json');
 // 実行すべきか判定する関数
 function checkScheduleAndMaybeExit() {
     console.log('Checking schedule...');
-    if (process.env.FORCE_RUN === 'true') {
-        console.log('Force run active (manual execution). Bypassing interval wait.');
-        return;
-    }
-
     if (!fs.existsSync(SCHEDULE_FILE)) {
         console.log('No schedule file found. First execution. Will proceed.');
         return; // 初回は実行
@@ -67,14 +62,14 @@ function updateSchedule() {
 
 
 async function main() {
-    // スケジュール確認
+    // スケジュール確認 (条件を満たしていなければここで即時終了します)
     checkScheduleAndMaybeExit();
 
-    console.log('--- Start DMM Affiliate to Twitter Bot (Japan VPN Active) ---');
+    console.log('--- Start DMM Affiliate to Twitter Bot ---');
     let videoPath = null;
 
     try {
-        // 1. 日本VPN経由でDMMから商品情報を取得
+        // 1. DMMから商品情報を取得
         console.log('Fetching product from DMM API...');
         const productInfo = await fetchDmmProduct(); 
         
@@ -82,27 +77,22 @@ async function main() {
         console.log('Affiliate URL:', productInfo.affiliateUrl);
         console.log('Sample Video URL:', productInfo.sampleVideoUrl);
 
-        // 2. 日本VPN経由で動画をダウンロード
+        // 2. 動画のダウンロード
         if (productInfo.sampleVideoUrl) {
-            console.log('Downloading sample video under Japan VPN...');
+            console.log('Downloading sample video...');
             videoPath = await downloadVideo(productInfo.sampleVideoUrl);
-            console.log(`Video downloaded successfully to: ${videoPath}`);
+            console.log(`Video downloaded to: ${videoPath}`);
         } else {
             console.log('No video URL found. Will post text only.');
         }
 
-        // 3. Twitter投稿用のテキストを組み立てる（タイトル最優先）
-        const title = productInfo.title || '';
+        // 3. Twitter投稿用のテキストを組み立てる（文字数制限を厳密に管理）
         const description = productInfo.text || '';
         const tagsRaw = productInfo.tags || '';
         
-        let summary = title;
-        if (description && description.trim() !== '' && description !== title) {
-            summary = `${title}\n${description}`;
-        }
-        
-        if (summary.length > 95) {
-            summary = summary.substring(0, 92) + '...';
+        let summary = description;
+        if (summary.length > 90) {
+            summary = summary.substring(0, 87) + '...';
         }
         
         const tagArray = tagsRaw.split(' ').filter(t => t.startsWith('#'));
@@ -117,26 +107,37 @@ async function main() {
         const mainText = `${summary}${finalTags}`.trim();
         const replyText = `👇詳細・続きはこちら\n${productInfo.affiliateUrl}`;
 
-        // 4. Twitterへの投稿実行 (メイン投稿 & リプライ投稿)
+        // 4. PlaywrightでTwitter投稿（メイン + リプライ）
         console.log('Posting to Twitter (Main and Reply)...');
         await postToTwitter(mainText, replyText, videoPath);
 
-        // 5. 成功時の処理：次回スケジュール設定と記録更新
-        updateSchedule();
+        // 5. 投稿成功したらIDを記録し、次回スケジュールを決定する
         if (productInfo.contentId) {
-            const { markAsPosted } = require('./dmm_api');
-            markAsPosted(productInfo.contentId);
+            const postedIdsFile = path.join(__dirname, 'posted_ids.json');
+            let postedIds = [];
+            if (fs.existsSync(postedIdsFile)) {
+                try {
+                    postedIds = JSON.parse(fs.readFileSync(postedIdsFile, 'utf8'));
+                } catch (e) {}
+            }
+            postedIds.push(productInfo.contentId);
+            // 重複を排除して保存
+            fs.writeFileSync(postedIdsFile, JSON.stringify([...new Set(postedIds)], null, 2));
+            console.log(`Saved posted ID: ${productInfo.contentId}`);
+            
+            // 次回のスケジュールをランダムに決定して更新
+            updateSchedule();
         }
-
-        console.log('--- Post Sequence Successfully Completed ---');
 
     } catch (error) {
-        console.error('An error occurred during execution:', error.message || error);
-        throw error;
+        console.error('An error occurred during execution:', error);
+        throw error; // リトライ判定のために再スロー
     } finally {
         if (videoPath) {
+            console.log('Cleaning up temporary files...');
             cleanupVideo(videoPath);
         }
+        console.log('--- Finished ---');
     }
 }
 
