@@ -212,17 +212,29 @@ async function postToTwitter(text, replyText, videoPath) {
         }
 
         // === 親ツイートの入力・投稿 ===
-        console.log('Typing main text with Draft.js state integration...');
+        console.log('Typing main text with multiline ClipboardEvent paste emulation...');
         const textarea = page.locator('[data-testid="tweetTextarea_0"]').first();
         await textarea.waitFor({ state: 'visible', timeout: 15000 });
         await textarea.click({ force: true });
         await page.waitForTimeout(500);
 
-        // execCommand('insertText') により React/Draft.js の内部ステートへ確実にテキストを注入
+        // ClipboardEvent paste をエミュレートして、改行を含むタイトル・紹介文・ハッシュタグを1文字も落とさず100%一括代入
         await textarea.evaluate((el, textToType) => {
             el.focus();
-            const success = document.execCommand('insertText', false, textToType);
-            if (!success || !el.innerText || el.innerText.trim() === '') {
+            const dt = new DataTransfer();
+            dt.setData('text/plain', textToType);
+            const pasteEvent = new ClipboardEvent('paste', {
+                clipboardData: dt,
+                bubbles: true,
+                cancelable: true
+            });
+            const handled = el.dispatchEvent(pasteEvent);
+            
+            // ペーストイベントを受け付けない場合の安全フォールバック
+            if (!handled || !el.innerText || el.innerText.trim() === '') {
+                document.execCommand('insertText', false, textToType);
+            }
+            if (!el.innerText || el.innerText.trim() === '') {
                 el.innerText = textToType;
             }
             el.dispatchEvent(new Event('input', { bubbles: true }));
@@ -314,11 +326,22 @@ async function postToTwitter(text, replyText, videoPath) {
             await replyBox.click({ force: true });
             await page.waitForTimeout(500);
             
-            console.log('Typing reply text with Draft.js state integration...');
+            console.log('Typing reply text with multiline ClipboardEvent paste emulation...');
             await replyBox.evaluate((el, textToType) => {
                 el.focus();
-                const success = document.execCommand('insertText', false, textToType);
-                if (!success || !el.innerText || el.innerText.trim() === '') {
+                const dt = new DataTransfer();
+                dt.setData('text/plain', textToType);
+                const pasteEvent = new ClipboardEvent('paste', {
+                    clipboardData: dt,
+                    bubbles: true,
+                    cancelable: true
+                });
+                const handled = el.dispatchEvent(pasteEvent);
+
+                if (!handled || !el.innerText || el.innerText.trim() === '') {
+                    document.execCommand('insertText', false, textToType);
+                }
+                if (!el.innerText || el.innerText.trim() === '') {
                     el.innerText = textToType;
                 }
                 el.dispatchEvent(new Event('input', { bubbles: true }));
