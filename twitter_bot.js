@@ -195,19 +195,30 @@ async function postToTwitter(text, replyText, videoPath) {
         // === 動画アップロード ===
         if (videoPath) {
             console.log(`Uploading video: ${videoPath}`);
+            let uploadSuccess = false;
             try {
                 const fileInput = page.locator('input[data-testid="fileInput"]').first();
                 await fileInput.setInputFiles(videoPath);
                 
-                console.log('File set. Waiting for Twitter to process the video...');
+                console.log('File set. Waiting for Twitter to process the video attachment...');
                 await page.waitForSelector('[data-testid="attachments"]', { state: 'visible', timeout: 60000 });
-                console.log('Video attachment detected!');
-                await page.waitForTimeout(5000);
+                uploadSuccess = true;
+                console.log('Video attachment successfully detected!');
+                await page.waitForTimeout(4000);
             } catch (err) {
-                console.error('Primary upload failed:', err.message);
-                const fallbackInput = page.locator('input[type="file"]').first();
-                await fallbackInput.setInputFiles(videoPath);
-                await page.waitForSelector('[data-testid="attachments"]', { state: 'visible', timeout: 60000 });
+                console.error('Primary upload failed, attempting fallback file input:', err.message);
+                try {
+                    const fallbackInput = page.locator('input[type="file"]').first();
+                    await fallbackInput.setInputFiles(videoPath);
+                    await page.waitForSelector('[data-testid="attachments"]', { state: 'visible', timeout: 60000 });
+                    uploadSuccess = true;
+                } catch (e) {
+                    uploadSuccess = false;
+                }
+            }
+
+            if (!uploadSuccess) {
+                throw new Error('FAILED_VIDEO_UPLOAD: Could not attach video to Twitter. Aborting to prevent link-only tweet.');
             }
         }
 
@@ -263,7 +274,7 @@ async function postToTwitter(text, replyText, videoPath) {
         }
 
         if (!buttonEnabled) {
-            console.warn('Warning: Post button enable check timed out after 180s. Attempting force click...');
+            throw new Error('POST_BUTTON_TIMEOUT: Post button did not become enabled within 180s.');
         }
 
         // Step 2: JavaScriptで直接クリックイベントを発火（#layersのオーバーレイを完全バイパス）
@@ -275,7 +286,7 @@ async function postToTwitter(text, replyText, videoPath) {
         });
 
         // 投稿完了待機（コンポーザーが閉じるのをしっかり確認）
-        console.log('Waiting for main post sequence to finish...');
+        console.log('Waiting for main post sequence to finish and composer to close...');
         await page.waitForTimeout(8000);
         await dismissOverlays(page);
 
@@ -296,6 +307,8 @@ async function postToTwitter(text, replyText, videoPath) {
             const count = await tweets.count();
 
             let targetTweet = null;
+            let statusUrl = '';
+
             for (let i = 0; i < Math.min(count, 5); i++) {
                 const tweet = tweets.nth(i);
                 const isPinned = await tweet.locator('[data-testid="socialContext"]').innerText()
@@ -304,7 +317,12 @@ async function postToTwitter(text, replyText, videoPath) {
 
                 if (!isPinned) {
                     targetTweet = tweet;
-                    console.log(`Found actual latest unpinned tweet at index ${i}!`);
+                    const linkEl = tweet.locator('a[href*="/status/"]').first();
+                    const href = await linkEl.getAttribute('href').catch(() => null);
+                    if (href) {
+                        statusUrl = `https://x.com${href}`;
+                    }
+                    console.log(`Found actual latest unpinned tweet at index ${i}! URL: ${statusUrl}`);
                     break;
                 } else {
                     console.log(`Skipping pinned tweet at index ${i}.`);
@@ -316,8 +334,19 @@ async function postToTwitter(text, replyText, videoPath) {
                 targetTweet = tweets.first();
             }
 
-            const replyButton = targetTweet.locator('[data-testid="reply"]').first();
-            await replyButton.click();
+            // 個別投稿ページに移動して直接リプライを行う（誤爆・独立投稿を100%防止）
+            if (statusUrl) {
+                console.log(`Navigating directly to parent tweet status page: ${statusUrl}`);
+                await page.goto(statusUrl, { waitUntil: 'commit', timeout: 60000 });
+                await page.waitForTimeout(5000);
+                await dismissOverlays(page);
+
+                const replyBtn = page.locator('[data-testid="reply"]').first();
+                await replyBtn.click();
+            } else {
+                const replyButton = targetTweet.locator('[data-testid="reply"]').first();
+                await replyButton.click();
+            }
             await page.waitForTimeout(2000);
 
             // リプライ用入力エリアが表示されるのを待つ
