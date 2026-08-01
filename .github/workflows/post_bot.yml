@@ -68,6 +68,7 @@ jobs:
           TWITTER_EMAIL: ${{ secrets.TWITTER_EMAIL }}
           TWITTER_SESSION_PATH: ./twitter_session
           HEADLESS: 'true'
+          FORCE_RUN: ${{ github.event_name == 'workflow_dispatch' && 'true' || 'false' }}
 
       # 6. posted_ids.json と post_schedule.json の更新をGitにコミット
       - name: Commit and push changes

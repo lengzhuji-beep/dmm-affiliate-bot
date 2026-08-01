@@ -10,6 +10,11 @@ const SCHEDULE_FILE = path.join(__dirname, 'post_schedule.json');
 // 実行すべきか判定する関数
 function checkScheduleAndMaybeExit() {
     console.log('Checking schedule...');
+    if (process.env.FORCE_RUN === 'true') {
+        console.log('Force run active (manual execution). Bypassing interval wait.');
+        return;
+    }
+
     if (!fs.existsSync(SCHEDULE_FILE)) {
         console.log('No schedule file found. First execution. Will proceed.');
         return; // 初回は実行
