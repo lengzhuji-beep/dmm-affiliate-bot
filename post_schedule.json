@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-01T20:58:24.131Z",
-  "nextIntervalMinutes": 65
+  "nextIntervalMinutes": 65,
+  "reply": {
+    "lastReplyTime": "2026-08-01T22:39:22.257Z",
+    "nextAllowedTime": "2026-08-01T23:14:22.257Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-02",
+    "lastRandomIntervalMinutes": 35
+  },
+  "processedTweetUrls": [
+    "https://x.com/8_rivi/status/2083552765171925155"
+  ]
 }
