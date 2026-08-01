@@ -67,46 +67,76 @@ function updateSchedule() {
 
 
 async function main() {
-    console.log('--- Start DMM Affiliate to Twitter Bot (VPN Connected) ---');
-    const PREPARED_DATA_FILE = path.join(__dirname, 'prepared_post.json');
+    // スケジュール確認
+    checkScheduleAndMaybeExit();
+
+    console.log('--- Start DMM Affiliate to Twitter Bot (Japan VPN Active) ---');
     let videoPath = null;
 
     try {
-        if (!fs.existsSync(PREPARED_DATA_FILE)) {
-            console.log('No prepared post data found. Skipping execution.');
-            return;
-        }
-
-        const preparedData = JSON.parse(fs.readFileSync(PREPARED_DATA_FILE, 'utf8'));
-        videoPath = preparedData.videoPath;
-        const mainText = preparedData.mainText;
-        const replyText = preparedData.replyText;
-        const productInfo = preparedData.productInfo;
-
+        // 1. 日本VPN経由でDMMから商品情報を取得
+        console.log('Fetching product from DMM API...');
+        const productInfo = await fetchDmmProduct(); 
+        
         console.log('Title:', productInfo.title);
         console.log('Affiliate URL:', productInfo.affiliateUrl);
-        console.log('Pre-downloaded Video Path:', videoPath);
+        console.log('Sample Video URL:', productInfo.sampleVideoUrl);
 
-        // Twitterへの投稿実行
+        // 2. 日本VPN経由で動画をダウンロード
+        if (productInfo.sampleVideoUrl) {
+            console.log('Downloading sample video under Japan VPN...');
+            videoPath = await downloadVideo(productInfo.sampleVideoUrl);
+            console.log(`Video downloaded successfully to: ${videoPath}`);
+        } else {
+            console.log('No video URL found. Will post text only.');
+        }
+
+        // 3. Twitter投稿用のテキストを組み立てる（タイトル最優先）
+        const title = productInfo.title || '';
+        const description = productInfo.text || '';
+        const tagsRaw = productInfo.tags || '';
+        
+        let summary = title;
+        if (description && description.trim() !== '' && description !== title) {
+            summary = `${title}\n${description}`;
+        }
+        
+        if (summary.length > 95) {
+            summary = summary.substring(0, 92) + '...';
+        }
+        
+        const tagArray = tagsRaw.split(' ').filter(t => t.startsWith('#'));
+        let finalTags = '';
+        const MAX_TOTAL_CHARS = 135;
+
+        for (let tag of tagArray) {
+            if ((summary.length + finalTags.length + tag.length + 2) > MAX_TOTAL_CHARS) break;
+            finalTags += (finalTags ? ' ' : '\n\n') + tag;
+        }
+
+        const mainText = `${summary}${finalTags}`.trim();
+        const replyText = `👇詳細・続きはこちら\n${productInfo.affiliateUrl}`;
+
+        // 4. Twitterへの投稿実行 (メイン投稿 & リプライ投稿)
         console.log('Posting to Twitter (Main and Reply)...');
         await postToTwitter(mainText, replyText, videoPath);
 
-        // 成功時の処理：次回スケジュール設定と記録更新
+        // 5. 成功時の処理：次回スケジュール設定と記録更新
         updateSchedule();
         if (productInfo.contentId) {
             const { markAsPosted } = require('./dmm_api');
             markAsPosted(productInfo.contentId);
         }
 
+        console.log('--- Post Sequence Successfully Completed ---');
+
     } catch (error) {
-        console.error('An error occurred during execution:', error);
-        throw error; // リトライ判定のために再スロー
+        console.error('An error occurred during execution:', error.message || error);
+        throw error;
     } finally {
         if (videoPath) {
-            console.log('Cleaning up temporary files...');
             cleanupVideo(videoPath);
         }
-        console.log('--- Finished ---');
     }
 }
 

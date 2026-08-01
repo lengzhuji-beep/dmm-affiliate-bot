@@ -55,14 +55,6 @@ jobs:
         env:
           TWITTER_COOKIES: ${{ secrets.TWITTER_COOKIES }}
 
-      # 4.5 VPN接続前に超高速回線で動画をダウンロード ＆ 商品情報を準備
-      - name: Run Video Preparation (Before VPN)
-        run: node prepare_video.js
-        env:
-          DMM_API_ID: ${{ secrets.DMM_API_ID }}
-          DMM_AFFILIATE_ID: ${{ secrets.DMM_AFFILIATE_ID }}
-          FORCE_RUN: ${{ github.event_name == 'workflow_dispatch' && 'true' || 'false' }}
-
       # 5. 日本のVPNへの接続とボットの実行 (エラー時は別サーバーで自動リトライ)
       - name: Connect to Japan VPN & Run Bot
         run: |
