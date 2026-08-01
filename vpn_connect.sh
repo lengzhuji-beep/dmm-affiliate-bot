@@ -42,11 +42,15 @@ while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
   # OpenVPNをバックグラウンドで開始 (MTU/MSS問題を避けるため --mssfix 1400 を指定)
   echo "Starting OpenVPN daemon..."
   sudo openvpn --config "$OVPN_FILE" --mssfix 1400 --daemon vpn_process
+  
+  # VPNトンネル確立とIP切替のための初期待機 (5秒)
+  echo "Waiting 5 seconds for OpenVPN tunnel routing to establish..."
+  sleep 5
 
   # 接続確認ループ (最大30秒)
   CONNECTED=false
-  for i in {1..10}; do
-    echo "Checking connection status (Attempt $i/10)..."
+  for i in {1..8}; do
+    echo "Checking connection status (Attempt $i/8)..."
     sleep 3
 
     # 現在のグローバルIPと国コードを取得 (ipinfo.ioはレートリミットが厳しいため、db-ipとipapi.coをフォールバックとして使用)
