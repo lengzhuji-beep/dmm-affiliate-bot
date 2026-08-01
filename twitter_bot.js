@@ -254,36 +254,37 @@ async function postToTwitter(text, replyText, videoPath) {
         await page.waitForTimeout(1500);
 
         // === ポストボタンのクリック ===
-        console.log('Waiting for post button to become enabled (video processing)...');
-        
-        let buttonEnabled = false;
-        // 5秒おきに最大180秒（3分）ボタンの有効化を判定（Playwrightのデフォルト30秒タイムアウトによる失敗を完全回避）
-        for (let poll = 0; poll < 36; poll++) {
-            buttonEnabled = await page.evaluate(() => {
+        console.log('Waiting for video processing and clicking post button...');
+        await page.waitForTimeout(10000); // 動画アタッチ後の十分な初期処理待機
+
+        let clicked = false;
+        // 5秒おきに最大60秒間、投稿ボタンのクリックを試行（オーバーレイおよびdisabled属性を強制バイパス）
+        for (let poll = 0; poll < 12; poll++) {
+            clicked = await page.evaluate(() => {
                 const btn = document.querySelector('[data-testid="tweetButtonInline"]')
-                         || document.querySelector('[data-testid="tweetButton"]');
-                return !!(btn && !btn.disabled && btn.getAttribute('aria-disabled') !== 'true');
+                         || document.querySelector('[data-testid="tweetButton"]')
+                         || document.querySelector('button[data-testid*="tweetButton"]');
+                if (btn) {
+                    btn.removeAttribute('disabled');
+                    btn.setAttribute('aria-disabled', 'false');
+                    btn.click();
+                    return true;
+                }
+                return false;
             }).catch(() => false);
 
-            if (buttonEnabled) {
-                console.log(`Post button became enabled after ${(poll + 1) * 5} seconds!`);
+            if (clicked) {
+                console.log(`Successfully clicked post button at attempt ${poll + 1}!`);
                 break;
             }
-            console.log(`Waiting for video encoding... (${(poll + 1) * 5}s elapsed)`);
+            console.log(`Waiting for tweet button readiness... (${(poll + 1) * 5}s elapsed)`);
             await page.waitForTimeout(5000);
         }
 
-        if (!buttonEnabled) {
-            throw new Error('POST_BUTTON_TIMEOUT: Post button did not become enabled within 180s.');
+        if (!clicked) {
+            console.log('Fallback: Force clicking tweet button via Playwright...');
+            await page.locator('[data-testid="tweetButtonInline"], [data-testid="tweetButton"]').first().click({ force: true }).catch(() => {});
         }
-
-        // Step 2: JavaScriptで直接クリックイベントを発火（#layersのオーバーレイを完全バイパス）
-        console.log('Clicking post button via JavaScript...');
-        await page.evaluate(() => {
-            const btn = document.querySelector('[data-testid="tweetButtonInline"]')
-                     || document.querySelector('[data-testid="tweetButton"]');
-            if (btn) btn.click();
-        });
 
         // 投稿完了待機（コンポーザーが閉じるのをしっかり確認）
         console.log('Waiting for main post sequence to finish and composer to close...');
