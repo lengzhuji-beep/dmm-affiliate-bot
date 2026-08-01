@@ -1,22 +1,4 @@
 {
-  "lastPostTime": "2026-08-01T20:58:24.131Z",
-  "nextIntervalMinutes": 65,
-  "reply": {
-    "lastReplyTime": "2026-08-01T22:39:22.257Z",
-    "nextAllowedTime": "2026-08-01T23:14:22.257Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-02",
-    "lastRandomIntervalMinutes": 35
-  },
-  "processedTweetUrls": [
-    "https://x.com/8_rivi/status/2083552765171925155",
-    "https://x.com/B21Barbara/status/2083663961195704452"
-  ],
-  "quote": {
-    "lastQuoteTime": "2026-08-01T22:59:38.315Z",
-    "nextAllowedTime": "2026-08-01T23:43:38.315Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-02",
-    "lastRandomIntervalMinutes": 44
-  }
+  "lastPostTime": "2026-08-01T23:06:46.156Z",
+  "nextIntervalMinutes": 115
 }
