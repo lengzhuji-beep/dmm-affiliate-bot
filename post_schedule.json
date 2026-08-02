@@ -10,12 +10,14 @@
   },
   "processedTweetUrls": [
     "https://x.com/muchi_add/status/2083841191037292917",
-    "https://x.com/__mgmc__/status/2083879619799957823"
+    "https://x.com/__mgmc__/status/2083879619799957823",
+    "https://x.com/mozumozu_2222/status/2068258724192641388"
   ],
   "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-08-02"
+    "lastQuoteTime": "2026-08-02T14:32:07.785Z",
+    "nextAllowedTime": "2026-08-02T15:19:07.785Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-02",
+    "lastRandomIntervalMinutes": 47
   }
 }
