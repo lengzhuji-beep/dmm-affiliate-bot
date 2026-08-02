@@ -297,73 +297,32 @@ async function main() {
         }
 
         // ターゲットツイートの探索
-        // 優先度1: Xの「おすすめ (For You)」タイムラインから、Xアルゴリズムが厳選した超バズ投稿（100万インプレッション級）を優先抽出
-        // 優先度2: おすすめタブで見つからない場合は、12大ハッシュタグ検索へフォールバック
         let targetTweetUrl = '';
         let targetText = '';
         let cleanText = '';
         const processedUrls = scheduleData.processedTweetUrls || [];
 
-        console.log('Navigating to Twitter Home / For You timeline (https://x.com/home)...');
-        await page.goto('https://x.com/home', { waitUntil: 'commit', timeout: 60000 });
-        await page.waitForTimeout(6000);
-        await dismissOverlays(page);
+        const tagCandidates = [
+            { tag: '#グラビア', query: '%23%E3%82%B0%E3%83%A9%E3%83%93%E3%82%A2' },
+            { tag: '#コスプレ', query: '%23%E3%82%B3%E3%82%B9%E3%83%97%E3%83%AC' },
+            { tag: '#水着',     query: '%23%E6%B0%B4%E7%9D%80' },
+            { tag: '#自撮り部', query: '%23%E8%87%AA%E6%92%AE%E3%82%8A%E9%83%A8' },
+            { tag: '#美女',     query: '%23%E7%BE%8E%E5%A5%B3' },
+            { tag: '#グラビアアイドル', query: '%23%E3%82%B0%E3%83%A9%E3%83%93%E3%82%A2%E3%82%A2%E3%82%A4%E3%83%89%E3%83%AB' },
+            { tag: '#コスプレイヤー',   query: '%23%E3%82%B3%E3%82%B9%E3%83%97%E3%83%AC%E3%82%A4%E3%83%84%E3%83%BC' },
+            { tag: '#ポートレート',     query: '%23%E3%83%9D%E3%83%BC%E3%83%88%E3%83%AC%E3%83%BC%E3%83%88' },
+            { tag: '#自撮り女子',       query: '%23%E8%87%AA%E6%92%AE%E3%82%8A%E5%A5%B3%E5%AD%90' },
+            { tag: '#美少女',           query: '%23%E7%BE%8E%E5%B0%91%E5%A5%B3' },
+            { tag: '#横顔美女',         query: '%23%E6%A8%AA%E9%A1%94%E7%BE%8E%E5%A5%B3' },
+            { tag: '#1ミリでもいいなと思ったらRT', query: '%231%E3%83%9F%E3%83%AA%E3%81%A7%E3%82%82%E3%81%84%E3%81%84%E3%81%AA%E3%81%A8%E6%80%9D%E3%81%A3%E3%81%9F%E3%82%89RT' }
+        ];
 
-        console.log('Searching for top viral posts on "For You" timeline...');
-        for (let scroll = 0; scroll < 6; scroll++) {
-            const tweets = page.locator('[data-testid="tweet"]');
-            const count = await tweets.count();
+        // シャッフルして指定ターゲットハッシュタグから探す
+        const shuffledTags = [...tagCandidates].sort(() => 0.5 - Math.random());
 
-            for (let i = 0; i < count; i++) {
-                try {
-                    const tweet = tweets.nth(i);
-                    const linkElement = tweet.locator('a[href*="/status/"]').first();
-                    const tweetHref = await linkElement.getAttribute('href').catch(() => null);
-                    if (!tweetHref) continue;
-
-                    const fullUrl = `https://x.com${tweetHref}`;
-                    if (processedUrls.includes(fullUrl)) continue;
-
-                    const textElement = tweet.locator('[data-testid="tweetText"]').first();
-                    const rawText = await textElement.innerText().catch(() => '');
-                    const textWithoutHashtags = rawText.replace(/#[\w\u3000-\u30FF\u4E00-\u9FFF\uFF00-\uFFEF]+/g, '').trim();
-
-                    if (textWithoutHashtags.length >= 10) {
-                        targetTweetUrl = fullUrl;
-                        targetText = rawText;
-                        cleanText = textWithoutHashtags;
-                        console.log(`Found top viral tweet from "For You" timeline: ${targetTweetUrl}`);
-                        console.log(`Clean body text preview: "${cleanText.substring(0, 60)}..."`);
-                        break;
-                    }
-                } catch (e) {}
-            }
-
-            if (targetTweetUrl) break;
-            await page.mouse.wheel(0, 1800);
-            await page.waitForTimeout(2000);
-        }
-
-        // おすすめタブで見つからない場合はハッシュタグ検索へフォールバック
-        if (!targetTweetUrl) {
-            console.log('No suitable post on For You timeline. Falling back to 12-hashtag search...');
-            const tagCandidates = [
-                { tag: '#グラビア', query: '%23%E3%82%B0%E3%83%A9%E3%83%93%E3%82%A2' },
-                { tag: '#コスプレ', query: '%23%E3%82%B3%E3%82%B9%E3%83%97%E3%83%AC' },
-                { tag: '#水着',     query: '%23%E6%B0%B4%E7%9D%80' },
-                { tag: '#自撮り部', query: '%23%E8%87%AA%E6%92%AE%E3%82%8A%E9%83%A8' },
-                { tag: '#美女',     query: '%23%E7%BE%8E%E5%A5%B3' },
-                { tag: '#グラビアアイドル', query: '%23%E3%82%B0%E3%83%A9%E3%83%93%E3%82%A2%E3%82%A2%E3%82%A4%E3%83%89%E3%83%AB' },
-                { tag: '#コスプレイヤー',   query: '%23%E3%82%B3%E3%82%B9%E3%83%97%E3%83%AC%E3%82%A4%E3%83%84%E3%83%BC' },
-                { tag: '#ポートレート',     query: '%23%E3%83%9D%E3%83%BC%E3%83%88%E3%83%AC%E3%83%BC%E3%83%88' },
-                { tag: '#自撮り女子',       query: '%23%E8%87%AA%E6%92%AE%E3%82%8A%E5%A5%B3%E5%AD%90' },
-                { tag: '#美少女',           query: '%23%E7%BE%8E%E5%B0%91%E5%A5%B3' },
-                { tag: '#横顔美女',         query: '%23%E6%A8%AA%E9%A1%94%E7%BE%8E%E5%A5%B3' },
-                { tag: '#1ミリでもいいなと思ったらRT', query: '%231%E3%83%9F%E3%83%AA%E3%81%A7%E3%82%82%E3%81%84%E3%81%84%E3%81%AA%E3%81%A8%E6%80%9D%E3%81%A3%E3%81%9F%E3%82%89RT' }
-            ];
-            const selectedTag = tagCandidates[Math.floor(Math.random() * tagCandidates.length)];
+        for (const selectedTag of shuffledTags) {
             const searchUrl = `https://x.com/search?q=${selectedTag.query}%20min_faves%3A500&f=live`;
-            console.log(`Selected fallback hashtag: ${selectedTag.tag}`);
+            console.log(`Searching specified target hashtag for Reply: ${selectedTag.tag}...`);
             await page.goto(searchUrl, { waitUntil: 'commit', timeout: 60000 });
             await page.waitForTimeout(8000);
             await dismissOverlays(page);
@@ -372,15 +331,16 @@ async function main() {
             const count = await tweets.count();
 
             for (let i = 0; i < Math.min(count, 15); i++) {
-                const tweet = tweets.nth(i);
-                const textElement = tweet.locator('[data-testid="tweetText"]').first();
-                const rawText = await textElement.innerText().catch(() => '');
-                const textWithoutHashtags = rawText.replace(/#[\w\u3000-\u30FF\u4E00-\u9FFF\uFF00-\uFFEF]+/g, '').trim();
+                try {
+                    const tweet = tweets.nth(i);
+                    const textElement = tweet.locator('[data-testid="tweetText"]').first();
+                    const rawText = await textElement.innerText().catch(() => '');
+                    const textWithoutHashtags = rawText.replace(/#[\w\u3000-\u30FF\u4E00-\u9FFF\uFF00-\uFFEF]+/g, '').trim();
 
-                const linkElement = tweet.locator('a[href*="/status/"]').first();
-                const tweetHref = await linkElement.getAttribute('href').catch(() => null);
+                    const linkElement = tweet.locator('a[href*="/status/"]').first();
+                    const tweetHref = await linkElement.getAttribute('href').catch(() => null);
+                    if (!tweetHref) continue;
 
-                if (tweetHref) {
                     const fullUrl = `https://x.com${tweetHref}`;
                     if (processedUrls.includes(fullUrl)) continue;
 
@@ -388,15 +348,20 @@ async function main() {
                         targetTweetUrl = fullUrl;
                         targetText = rawText;
                         cleanText = textWithoutHashtags;
-                        console.log(`Found valid fallback tweet (Index ${i}): ${targetTweetUrl}`);
+                        console.log(`Found target tweet for Reply under ${selectedTag.tag}: ${targetTweetUrl}`);
+                        console.log(`Clean body text preview: "${cleanText.substring(0, 60)}..."`);
                         break;
                     }
-                }
+                } catch (e) {}
             }
+
+            if (targetTweetUrl) break;
         }
 
         if (!targetTweetUrl || !cleanText) {
-            throw new Error('Could not find any tweet on For You timeline or Hashtag search.');
+            console.log('No eligible tweet found under specified target hashtags. Exiting.');
+            await context.close();
+            return;
         }
 
         const replyText = await generateReplyViaBrowser(page, cleanText);
