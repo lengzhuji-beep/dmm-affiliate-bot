@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-02T01:13:53.060Z",
-  "nextIntervalMinutes": 94
+  "nextIntervalMinutes": 94,
+  "reply": {
+    "lastReplyTime": "2026-08-02T01:16:40.161Z",
+    "nextAllowedTime": "2026-08-02T02:06:40.161Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-02",
+    "lastRandomIntervalMinutes": 50
+  },
+  "processedTweetUrls": [
+    "https://x.com/nachico_ct1001/status/2083692528294072700"
+  ]
 }
