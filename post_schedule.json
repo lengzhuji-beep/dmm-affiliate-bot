@@ -1,22 +1,4 @@
 {
-  "lastPostTime": "2026-08-02T04:59:57.567Z",
-  "nextIntervalMinutes": 112,
-  "quote": {
-    "lastQuoteTime": "2026-08-02T07:09:07.452Z",
-    "nextAllowedTime": "2026-08-02T07:53:07.452Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-02",
-    "lastRandomIntervalMinutes": 44
-  },
-  "processedTweetUrls": [
-    "https://x.com/PR_ad006/status/2082049828251717851/analytics",
-    "https://x.com/ShanTai60925/status/2082760614208995820"
-  ],
-  "reply": {
-    "lastReplyTime": "2026-08-02T07:19:58.485Z",
-    "nextAllowedTime": "2026-08-02T08:06:58.485Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-02",
-    "lastRandomIntervalMinutes": 47
-  }
+  "lastPostTime": "2026-08-02T07:35:54.037Z",
+  "nextIntervalMinutes": 102
 }
