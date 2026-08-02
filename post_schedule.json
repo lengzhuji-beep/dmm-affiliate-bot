@@ -1,14 +1,4 @@
 {
-  "lastPostTime": "2026-08-02T07:35:54.037Z",
-  "nextIntervalMinutes": 102,
-  "reply": {
-    "lastReplyTime": "2026-08-02T09:34:05.748Z",
-    "nextAllowedTime": "2026-08-02T10:14:05.748Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-02",
-    "lastRandomIntervalMinutes": 40
-  },
-  "processedTweetUrls": [
-    "https://x.com/loop_clips/status/2083752641272951132"
-  ]
+  "lastPostTime": "2026-08-02T10:04:53.375Z",
+  "nextIntervalMinutes": 62
 }
