@@ -1,14 +1,4 @@
 {
-  "lastPostTime": "2026-08-01T23:06:46.156Z",
-  "nextIntervalMinutes": 115,
-  "reply": {
-    "lastReplyTime": "2026-08-01T23:41:29.325Z",
-    "nextAllowedTime": "2026-08-02T00:24:29.325Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-02",
-    "lastRandomIntervalMinutes": 43
-  },
-  "processedTweetUrls": [
-    "https://x.com/0206yu_h1/status/2083565471870386682"
-  ]
+  "lastPostTime": "2026-08-02T01:13:53.060Z",
+  "nextIntervalMinutes": 94
 }
