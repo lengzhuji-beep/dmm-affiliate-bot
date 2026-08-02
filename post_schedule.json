@@ -9,6 +9,14 @@
     "lastRandomIntervalMinutes": 44
   },
   "processedTweetUrls": [
-    "https://x.com/PR_ad006/status/2082049828251717851/analytics"
-  ]
+    "https://x.com/PR_ad006/status/2082049828251717851/analytics",
+    "https://x.com/ShanTai60925/status/2082760614208995820"
+  ],
+  "reply": {
+    "lastReplyTime": "2026-08-02T07:19:58.485Z",
+    "nextAllowedTime": "2026-08-02T08:06:58.485Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-02",
+    "lastRandomIntervalMinutes": 47
+  }
 }
