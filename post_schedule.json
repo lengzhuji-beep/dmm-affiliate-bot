@@ -1,20 +1,4 @@
 {
-  "lastPostTime": "2026-08-02T10:04:53.375Z",
-  "nextIntervalMinutes": 62,
-  "reply": {
-    "lastReplyTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-08-02"
-  },
-  "quote": {
-    "lastQuoteTime": "2026-08-02T11:18:56.051Z",
-    "nextAllowedTime": "2026-08-02T11:50:56.051Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-02",
-    "lastRandomIntervalMinutes": 32
-  },
-  "processedTweetUrls": [
-    "https://x.com/sakuradmarin/status/2082971018449322077"
-  ]
+  "lastPostTime": "2026-08-02T11:30:06.548Z",
+  "nextIntervalMinutes": 89
 }
