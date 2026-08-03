@@ -13,13 +13,14 @@
     "https://x.com/mozumozu_2222/status/2068258724192641388",
     "https://x.com/watagashi_d4s/status/2083905419207123347",
     "https://x.com/r8765432109/status/2083888992840548487",
-    "https://x.com/muchi_add/status/2083841191037292917"
+    "https://x.com/muchi_add/status/2083841191037292917",
+    "https://x.com/hanamori_hina/status/2084187931129065841"
   ],
   "quote": {
-    "lastQuoteTime": "2026-08-03T08:06:22.311Z",
-    "nextAllowedTime": "2026-08-03T08:54:22.311Z",
-    "todayCount": 2,
+    "lastQuoteTime": "2026-08-03T11:34:02.190Z",
+    "nextAllowedTime": "2026-08-03T12:12:02.190Z",
+    "todayCount": 3,
     "lastResetDate": "2026-08-03",
-    "lastRandomIntervalMinutes": 48
+    "lastRandomIntervalMinutes": 38
   }
 }
