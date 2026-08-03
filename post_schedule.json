@@ -1,26 +1,4 @@
 {
-  "lastPostTime": "2026-08-03T00:06:32.256Z",
-  "nextIntervalMinutes": 118,
-  "reply": {
-    "lastReplyTime": "2026-08-03T08:25:36.861Z",
-    "nextAllowedTime": "2026-08-03T09:04:36.861Z",
-    "todayCount": 3,
-    "lastResetDate": "2026-08-03",
-    "lastRandomIntervalMinutes": 39
-  },
-  "processedTweetUrls": [
-    "https://x.com/__mgmc__/status/2083879619799957823",
-    "https://x.com/mozumozu_2222/status/2068258724192641388",
-    "https://x.com/watagashi_d4s/status/2083905419207123347",
-    "https://x.com/r8765432109/status/2083888992840548487",
-    "https://x.com/muchi_add/status/2083841191037292917",
-    "https://x.com/hanamori_hina/status/2084187931129065841"
-  ],
-  "quote": {
-    "lastQuoteTime": "2026-08-03T11:34:02.190Z",
-    "nextAllowedTime": "2026-08-03T12:12:02.190Z",
-    "todayCount": 3,
-    "lastResetDate": "2026-08-03",
-    "lastRandomIntervalMinutes": 38
-  }
+  "lastPostTime": "2026-08-03T11:40:42.787Z",
+  "nextIntervalMinutes": 103
 }
