@@ -1,22 +1,4 @@
 {
-  "lastPostTime": "2026-08-02T21:35:26.263Z",
-  "nextIntervalMinutes": 91,
-  "reply": {
-    "lastReplyTime": "2026-08-02T23:42:54.880Z",
-    "nextAllowedTime": "2026-08-03T00:25:54.880Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-03",
-    "lastRandomIntervalMinutes": 43
-  },
-  "quote": {
-    "lastQuoteTime": "2026-08-02T23:01:36.893Z",
-    "nextAllowedTime": "2026-08-02T23:44:36.893Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-03",
-    "lastRandomIntervalMinutes": 43
-  },
-  "processedTweetUrls": [
-    "https://x.com/toreka_nana_1/status/2083899650982191140",
-    "https://x.com/Koike2Photo/status/2081369413857771580"
-  ]
+  "lastPostTime": "2026-08-03T00:06:32.256Z",
+  "nextIntervalMinutes": 118
 }
