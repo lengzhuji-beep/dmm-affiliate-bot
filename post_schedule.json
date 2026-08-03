@@ -2,13 +2,14 @@
   "lastPostTime": "2026-08-03T11:40:42.787Z",
   "nextIntervalMinutes": 103,
   "reply": {
-    "lastReplyTime": "2026-08-03T11:56:38.933Z",
-    "nextAllowedTime": "2026-08-03T12:43:38.933Z",
-    "todayCount": 1,
+    "lastReplyTime": "2026-08-03T14:27:30.343Z",
+    "nextAllowedTime": "2026-08-03T15:19:30.343Z",
+    "todayCount": 2,
     "lastResetDate": "2026-08-03",
-    "lastRandomIntervalMinutes": 47
+    "lastRandomIntervalMinutes": 52
   },
   "processedTweetUrls": [
-    "https://x.com/bvvuum/status/2084200949380517889"
+    "https://x.com/bvvuum/status/2084200949380517889",
+    "https://x.com/mine_riorio/status/2082475583037153759"
   ]
 }
