@@ -1,22 +1,4 @@
 {
-  "lastPostTime": "2026-08-04T02:48:04.370Z",
-  "nextIntervalMinutes": 94,
-  "reply": {
-    "lastReplyTime": "2026-08-04T05:00:29.400Z",
-    "nextAllowedTime": "2026-08-04T05:43:29.400Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-04",
-    "lastRandomIntervalMinutes": 43
-  },
-  "processedTweetUrls": [
-    "https://x.com/yamadaaiii0911/status/2084464162022080733",
-    "https://x.com/MyDearest525/status/2084302353197621736"
-  ],
-  "quote": {
-    "lastQuoteTime": "2026-08-04T05:48:29.772Z",
-    "nextAllowedTime": "2026-08-04T06:31:29.772Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-04",
-    "lastRandomIntervalMinutes": 43
-  }
+  "lastPostTime": "2026-08-04T05:52:14.635Z",
+  "nextIntervalMinutes": 73
 }
