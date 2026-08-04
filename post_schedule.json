@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-04T08:43:31.432Z",
-  "nextIntervalMinutes": 113
+  "nextIntervalMinutes": 113,
+  "reply": {
+    "lastReplyTime": "2026-08-04T10:20:44.208Z",
+    "nextAllowedTime": "2026-08-04T10:55:44.208Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-04",
+    "lastRandomIntervalMinutes": 35
+  },
+  "processedTweetUrls": [
+    "https://x.com/Kironeko_cos/status/2084393792376074455"
+  ]
 }
