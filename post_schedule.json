@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-04T05:52:14.635Z",
-  "nextIntervalMinutes": 73
+  "nextIntervalMinutes": 73,
+  "reply": {
+    "lastReplyTime": "2026-08-04T07:44:12.744Z",
+    "nextAllowedTime": "2026-08-04T08:22:12.744Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-04",
+    "lastRandomIntervalMinutes": 38
+  },
+  "processedTweetUrls": [
+    "https://x.com/mine_riorio/status/2082475583037153759"
+  ]
 }
