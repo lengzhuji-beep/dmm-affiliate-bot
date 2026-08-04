@@ -1,22 +1,4 @@
 {
-  "lastPostTime": "2026-08-04T05:52:14.635Z",
-  "nextIntervalMinutes": 73,
-  "reply": {
-    "lastReplyTime": "2026-08-04T07:44:12.744Z",
-    "nextAllowedTime": "2026-08-04T08:22:12.744Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-04",
-    "lastRandomIntervalMinutes": 38
-  },
-  "processedTweetUrls": [
-    "https://x.com/mine_riorio/status/2082475583037153759",
-    "https://x.com/hanamori_hina/status/2084458709686870427"
-  ],
-  "quote": {
-    "lastQuoteTime": "2026-08-04T08:38:51.694Z",
-    "nextAllowedTime": "2026-08-04T09:33:51.694Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-04",
-    "lastRandomIntervalMinutes": 55
-  }
+  "lastPostTime": "2026-08-04T08:43:31.432Z",
+  "nextIntervalMinutes": 113
 }
