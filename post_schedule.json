@@ -11,13 +11,14 @@
   "processedTweetUrls": [
     "https://x.com/mozumozu_2222/status/2068258724192641388",
     "https://x.com/mine_riorio/status/2082475583037153759",
-    "https://x.com/mine_riorio/status/2084667050753151189"
+    "https://x.com/mine_riorio/status/2084667050753151189",
+    "https://x.com/Kironeko_cos/status/2084746199572140054"
   ],
   "reply": {
-    "lastReplyTime": "2026-08-04T22:47:07.838Z",
-    "nextAllowedTime": "2026-08-04T23:37:07.838Z",
-    "todayCount": 1,
+    "lastReplyTime": "2026-08-05T01:08:03.205Z",
+    "nextAllowedTime": "2026-08-05T01:43:03.205Z",
+    "todayCount": 2,
     "lastResetDate": "2026-08-05",
-    "lastRandomIntervalMinutes": 50
+    "lastRandomIntervalMinutes": 35
   }
 }
