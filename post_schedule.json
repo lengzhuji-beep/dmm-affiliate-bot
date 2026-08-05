@@ -9,6 +9,14 @@
     "lastRandomIntervalMinutes": 44
   },
   "processedTweetUrls": [
-    "https://x.com/R_u_m_raisin_19/status/2084741934506197494"
-  ]
+    "https://x.com/R_u_m_raisin_19/status/2084741934506197494",
+    "https://x.com/mine_riorio/status/2082475583037153759"
+  ],
+  "quote": {
+    "lastQuoteTime": "2026-08-05T11:39:58.141Z",
+    "nextAllowedTime": "2026-08-05T12:31:58.141Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-05",
+    "lastRandomIntervalMinutes": 52
+  }
 }
