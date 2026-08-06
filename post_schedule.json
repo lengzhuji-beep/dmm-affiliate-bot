@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-06T04:20:49.822Z",
-  "nextIntervalMinutes": 88
+  "nextIntervalMinutes": 88,
+  "quote": {
+    "lastQuoteTime": "2026-08-06T06:32:49.652Z",
+    "nextAllowedTime": "2026-08-06T07:06:49.652Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-06",
+    "lastRandomIntervalMinutes": 34
+  },
+  "processedTweetUrls": [
+    "https://x.com/Koike2Photo/status/2081369413857771580"
+  ]
 }
