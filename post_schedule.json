@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-06T10:11:53.001Z",
-  "nextIntervalMinutes": 120
+  "nextIntervalMinutes": 120,
+  "reply": {
+    "lastReplyTime": "2026-08-06T11:53:00.635Z",
+    "nextAllowedTime": "2026-08-06T12:30:00.635Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-06",
+    "lastRandomIntervalMinutes": 37
+  },
+  "processedTweetUrls": [
+    "https://x.com/ermrdayo/status/2085309133809713524"
+  ]
 }
