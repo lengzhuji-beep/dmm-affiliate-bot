@@ -9,6 +9,14 @@
     "lastRandomIntervalMinutes": 34
   },
   "processedTweetUrls": [
-    "https://x.com/Koike2Photo/status/2081369413857771580"
-  ]
+    "https://x.com/Koike2Photo/status/2081369413857771580",
+    "https://x.com/toreka_nana_1/status/2084986157218365591"
+  ],
+  "reply": {
+    "lastReplyTime": "2026-08-06T06:46:47.811Z",
+    "nextAllowedTime": "2026-08-06T07:21:47.811Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-06",
+    "lastRandomIntervalMinutes": 35
+  }
 }
