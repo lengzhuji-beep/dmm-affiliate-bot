@@ -1,22 +1,4 @@
 {
-  "lastPostTime": "2026-08-06T10:11:53.001Z",
-  "nextIntervalMinutes": 120,
-  "reply": {
-    "lastReplyTime": "2026-08-06T11:53:00.635Z",
-    "nextAllowedTime": "2026-08-06T12:30:00.635Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-06",
-    "lastRandomIntervalMinutes": 37
-  },
-  "processedTweetUrls": [
-    "https://x.com/ermrdayo/status/2085309133809713524",
-    "https://x.com/yoshiopon1/status/2084749824348577865"
-  ],
-  "quote": {
-    "lastQuoteTime": "2026-08-06T12:06:11.016Z",
-    "nextAllowedTime": "2026-08-06T13:03:11.016Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-06",
-    "lastRandomIntervalMinutes": 57
-  }
+  "lastPostTime": "2026-08-06T12:31:51.309Z",
+  "nextIntervalMinutes": 119
 }
