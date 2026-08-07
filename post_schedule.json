@@ -10,13 +10,14 @@
   },
   "processedTweetUrls": [
     "https://x.com/mine_riorio/status/2082475583037153759",
-    "https://x.com/hanamori_hina/status/2084458709686870427"
+    "https://x.com/hanamori_hina/status/2084458709686870427",
+    "https://x.com/mozumozu_2222/status/2068258724192641388"
   ],
   "quote": {
-    "lastQuoteTime": "2026-08-07T11:47:52.995Z",
-    "nextAllowedTime": "2026-08-07T12:39:52.995Z",
-    "todayCount": 1,
+    "lastQuoteTime": "2026-08-07T13:05:07.813Z",
+    "nextAllowedTime": "2026-08-07T14:05:07.813Z",
+    "todayCount": 2,
     "lastResetDate": "2026-08-07",
-    "lastRandomIntervalMinutes": 52
+    "lastRandomIntervalMinutes": 60
   }
 }
