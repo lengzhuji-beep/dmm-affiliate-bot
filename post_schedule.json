@@ -2,10 +2,11 @@
   "lastPostTime": "2026-08-06T15:04:49.996Z",
   "nextIntervalMinutes": 85,
   "reply": {
-    "lastReplyTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-08-07"
+    "lastReplyTime": "2026-08-07T03:15:33.794Z",
+    "nextAllowedTime": "2026-08-07T03:49:33.794Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-07",
+    "lastRandomIntervalMinutes": 34
   },
   "quote": {
     "lastQuoteTime": "2026-08-07T00:26:49.997Z",
@@ -15,6 +16,7 @@
     "lastRandomIntervalMinutes": 31
   },
   "processedTweetUrls": [
-    "https://x.com/mine_riorio/status/2085390023277621666"
+    "https://x.com/mine_riorio/status/2085390023277621666",
+    "https://x.com/yoshiopon1/status/2084749824348577865"
   ]
 }
