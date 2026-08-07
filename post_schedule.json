@@ -6,5 +6,15 @@
     "nextAllowedTime": "1970-01-01T00:00:00.000Z",
     "todayCount": 0,
     "lastResetDate": "2026-08-07"
-  }
+  },
+  "quote": {
+    "lastQuoteTime": "2026-08-07T00:26:49.997Z",
+    "nextAllowedTime": "2026-08-07T00:57:49.997Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-07",
+    "lastRandomIntervalMinutes": 31
+  },
+  "processedTweetUrls": [
+    "https://x.com/mine_riorio/status/2085390023277621666"
+  ]
 }
