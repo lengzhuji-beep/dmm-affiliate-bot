@@ -1,31 +1,4 @@
 {
-  "lastPostTime": "2026-08-06T15:04:49.996Z",
-  "nextIntervalMinutes": 85,
-  "reply": {
-    "lastReplyTime": "2026-08-07T09:58:02.089Z",
-    "nextAllowedTime": "2026-08-07T10:52:02.089Z",
-    "todayCount": 4,
-    "lastResetDate": "2026-08-07",
-    "lastRandomIntervalMinutes": 54
-  },
-  "quote": {
-    "lastQuoteTime": "2026-08-07T10:54:06.008Z",
-    "nextAllowedTime": "2026-08-07T11:40:06.008Z",
-    "todayCount": 7,
-    "lastResetDate": "2026-08-07",
-    "lastRandomIntervalMinutes": 46
-  },
-  "processedTweetUrls": [
-    "https://x.com/mine_riorio/status/2085390023277621666",
-    "https://x.com/yoshiopon1/status/2084749824348577865",
-    "https://x.com/r8765432109/status/2085378017841520655",
-    "https://x.com/Miyabinfo/status/2085405496127946778",
-    "https://x.com/pandora_0407/status/2084565013877203358",
-    "https://x.com/kuchi_chack/status/2084412109434290398",
-    "https://x.com/ermrdayo/status/2085309133809713524",
-    "https://x.com/AdultDNK/status/2085317680555528607",
-    "https://x.com/AdultDNK/status/2084968119462949329",
-    "https://x.com/ai_mosolog/status/2085200438459015172",
-    "https://x.com/mine_riorio/status/2082475583037153759"
-  ]
+  "lastPostTime": "2026-08-07T11:03:27.282Z",
+  "nextIntervalMinutes": 68
 }
