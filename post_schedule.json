@@ -2,14 +2,15 @@
   "lastPostTime": "2026-08-08T12:57:45.967Z",
   "nextIntervalMinutes": 102,
   "reply": {
-    "lastReplyTime": "2026-08-08T13:12:29.602Z",
-    "nextAllowedTime": "2026-08-08T14:11:29.602Z",
-    "todayCount": 1,
+    "lastReplyTime": "2026-08-08T14:28:28.242Z",
+    "nextAllowedTime": "2026-08-08T15:07:28.242Z",
+    "todayCount": 2,
     "lastResetDate": "2026-08-08",
-    "lastRandomIntervalMinutes": 59
+    "lastRandomIntervalMinutes": 39
   },
   "processedTweetUrls": [
-    "https://x.com/morii__zz/status/2085911809735655504"
+    "https://x.com/morii__zz/status/2085911809735655504",
+    "https://x.com/AdultDNK/status/2085317680555528607"
   ],
   "quote": {
     "lastQuoteTime": "1970-01-01T00:00:00.000Z",
