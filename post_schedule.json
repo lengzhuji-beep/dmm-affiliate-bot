@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-08T12:57:45.967Z",
-  "nextIntervalMinutes": 102
+  "nextIntervalMinutes": 102,
+  "reply": {
+    "lastReplyTime": "2026-08-08T13:12:29.602Z",
+    "nextAllowedTime": "2026-08-08T14:11:29.602Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-08",
+    "lastRandomIntervalMinutes": 59
+  },
+  "processedTweetUrls": [
+    "https://x.com/morii__zz/status/2085911809735655504"
+  ]
 }
