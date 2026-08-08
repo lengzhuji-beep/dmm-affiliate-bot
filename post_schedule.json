@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-08T10:39:01.071Z",
-  "nextIntervalMinutes": 76
+  "nextIntervalMinutes": 76,
+  "reply": {
+    "lastReplyTime": "2026-08-08T11:01:08.163Z",
+    "nextAllowedTime": "2026-08-08T11:42:08.163Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-08",
+    "lastRandomIntervalMinutes": 41
+  },
+  "processedTweetUrls": [
+    "https://x.com/AdultDNK/status/2085317680555528607"
+  ]
 }
