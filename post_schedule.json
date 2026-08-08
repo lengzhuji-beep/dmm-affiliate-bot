@@ -10,13 +10,14 @@
   },
   "processedTweetUrls": [
     "https://x.com/kuchi_chack/status/2084412109434290398",
-    "https://x.com/AdultDNK/status/2085317680555528607"
+    "https://x.com/AdultDNK/status/2085317680555528607",
+    "https://x.com/hiyori33tuki/status/2086091347875033543"
   ],
   "reply": {
-    "lastReplyTime": "2026-08-08T23:00:06.570Z",
-    "nextAllowedTime": "2026-08-08T23:47:06.570Z",
-    "todayCount": 1,
+    "lastReplyTime": "2026-08-08T23:54:38.800Z",
+    "nextAllowedTime": "2026-08-09T00:38:38.800Z",
+    "todayCount": 2,
     "lastResetDate": "2026-08-09",
-    "lastRandomIntervalMinutes": 47
+    "lastRandomIntervalMinutes": 44
   }
 }
