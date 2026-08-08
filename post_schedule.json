@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-08T01:52:47.274Z",
-  "nextIntervalMinutes": 82
+  "nextIntervalMinutes": 82,
+  "reply": {
+    "lastReplyTime": "2026-08-08T03:03:18.485Z",
+    "nextAllowedTime": "2026-08-08T03:35:18.485Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-08",
+    "lastRandomIntervalMinutes": 32
+  },
+  "processedTweetUrls": [
+    "https://x.com/kuchi_chack/status/2084412109434290398"
+  ]
 }
