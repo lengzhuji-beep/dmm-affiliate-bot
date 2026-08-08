@@ -2,15 +2,16 @@
   "lastPostTime": "2026-08-08T07:57:53.643Z",
   "nextIntervalMinutes": 104,
   "reply": {
-    "lastReplyTime": "2026-08-08T08:22:49.412Z",
-    "nextAllowedTime": "2026-08-08T09:15:49.412Z",
-    "todayCount": 1,
+    "lastReplyTime": "2026-08-08T09:56:04.023Z",
+    "nextAllowedTime": "2026-08-08T10:48:04.023Z",
+    "todayCount": 2,
     "lastResetDate": "2026-08-08",
-    "lastRandomIntervalMinutes": 53
+    "lastRandomIntervalMinutes": 52
   },
   "processedTweetUrls": [
     "https://x.com/morikawa_ichika/status/2085887334411886699",
-    "https://x.com/mine_riorio/status/2082475583037153759"
+    "https://x.com/mine_riorio/status/2082475583037153759",
+    "https://x.com/hanamori_hina/status/2085848460775903544"
   ],
   "quote": {
     "lastQuoteTime": "2026-08-08T08:42:51.556Z",
