@@ -11,13 +11,14 @@
   "processedTweetUrls": [
     "https://x.com/morikawa_ichika/status/2085887334411886699",
     "https://x.com/mine_riorio/status/2082475583037153759",
-    "https://x.com/hanamori_hina/status/2085848460775903544"
+    "https://x.com/hanamori_hina/status/2085848460775903544",
+    "https://x.com/morii__zz/status/2085911809735655504"
   ],
   "quote": {
-    "lastQuoteTime": "2026-08-08T08:42:51.556Z",
-    "nextAllowedTime": "2026-08-08T09:42:51.556Z",
-    "todayCount": 1,
+    "lastQuoteTime": "2026-08-08T10:35:08.090Z",
+    "nextAllowedTime": "2026-08-08T11:17:08.090Z",
+    "todayCount": 2,
     "lastResetDate": "2026-08-08",
-    "lastRandomIntervalMinutes": 60
+    "lastRandomIntervalMinutes": 42
   }
 }
