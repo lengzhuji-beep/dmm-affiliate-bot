@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-08T07:57:53.643Z",
-  "nextIntervalMinutes": 104
+  "nextIntervalMinutes": 104,
+  "reply": {
+    "lastReplyTime": "2026-08-08T08:22:49.412Z",
+    "nextAllowedTime": "2026-08-08T09:15:49.412Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-08",
+    "lastRandomIntervalMinutes": 53
+  },
+  "processedTweetUrls": [
+    "https://x.com/morikawa_ichika/status/2085887334411886699"
+  ]
 }
