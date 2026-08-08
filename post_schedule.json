@@ -1,22 +1,4 @@
 {
-  "lastPostTime": "2026-08-08T01:52:47.274Z",
-  "nextIntervalMinutes": 82,
-  "reply": {
-    "lastReplyTime": "2026-08-08T03:03:18.485Z",
-    "nextAllowedTime": "2026-08-08T03:35:18.485Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-08",
-    "lastRandomIntervalMinutes": 32
-  },
-  "processedTweetUrls": [
-    "https://x.com/kuchi_chack/status/2084412109434290398",
-    "https://x.com/mine_riorio/status/2082475583037153759"
-  ],
-  "quote": {
-    "lastQuoteTime": "2026-08-08T03:26:59.348Z",
-    "nextAllowedTime": "2026-08-08T04:12:59.348Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-08",
-    "lastRandomIntervalMinutes": 46
-  }
+  "lastPostTime": "2026-08-08T03:39:19.610Z",
+  "nextIntervalMinutes": 104
 }
