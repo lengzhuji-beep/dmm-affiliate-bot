@@ -9,6 +9,14 @@
     "lastRandomIntervalMinutes": 51
   },
   "processedTweetUrls": [
-    "https://x.com/kuchi_chack/status/2084412109434290398"
-  ]
+    "https://x.com/kuchi_chack/status/2084412109434290398",
+    "https://x.com/AdultDNK/status/2085317680555528607"
+  ],
+  "reply": {
+    "lastReplyTime": "2026-08-08T23:00:06.570Z",
+    "nextAllowedTime": "2026-08-08T23:47:06.570Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-09",
+    "lastRandomIntervalMinutes": 47
+  }
 }
