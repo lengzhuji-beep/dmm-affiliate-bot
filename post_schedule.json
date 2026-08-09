@@ -13,13 +13,14 @@
     "https://x.com/kuchi_chack/status/2084412109434290398",
     "https://x.com/hiyori33tuki/status/2086091347875033543",
     "https://x.com/ShanTai60925/status/2085659715975942477",
-    "https://x.com/kodamapurin/status/2086089378884178239"
+    "https://x.com/kodamapurin/status/2086089378884178239",
+    "https://x.com/Rei_grav/status/2086038788049113289"
   ],
   "quote": {
-    "lastQuoteTime": "2026-08-09T07:35:18.721Z",
-    "nextAllowedTime": "2026-08-09T08:06:18.721Z",
-    "todayCount": 2,
+    "lastQuoteTime": "2026-08-09T08:46:19.657Z",
+    "nextAllowedTime": "2026-08-09T09:24:19.657Z",
+    "todayCount": 3,
     "lastResetDate": "2026-08-09",
-    "lastRandomIntervalMinutes": 31
+    "lastRandomIntervalMinutes": 38
   }
 }
