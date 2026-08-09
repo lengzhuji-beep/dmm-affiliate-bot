@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-09T09:44:07.376Z",
-  "nextIntervalMinutes": 81
+  "nextIntervalMinutes": 81,
+  "reply": {
+    "lastReplyTime": "2026-08-09T09:58:26.877Z",
+    "nextAllowedTime": "2026-08-09T10:30:26.877Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-09",
+    "lastRandomIntervalMinutes": 32
+  },
+  "processedTweetUrls": [
+    "https://x.com/PRAI71555/status/2086054924648104037"
+  ]
 }
