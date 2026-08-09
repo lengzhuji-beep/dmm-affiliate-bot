@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-09T22:36:53.378Z",
-  "nextIntervalMinutes": 118
+  "nextIntervalMinutes": 118,
+  "reply": {
+    "lastReplyTime": "2026-08-09T23:01:10.379Z",
+    "nextAllowedTime": "2026-08-09T23:53:10.379Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-10",
+    "lastRandomIntervalMinutes": 52
+  },
+  "processedTweetUrls": [
+    "https://x.com/mozumozu_2222/status/2068258724192641388"
+  ]
 }
