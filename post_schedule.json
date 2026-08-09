@@ -10,13 +10,14 @@
   },
   "processedTweetUrls": [
     "https://x.com/PRAI71555/status/2086054924648104037",
-    "https://x.com/Rei_grav/status/2086038788049113289"
+    "https://x.com/Rei_grav/status/2086038788049113289",
+    "https://x.com/mine_riorio/status/2082475583037153759"
   ],
   "reply": {
-    "lastReplyTime": "2026-08-09T03:11:11.623Z",
-    "nextAllowedTime": "2026-08-09T04:01:11.623Z",
-    "todayCount": 1,
+    "lastReplyTime": "2026-08-09T04:38:58.689Z",
+    "nextAllowedTime": "2026-08-09T05:30:58.689Z",
+    "todayCount": 2,
     "lastResetDate": "2026-08-09",
-    "lastRandomIntervalMinutes": 50
+    "lastRandomIntervalMinutes": 52
   }
 }
