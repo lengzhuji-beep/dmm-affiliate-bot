@@ -1,22 +1,4 @@
 {
-  "lastPostTime": "2026-08-10T07:51:20.090Z",
-  "nextIntervalMinutes": 69,
-  "quote": {
-    "lastQuoteTime": "2026-08-10T08:29:21.295Z",
-    "nextAllowedTime": "2026-08-10T09:03:21.295Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-10",
-    "lastRandomIntervalMinutes": 34
-  },
-  "processedTweetUrls": [
-    "https://x.com/st6270tx/status/2086453199565910178",
-    "https://x.com/PRAI71555/status/2086054924648104037"
-  ],
-  "reply": {
-    "lastReplyTime": "2026-08-10T08:57:49.706Z",
-    "nextAllowedTime": "2026-08-10T09:38:49.706Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-10",
-    "lastRandomIntervalMinutes": 41
-  }
+  "lastPostTime": "2026-08-10T09:28:58.859Z",
+  "nextIntervalMinutes": 114
 }
