@@ -10,6 +10,14 @@
   },
   "processedTweetUrls": [
     "https://x.com/Miyabinfo/status/2086634432266654083",
-    "https://x.com/PRAI71555/status/2086054924648104037"
-  ]
+    "https://x.com/PRAI71555/status/2086054924648104037",
+    "https://x.com/mine_riorio/status/2082475583037153759"
+  ],
+  "quote": {
+    "lastQuoteTime": "2026-08-10T13:57:41.576Z",
+    "nextAllowedTime": "2026-08-10T14:56:41.576Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-10",
+    "lastRandomIntervalMinutes": 59
+  }
 }
