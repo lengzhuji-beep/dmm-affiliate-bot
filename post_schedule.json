@@ -9,6 +9,14 @@
     "lastRandomIntervalMinutes": 54
   },
   "processedTweetUrls": [
-    "https://x.com/Miyabinfo/status/2086634432266654083"
-  ]
+    "https://x.com/Miyabinfo/status/2086634432266654083",
+    "https://x.com/hanamori_hina/status/2086373197767950609"
+  ],
+  "reply": {
+    "lastReplyTime": "2026-08-10T10:16:58.713Z",
+    "nextAllowedTime": "2026-08-10T11:09:58.713Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-10",
+    "lastRandomIntervalMinutes": 53
+  }
 }
