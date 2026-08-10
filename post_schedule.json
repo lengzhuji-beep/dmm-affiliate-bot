@@ -9,6 +9,14 @@
     "lastRandomIntervalMinutes": 34
   },
   "processedTweetUrls": [
-    "https://x.com/st6270tx/status/2086453199565910178"
-  ]
+    "https://x.com/st6270tx/status/2086453199565910178",
+    "https://x.com/PRAI71555/status/2086054924648104037"
+  ],
+  "reply": {
+    "lastReplyTime": "2026-08-10T08:57:49.706Z",
+    "nextAllowedTime": "2026-08-10T09:38:49.706Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-10",
+    "lastRandomIntervalMinutes": 41
+  }
 }
