@@ -2,13 +2,14 @@
   "lastPostTime": "2026-08-10T11:52:53.389Z",
   "nextIntervalMinutes": 103,
   "reply": {
-    "lastReplyTime": "2026-08-10T12:10:56.263Z",
-    "nextAllowedTime": "2026-08-10T12:56:56.263Z",
-    "todayCount": 1,
+    "lastReplyTime": "2026-08-10T13:44:59.444Z",
+    "nextAllowedTime": "2026-08-10T14:21:59.444Z",
+    "todayCount": 2,
     "lastResetDate": "2026-08-10",
-    "lastRandomIntervalMinutes": 46
+    "lastRandomIntervalMinutes": 37
   },
   "processedTweetUrls": [
-    "https://x.com/Miyabinfo/status/2086634432266654083"
+    "https://x.com/Miyabinfo/status/2086634432266654083",
+    "https://x.com/PRAI71555/status/2086054924648104037"
   ]
 }
