@@ -11,13 +11,14 @@
   "processedTweetUrls": [
     "https://x.com/Miyabinfo/status/2086634432266654083",
     "https://x.com/hanamori_hina/status/2086373197767950609",
-    "https://x.com/mine_riorio/status/2082475583037153759"
+    "https://x.com/mine_riorio/status/2082475583037153759",
+    "https://x.com/PRAI71555/status/2086054924648104037"
   ],
   "reply": {
-    "lastReplyTime": "2026-08-10T10:16:58.713Z",
-    "nextAllowedTime": "2026-08-10T11:09:58.713Z",
-    "todayCount": 1,
+    "lastReplyTime": "2026-08-10T11:22:34.034Z",
+    "nextAllowedTime": "2026-08-10T12:16:34.034Z",
+    "todayCount": 2,
     "lastResetDate": "2026-08-10",
-    "lastRandomIntervalMinutes": 53
+    "lastRandomIntervalMinutes": 54
   }
 }
