@@ -2,15 +2,16 @@
   "lastPostTime": "2026-08-10T09:28:58.859Z",
   "nextIntervalMinutes": 114,
   "quote": {
-    "lastQuoteTime": "2026-08-10T09:59:57.071Z",
-    "nextAllowedTime": "2026-08-10T10:53:57.071Z",
-    "todayCount": 1,
+    "lastQuoteTime": "2026-08-10T11:17:31.233Z",
+    "nextAllowedTime": "2026-08-10T11:50:31.233Z",
+    "todayCount": 2,
     "lastResetDate": "2026-08-10",
-    "lastRandomIntervalMinutes": 54
+    "lastRandomIntervalMinutes": 33
   },
   "processedTweetUrls": [
     "https://x.com/Miyabinfo/status/2086634432266654083",
-    "https://x.com/hanamori_hina/status/2086373197767950609"
+    "https://x.com/hanamori_hina/status/2086373197767950609",
+    "https://x.com/mine_riorio/status/2082475583037153759"
   ],
   "reply": {
     "lastReplyTime": "2026-08-10T10:16:58.713Z",
