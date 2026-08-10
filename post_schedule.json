@@ -2,15 +2,16 @@
   "lastPostTime": "2026-08-09T22:36:53.378Z",
   "nextIntervalMinutes": 118,
   "reply": {
-    "lastReplyTime": "2026-08-09T23:01:10.379Z",
-    "nextAllowedTime": "2026-08-09T23:53:10.379Z",
-    "todayCount": 1,
+    "lastReplyTime": "2026-08-10T00:05:38.756Z",
+    "nextAllowedTime": "2026-08-10T01:01:38.756Z",
+    "todayCount": 2,
     "lastResetDate": "2026-08-10",
-    "lastRandomIntervalMinutes": 52
+    "lastRandomIntervalMinutes": 56
   },
   "processedTweetUrls": [
     "https://x.com/mozumozu_2222/status/2068258724192641388",
-    "https://x.com/cattie_cos/status/2086506765475065898"
+    "https://x.com/cattie_cos/status/2086506765475065898",
+    "https://x.com/nanary000/status/2086473840457392548"
   ],
   "quote": {
     "lastQuoteTime": "2026-08-09T23:33:44.253Z",
