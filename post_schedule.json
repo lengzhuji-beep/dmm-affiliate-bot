@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-10T11:52:53.389Z",
-  "nextIntervalMinutes": 103
+  "nextIntervalMinutes": 103,
+  "reply": {
+    "lastReplyTime": "2026-08-10T12:10:56.263Z",
+    "nextAllowedTime": "2026-08-10T12:56:56.263Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-10",
+    "lastRandomIntervalMinutes": 46
+  },
+  "processedTweetUrls": [
+    "https://x.com/Miyabinfo/status/2086634432266654083"
+  ]
 }
