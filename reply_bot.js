@@ -91,6 +91,53 @@ function checkReplyScheduleAndMaybeExit() {
     }
 }
 
+// インプレッション文字列を数値に変換するヘルパー
+function parseViews(viewsStr) {
+    if (!viewsStr) return 0;
+    viewsStr = viewsStr.replace(/,/g, '').trim();
+    if (viewsStr.includes('万')) {
+        const num = parseFloat(viewsStr.replace('万', ''));
+        return Math.round(num * 10000);
+    }
+    if (viewsStr.includes('K') || viewsStr.includes('k')) {
+        const num = parseFloat(viewsStr.replace(/[Kk]/, ''));
+        return Math.round(num * 1000);
+    }
+    if (viewsStr.includes('M') || viewsStr.includes('m')) {
+        const num = parseFloat(viewsStr.replace(/[Mm]/, ''));
+        return Math.round(num * 1000000);
+    }
+    const parsed = parseInt(viewsStr, 10);
+    return isNaN(parsed) ? 0 : parsed;
+}
+
+// ツイート要素からインプレッション数を取得するヘルパー
+async function getTweetViews(tweet) {
+    try {
+        let viewsText = '';
+        const analyticsEl = tweet.locator('a[href*="/analytics"]').first();
+        if (await analyticsEl.count() > 0) {
+            viewsText = await analyticsEl.innerText().catch(() => '');
+            if (!viewsText) {
+                viewsText = await analyticsEl.getAttribute('aria-label').catch(() => '');
+            }
+        }
+        if (!viewsText) {
+            const groupEl = tweet.locator('[role="group"]').first();
+            if (await groupEl.count() > 0) {
+                viewsText = await groupEl.innerText().catch(() => '');
+            }
+        }
+        const match = viewsText.match(/([\d,\.]+\s*[万KMkm]?)/);
+        if (match) {
+            return parseViews(match[1]);
+        }
+        return parseViews(viewsText);
+    } catch (e) {
+        return 0;
+    }
+}
+
 // 送信成功時のスケジュール更新 (次回許可時刻を現在から30分〜60分のランダム値に設定し、処理済みURLを記録)
 function updateReplySchedule(schedule, targetTweetUrl) {
     try {
@@ -103,14 +150,14 @@ function updateReplySchedule(schedule, targetTweetUrl) {
         schedule.reply.lastRandomIntervalMinutes = randomMinutes;
         schedule.reply.todayCount = (schedule.reply.todayCount || 0) + 1;
         
-        // 処理済みURL履歴の追加 (重複防止)
+        // 処理済みURL履歴の追加 (重複防止: 最大1000件保存)
         if (!schedule.processedTweetUrls) {
             schedule.processedTweetUrls = [];
         }
         if (targetTweetUrl && !schedule.processedTweetUrls.includes(targetTweetUrl)) {
             schedule.processedTweetUrls.push(targetTweetUrl);
-            if (schedule.processedTweetUrls.length > 200) {
-                schedule.processedTweetUrls = schedule.processedTweetUrls.slice(-200);
+            if (schedule.processedTweetUrls.length > 1000) {
+                schedule.processedTweetUrls = schedule.processedTweetUrls.slice(-1000);
             }
         }
         
@@ -131,28 +178,24 @@ async function generateReplyViaBrowser(page, targetTweetText) {
         await geminiPage.waitForTimeout(4000);
 
         const cleanTargetText = targetTweetText.replace(/[\r\n]+/g, ' ').trim();
-        const prompt = `あなたはTwitterに生息するリアルな一般オタク・ファンユーザーです。以下の【対象ツイート】を読んで、リアルなネットスラングや感嘆表現を含めたフランクな口調でリプライを1つ作成してください。
+        const prompt = `あなたはTwitter(X)に日常的に生息するリアルな一般オタク・ファンユーザーです。
+以下の【対象ツイート】に対して、AIっぽさを完全に消し、生身の人間が直感的に送るリアルなリプライを1つ作成してください。
 
 【対象ツイート】
 ${cleanTargetText}
 
-【口調のお手本イメージ（※このようなノリ・語尾で作成すること）】
-- 待ってめちゃくちゃ可愛いんだがｗｗ
-- 刺さりすぎてやばい、即保存したわ笑
-- 最高すぎる！！マジで目の保養だわ✨
-- 流石に可愛すぎてビビった、、
-- はい優勝！！めちゃくちゃ似合ってる笑
-- スタイル神がかってるな、、目の保養すぎる
-- まじで可愛い！思わず二度見しちゃったわ笑
-- えぐい可愛い、、今日も一日頑張れるわ✨
-- ビジュが良すぎて普通に声出た、、最高
-- こんなん好きになるに決まってんじゃん笑
+【人間らしいリプライの多様な視点・表現スタイル（※毎回ランダムに異なるアプローチを選んで作成すること）】
+- **直感叫び系**: 「待って無理死んだｗｗｗ」「ビジュ爆発しすぎてて草」「全人類見た方がいい」
+- **ツッコミ・共感系**: 「〇〇はズルすぎるｗｗ」「語彙力消し飛んだわ」「一瞬で目覚めた笑」「パワーワードすぎて無理ｗｗ」
+- **具体ポイント注目系**: 「〇〇な雰囲気がマジで好き」「表情ドタイプすぎる」「メイク/衣装のセンス最高」
+- **日常感情吐露系**: 「仕事終わりにこれは助かる」「通知来て飛んできたわ」「疲れ一気に吹き飛んだ…」
+- **短文・スラング系**: 「優勝」「神」「尊い…」「天才すぎる」「助かる✨」
 
-【ルール・口調】
-- **敬語（〜です、〜ます、〜ください等）は絶対禁止**。本物のTwitter民のリアルな口調・語尾（〜なんだが、〜すぎ、〜だわ、笑、ｗｗ、✨等）にすること。
-- 【対象ツイート】の具体的内容（「${cleanTargetText.substring(0, 15)}」等）に軽く触れてコメントすること。
-- 60文字以内で短くフランクに。
-- 返信文のみを出力。余計な挨拶やメタ解説は一切不要。`;
+【出力ルール・制約】
+- **敬語（〜です、〜ます等）は絶対禁止**。本物のTwitter民のフランクな口調・語尾（〜なんだが、〜すぎ、〜だわ、草、ｗｗ、✨、…等）を使用。
+- 「目の保養」「即保存」などの擦り切れたテンプレ表現に頼らず、対象ツイートの具体的な内容やワードに自然に触れること。
+- 15〜50文字程度で、リアルな短文にする。
+- 返信本文のみを出力。カギカッコや挨拶、解説は一切不要。`;
 
         console.log('Finding prompt input area on Web Gemini...');
         const inputSelectors = [
@@ -228,16 +271,14 @@ ${cleanTargetText}
         if (!replyText || isNgResponse || replyText.length > 90) {
             console.warn(`Generated text was invalid. Using natural casual fallback.`);
             const naturalFallbacks = [
-                "待ってめちゃくちゃ可愛いんだがｗｗ",
-                "刺さりすぎてやばい、即保存したわ笑",
-                "最高すぎる！！マジで目の保養だわ✨",
-                "流石に可愛すぎてビビった、、",
-                "はい優勝！！めちゃくちゃ似合ってる笑",
-                "スタイル神がかってるな、、目の保養すぎる",
-                "まじで可愛い！思わず二度見しちゃったわ笑",
-                "えぐい可愛い、、今日も一日頑張れるわ✨",
-                "ビジュが良すぎて普通に声出た、、最高",
-                "こんなん好きになるに決まってんじゃん笑"
+                "待って無理死んだｗｗｗ",
+                "ビジュ爆発しすぎてて草",
+                "語彙力消し飛んだわ笑",
+                "仕事終わりにこれは助かる…✨",
+                "表情ドタイプすぎて即保存したわｗｗ",
+                "これは流石にズルいって笑",
+                "通知来て飛んできた！最高すぎる",
+                "えぐい可愛い、、今日も頑張れるわ✨"
             ];
             replyText = naturalFallbacks[Math.floor(Math.random() * naturalFallbacks.length)];
         } else if (replyText.length > 100) {
@@ -251,7 +292,7 @@ ${cleanTargetText}
     } catch (e) {
         console.error('Error during Web Gemini browser interaction:', e.message);
         await geminiPage.close().catch(() => {});
-        return "最高すぎる！！マジで目の保養だわ✨";
+        return "待って無理死んだｗｗｗ最高すぎる✨";
     }
 }
 
@@ -302,6 +343,19 @@ async function main() {
         let cleanText = '';
         const processedUrls = scheduleData.processedTweetUrls || [];
 
+        // 対象アカウントリスト (ユーザー指定)
+        const targetAccounts = [
+            'yukina__0069',
+            'lovelysensi_',
+            'Lili_amamiya22',
+            'ELINA0121212',
+            'iamhangyobacks',
+            'rito_6327',
+            '_R_A_R_A2nd',
+            'mitsuhashi_sab'
+        ];
+
+        // ハッシュタグ候補
         const tagCandidates = [
             { tag: '#グラビア', query: '%23%E3%82%B0%E3%83%A9%E3%83%93%E3%82%A2' },
             { tag: '#コスプレ', query: '%23%E3%82%B3%E3%82%B9%E3%83%97%E3%83%AC' },
@@ -317,49 +371,76 @@ async function main() {
             { tag: '#1ミリでもいいなと思ったらRT', query: '%231%E3%83%9F%E3%83%AA%E3%81%A7%E3%82%82%E3%81%84%E3%81%84%E3%81%AA%E3%81%A8%E6%80%9D%E3%81%A3%E3%81%9F%E3%82%89RT' }
         ];
 
-        // シャッフルして指定ターゲットハッシュタグから探す
-        const shuffledTags = [...tagCandidates].sort(() => 0.5 - Math.random());
+        // 探索ソースのリストを作成してシャッフル
+        const searchSources = [];
+        for (const acc of targetAccounts) {
+            searchSources.push({ type: 'account', value: acc, url: `https://x.com/${acc}` });
+        }
+        for (const tag of tagCandidates) {
+            // 人気（Top）ツイートかついいね500以上で検索してバズツイートを狙う
+            searchSources.push({ type: 'hashtag', value: tag.tag, url: `https://x.com/search?q=${tag.query}%20min_faves%3A500&f=top` });
+        }
 
-        for (const selectedTag of shuffledTags) {
-            const searchUrl = `https://x.com/search?q=${selectedTag.query}%20min_faves%3A500&f=live`;
-            console.log(`Searching specified target hashtag for Reply: ${selectedTag.tag}...`);
-            await page.goto(searchUrl, { waitUntil: 'commit', timeout: 60000 });
-            await page.waitForTimeout(8000);
+        const shuffledSources = [...searchSources].sort(() => 0.5 - Math.random());
+
+        for (const source of shuffledSources) {
+            console.log(`Searching for 30k+ impression tweets in ${source.type}: ${source.value}...`);
+            await page.goto(source.url, { waitUntil: 'commit', timeout: 60000 });
+            await page.waitForTimeout(6000);
             await dismissOverlays(page);
 
-            const tweets = page.locator('[data-testid="tweet"]');
-            const count = await tweets.count();
+            for (let scrollCount = 0; scrollCount < 4; scrollCount++) {
+                const tweets = page.locator('[data-testid="tweet"]');
+                const count = await tweets.count();
 
-            for (let i = 0; i < Math.min(count, 15); i++) {
-                try {
-                    const tweet = tweets.nth(i);
-                    const textElement = tweet.locator('[data-testid="tweetText"]').first();
-                    const rawText = await textElement.innerText().catch(() => '');
-                    const textWithoutHashtags = rawText.replace(/#[\w\u3000-\u30FF\u4E00-\u9FFF\uFF00-\uFFEF]+/g, '').trim();
+                for (let i = 0; i < count; i++) {
+                    try {
+                        const tweet = tweets.nth(i);
 
-                    const linkElement = tweet.locator('a[href*="/status/"]').first();
-                    const tweetHref = await linkElement.getAttribute('href').catch(() => null);
-                    if (!tweetHref) continue;
+                        const linkElement = tweet.locator('a[href*="/status/"]').first();
+                        const tweetHref = await linkElement.getAttribute('href').catch(() => null);
+                        if (!tweetHref) continue;
 
-                    const fullUrl = `https://x.com${tweetHref}`;
-                    if (processedUrls.includes(fullUrl)) continue;
+                        const fullUrl = `https://x.com${tweetHref}`;
+                        if (processedUrls.includes(fullUrl)) continue; // 重複チェック
 
-                    if (textWithoutHashtags.length >= 10) {
-                        targetTweetUrl = fullUrl;
-                        targetText = rawText;
-                        cleanText = textWithoutHashtags;
-                        console.log(`Found target tweet for Reply under ${selectedTag.tag}: ${targetTweetUrl}`);
-                        console.log(`Clean body text preview: "${cleanText.substring(0, 60)}..."`);
-                        break;
-                    }
-                } catch (e) {}
+                        // 自アカウントからのポスト、または自分へのリプライはスキップ
+                        if (fullUrl.includes('/av_favorite_av/')) continue;
+
+                        // インプレッション数のチェック (30,000以上)
+                        const views = await getTweetViews(tweet);
+                        console.log(`Checking tweet ${fullUrl} - Views: ${views}`);
+                        if (views < 30000) {
+                            continue; // 3万未満はスキップ
+                        }
+
+                        const textElement = tweet.locator('[data-testid="tweetText"]').first();
+                        const rawText = await textElement.innerText().catch(() => '');
+                        const textWithoutHashtags = rawText.replace(/#[\w\u3000-\u30FF\u4E00-\u9FFF\uFF00-\uFFEF]+/g, '').trim();
+
+                        if (textWithoutHashtags.length >= 5 || rawText.length >= 5) {
+                            targetTweetUrl = fullUrl;
+                            targetText = rawText;
+                            cleanText = textWithoutHashtags || rawText;
+                            console.log(`>>> Found 30k+ views target tweet under ${source.value} (${views} views): ${targetTweetUrl}`);
+                            console.log(`Clean body text preview: "${cleanText.substring(0, 60)}..."`);
+                            break;
+                        }
+                    } catch (e) {}
+                }
+
+                if (targetTweetUrl) break;
+
+                // スクロールしてさらに探す
+                await page.mouse.wheel(0, 1500);
+                await page.waitForTimeout(1500);
             }
 
             if (targetTweetUrl) break;
         }
 
         if (!targetTweetUrl || !cleanText) {
-            console.log('No eligible tweet found under specified target hashtags. Exiting.');
+            console.log('No eligible tweet with 30,000+ views found across sources. Exiting.');
             await context.close();
             return;
         }
@@ -410,3 +491,4 @@ main().catch((err) => {
     console.error('Fatal error in reply bot:', err);
     process.exit(1);
 });
+

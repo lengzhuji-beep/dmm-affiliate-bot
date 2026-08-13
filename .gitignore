@@ -4,3 +4,5 @@ twitter_cookies.json
 twitter_session/ 
 logs.txt 
 vpn.ovpn
+.env
+
