@@ -1,21 +1,4 @@
 {
-  "lastPostTime": "2026-08-13T21:51:31.061Z",
-  "nextIntervalMinutes": 72,
-  "reply": {
-    "lastReplyTime": "2026-08-13T23:02:55.321Z",
-    "nextAllowedTime": "2026-08-13T23:32:55.321Z",
-    "todayCount": 2,
-    "lastResetDate": "2026-08-14",
-    "lastRandomIntervalMinutes": 30
-  },
-  "processedTweetUrls": [
-    "https://x.com/yukina__0069/status/2087365769059614958",
-    "https://x.com/ELINA0121212/status/2085318960539717847"
-  ],
-  "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-08-14"
-  }
+  "lastPostTime": "2026-08-13T23:48:10.109Z",
+  "nextIntervalMinutes": 101
 }
