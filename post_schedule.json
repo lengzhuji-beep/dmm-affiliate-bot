@@ -11,5 +11,11 @@
   "processedTweetUrls": [
     "https://x.com/nanan573/status/2087708442320601580",
     "https://x.com/Lili_amamiya22/status/2087833130371817647"
-  ]
+  ],
+  "quote": {
+    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
+    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
+    "todayCount": 0,
+    "lastResetDate": "2026-08-14"
+  }
 }
