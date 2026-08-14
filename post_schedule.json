@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-14T07:45:21.244Z",
-  "nextIntervalMinutes": 109
+  "nextIntervalMinutes": 109,
+  "reply": {
+    "lastReplyTime": "2026-08-14T08:12:16.317Z",
+    "nextAllowedTime": "2026-08-14T09:02:16.317Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-14",
+    "lastRandomIntervalMinutes": 50
+  },
+  "processedTweetUrls": [
+    "https://x.com/photostation621/status/2087814800873226508"
+  ]
 }
