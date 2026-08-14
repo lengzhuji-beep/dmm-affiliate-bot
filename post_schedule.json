@@ -6,5 +6,15 @@
     "nextAllowedTime": "1970-01-01T00:00:00.000Z",
     "todayCount": 0,
     "lastResetDate": "2026-08-15"
-  }
+  },
+  "reply": {
+    "lastReplyTime": "2026-08-14T22:48:50.987Z",
+    "nextAllowedTime": "2026-08-14T23:23:50.987Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-15",
+    "lastRandomIntervalMinutes": 35
+  },
+  "processedTweetUrls": [
+    "https://x.com/fantasylibrary/status/2086535454275584252"
+  ]
 }
