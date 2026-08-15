@@ -1,21 +1,4 @@
 {
-  "lastPostTime": "2026-08-15T13:38:37.725Z",
-  "nextIntervalMinutes": 97,
-  "reply": {
-    "lastReplyTime": "2026-08-15T14:51:20.032Z",
-    "nextAllowedTime": "2026-08-15T15:44:20.032Z",
-    "todayCount": 2,
-    "lastResetDate": "2026-08-15",
-    "lastRandomIntervalMinutes": 53
-  },
-  "processedTweetUrls": [
-    "https://x.com/fantasylibrary/status/2086535454275584252",
-    "https://x.com/harubaby_nya/status/2070841665817088363"
-  ],
-  "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-08-15"
-  }
+  "lastPostTime": "2026-08-15T15:28:05.188Z",
+  "nextIntervalMinutes": 108
 }
