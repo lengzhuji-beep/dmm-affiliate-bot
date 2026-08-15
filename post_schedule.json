@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-15T13:38:37.725Z",
-  "nextIntervalMinutes": 97
+  "nextIntervalMinutes": 97,
+  "reply": {
+    "lastReplyTime": "2026-08-15T13:43:35.635Z",
+    "nextAllowedTime": "2026-08-15T14:43:35.635Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-15",
+    "lastRandomIntervalMinutes": 60
+  },
+  "processedTweetUrls": [
+    "https://x.com/fantasylibrary/status/2086535454275584252"
+  ]
 }
