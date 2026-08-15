@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-15T06:44:47.738Z",
-  "nextIntervalMinutes": 119
+  "nextIntervalMinutes": 119,
+  "reply": {
+    "lastReplyTime": "2026-08-15T07:07:57.460Z",
+    "nextAllowedTime": "2026-08-15T07:41:57.460Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-15",
+    "lastRandomIntervalMinutes": 34
+  },
+  "processedTweetUrls": [
+    "https://x.com/nanan573/status/2087708442320601580"
+  ]
 }
