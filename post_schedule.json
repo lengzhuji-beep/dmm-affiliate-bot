@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-15T23:01:04.493Z",
-  "nextIntervalMinutes": 82
+  "nextIntervalMinutes": 82,
+  "reply": {
+    "lastReplyTime": "2026-08-15T23:22:39.431Z",
+    "nextAllowedTime": "2026-08-15T23:56:39.431Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-16",
+    "lastRandomIntervalMinutes": 34
+  },
+  "processedTweetUrls": [
+    "https://x.com/harubaby_nya/status/2070841665817088363"
+  ]
 }
