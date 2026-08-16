@@ -2,14 +2,15 @@
   "lastPostTime": "2026-08-16T21:47:50.133Z",
   "nextIntervalMinutes": 66,
   "reply": {
-    "lastReplyTime": "2026-08-16T22:17:52.947Z",
-    "nextAllowedTime": "2026-08-16T23:13:52.947Z",
-    "todayCount": 1,
+    "lastReplyTime": "2026-08-16T23:26:52.033Z",
+    "nextAllowedTime": "2026-08-17T00:21:52.033Z",
+    "todayCount": 2,
     "lastResetDate": "2026-08-17",
-    "lastRandomIntervalMinutes": 56
+    "lastRandomIntervalMinutes": 55
   },
   "processedTweetUrls": [
-    "https://x.com/kotori_remon_1/status/2087129480703922435"
+    "https://x.com/kotori_remon_1/status/2087129480703922435",
+    "https://x.com/lovelysensi_/status/2083034710599676241"
   ],
   "quote": {
     "lastQuoteTime": "1970-01-01T00:00:00.000Z",
