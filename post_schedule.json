@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-16T21:47:50.133Z",
-  "nextIntervalMinutes": 66
+  "nextIntervalMinutes": 66,
+  "reply": {
+    "lastReplyTime": "2026-08-16T22:17:52.947Z",
+    "nextAllowedTime": "2026-08-16T23:13:52.947Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-17",
+    "lastRandomIntervalMinutes": 56
+  },
+  "processedTweetUrls": [
+    "https://x.com/kotori_remon_1/status/2087129480703922435"
+  ]
 }
