@@ -2,14 +2,15 @@
   "lastPostTime": "2026-08-17T10:39:29.544Z",
   "nextIntervalMinutes": 64,
   "reply": {
-    "lastReplyTime": "2026-08-17T10:56:56.528Z",
-    "nextAllowedTime": "2026-08-17T11:36:56.528Z",
-    "todayCount": 1,
+    "lastReplyTime": "2026-08-17T11:51:12.518Z",
+    "nextAllowedTime": "2026-08-17T12:46:12.518Z",
+    "todayCount": 2,
     "lastResetDate": "2026-08-17",
-    "lastRandomIntervalMinutes": 40
+    "lastRandomIntervalMinutes": 55
   },
   "processedTweetUrls": [
-    "https://x.com/rito_6327/status/2007102135692104144"
+    "https://x.com/rito_6327/status/2007102135692104144",
+    "https://x.com/mine_riorio/status/2038269883918823753"
   ],
   "quote": {
     "lastQuoteTime": "1970-01-01T00:00:00.000Z",
