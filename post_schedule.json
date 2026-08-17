@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-17T04:50:19.429Z",
-  "nextIntervalMinutes": 66
+  "nextIntervalMinutes": 66,
+  "reply": {
+    "lastReplyTime": "2026-08-17T04:58:37.227Z",
+    "nextAllowedTime": "2026-08-17T05:32:37.227Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-17",
+    "lastRandomIntervalMinutes": 34
+  },
+  "processedTweetUrls": [
+    "https://x.com/mitsuhashi_sab/status/2087875349015302412"
+  ]
 }
