@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-17T23:38:30.758Z",
-  "nextIntervalMinutes": 116
+  "nextIntervalMinutes": 116,
+  "reply": {
+    "lastReplyTime": "2026-08-17T23:45:51.912Z",
+    "nextAllowedTime": "2026-08-18T00:40:51.912Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-18",
+    "lastRandomIntervalMinutes": 55
+  },
+  "processedTweetUrls": [
+    "https://x.com/_R_A_R_A2nd/status/2089278028555997583"
+  ]
 }
