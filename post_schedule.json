@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-17T12:00:35.145Z",
-  "nextIntervalMinutes": 117
+  "nextIntervalMinutes": 117,
+  "reply": {
+    "lastReplyTime": "2026-08-17T12:31:58.907Z",
+    "nextAllowedTime": "2026-08-17T13:23:58.907Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-17",
+    "lastRandomIntervalMinutes": 52
+  },
+  "processedTweetUrls": [
+    "https://x.com/ELINA0121212/status/2088578917800308822"
+  ]
 }
