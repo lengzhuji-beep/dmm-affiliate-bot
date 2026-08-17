@@ -2,13 +2,14 @@
   "lastPostTime": "2026-08-17T04:50:19.429Z",
   "nextIntervalMinutes": 66,
   "reply": {
-    "lastReplyTime": "2026-08-17T04:58:37.227Z",
-    "nextAllowedTime": "2026-08-17T05:32:37.227Z",
-    "todayCount": 1,
+    "lastReplyTime": "2026-08-17T05:36:14.410Z",
+    "nextAllowedTime": "2026-08-17T06:36:14.410Z",
+    "todayCount": 2,
     "lastResetDate": "2026-08-17",
-    "lastRandomIntervalMinutes": 34
+    "lastRandomIntervalMinutes": 60
   },
   "processedTweetUrls": [
-    "https://x.com/mitsuhashi_sab/status/2087875349015302412"
+    "https://x.com/mitsuhashi_sab/status/2087875349015302412",
+    "https://x.com/ELINA0121212/status/2085318960539717847"
   ]
 }
