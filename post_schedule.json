@@ -10,5 +10,11 @@
   },
   "processedTweetUrls": [
     "https://x.com/_R_A_R_A2nd/status/2089278028555997583"
-  ]
+  ],
+  "quote": {
+    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
+    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
+    "todayCount": 0,
+    "lastResetDate": "2026-08-18"
+  }
 }
