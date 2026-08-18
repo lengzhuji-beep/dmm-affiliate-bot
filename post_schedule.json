@@ -1,23 +1,4 @@
 {
-  "lastPostTime": "2026-08-18T12:54:27.448Z",
-  "nextIntervalMinutes": 95,
-  "reply": {
-    "lastReplyTime": "2026-08-18T23:17:36.921Z",
-    "nextAllowedTime": "2026-08-18T23:52:36.921Z",
-    "todayCount": 2,
-    "lastResetDate": "2026-08-19",
-    "lastRandomIntervalMinutes": 35
-  },
-  "processedTweetUrls": [
-    "https://x.com/lovelysensi_/status/2083034710599676241",
-    "https://x.com/supergirlschan/status/1761353874697486638",
-    "https://x.com/harubaby_nya/status/2070841665817088363",
-    "https://x.com/htmp4k/status/2086093287618957530"
-  ],
-  "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-08-19"
-  }
+  "lastPostTime": "2026-08-18T23:29:20.904Z",
+  "nextIntervalMinutes": 62
 }
