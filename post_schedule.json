@@ -1,20 +1,4 @@
 {
-  "lastPostTime": "2026-08-18T11:30:43.966Z",
-  "nextIntervalMinutes": 60,
-  "reply": {
-    "lastReplyTime": "2026-08-18T11:51:46.271Z",
-    "nextAllowedTime": "2026-08-18T12:32:46.271Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-18",
-    "lastRandomIntervalMinutes": 41
-  },
-  "processedTweetUrls": [
-    "https://x.com/photoanzu329/status/1707168193561997591"
-  ],
-  "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-08-18"
-  }
+  "lastPostTime": "2026-08-18T12:54:27.448Z",
+  "nextIntervalMinutes": 95
 }
