@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-18T11:30:43.966Z",
-  "nextIntervalMinutes": 60
+  "nextIntervalMinutes": 60,
+  "reply": {
+    "lastReplyTime": "2026-08-18T11:51:46.271Z",
+    "nextAllowedTime": "2026-08-18T12:32:46.271Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-18",
+    "lastRandomIntervalMinutes": 41
+  },
+  "processedTweetUrls": [
+    "https://x.com/photoanzu329/status/1707168193561997591"
+  ]
 }
