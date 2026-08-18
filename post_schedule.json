@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-18T23:29:20.904Z",
-  "nextIntervalMinutes": 62
+  "nextIntervalMinutes": 62,
+  "reply": {
+    "lastReplyTime": "2026-08-18T23:49:18.624Z",
+    "nextAllowedTime": "2026-08-19T00:37:18.624Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-19",
+    "lastRandomIntervalMinutes": 48
+  },
+  "processedTweetUrls": [
+    "https://x.com/omarii_c13/status/2087524678663598543"
+  ]
 }
