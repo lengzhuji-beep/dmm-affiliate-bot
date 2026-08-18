@@ -2,14 +2,15 @@
   "lastPostTime": "2026-08-18T12:54:27.448Z",
   "nextIntervalMinutes": 95,
   "reply": {
-    "lastReplyTime": "2026-08-18T13:31:03.404Z",
-    "nextAllowedTime": "2026-08-18T14:31:03.404Z",
-    "todayCount": 1,
+    "lastReplyTime": "2026-08-18T14:52:55.925Z",
+    "nextAllowedTime": "2026-08-18T15:41:55.925Z",
+    "todayCount": 2,
     "lastResetDate": "2026-08-18",
-    "lastRandomIntervalMinutes": 60
+    "lastRandomIntervalMinutes": 49
   },
   "processedTweetUrls": [
-    "https://x.com/lovelysensi_/status/2083034710599676241"
+    "https://x.com/lovelysensi_/status/2083034710599676241",
+    "https://x.com/supergirlschan/status/1761353874697486638"
   ],
   "quote": {
     "lastQuoteTime": "1970-01-01T00:00:00.000Z",
