@@ -2,13 +2,14 @@
   "lastPostTime": "2026-08-19T03:59:24.755Z",
   "nextIntervalMinutes": 103,
   "reply": {
-    "lastReplyTime": "2026-08-19T04:22:20.927Z",
-    "nextAllowedTime": "2026-08-19T05:07:20.927Z",
-    "todayCount": 1,
+    "lastReplyTime": "2026-08-19T10:56:16.576Z",
+    "nextAllowedTime": "2026-08-19T11:31:16.576Z",
+    "todayCount": 2,
     "lastResetDate": "2026-08-19",
-    "lastRandomIntervalMinutes": 45
+    "lastRandomIntervalMinutes": 35
   },
   "processedTweetUrls": [
-    "https://x.com/ELINA0121212/status/2089305575893164358"
+    "https://x.com/ELINA0121212/status/2089305575893164358",
+    "https://x.com/ELINA0121212/status/2089298718986268729"
   ]
 }
