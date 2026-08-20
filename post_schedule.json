@@ -2,14 +2,15 @@
   "lastPostTime": "2026-08-20T01:23:56.347Z",
   "nextIntervalMinutes": 69,
   "reply": {
-    "lastReplyTime": "2026-08-20T01:52:36.970Z",
-    "nextAllowedTime": "2026-08-20T02:23:36.970Z",
-    "todayCount": 1,
+    "lastReplyTime": "2026-08-20T03:01:04.654Z",
+    "nextAllowedTime": "2026-08-20T03:48:04.654Z",
+    "todayCount": 2,
     "lastResetDate": "2026-08-20",
-    "lastRandomIntervalMinutes": 31
+    "lastRandomIntervalMinutes": 47
   },
   "processedTweetUrls": [
-    "https://x.com/iamhangyobacks/status/2089998703025443168"
+    "https://x.com/iamhangyobacks/status/2089998703025443168",
+    "https://x.com/osakabuffaloes/status/2024058374669631809"
   ],
   "quote": {
     "lastQuoteTime": "1970-01-01T00:00:00.000Z",
