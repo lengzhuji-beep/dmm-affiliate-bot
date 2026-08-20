@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-20T21:06:42.996Z",
-  "nextIntervalMinutes": 97
+  "nextIntervalMinutes": 97,
+  "reply": {
+    "lastReplyTime": "2026-08-20T22:03:18.563Z",
+    "nextAllowedTime": "2026-08-20T22:55:18.563Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-21",
+    "lastRandomIntervalMinutes": 52
+  },
+  "processedTweetUrls": [
+    "https://x.com/osakabuffaloes/status/2024058374669631809"
+  ]
 }
