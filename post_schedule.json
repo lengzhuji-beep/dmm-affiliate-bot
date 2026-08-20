@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-20T00:00:04.559Z",
-  "nextIntervalMinutes": 68
+  "nextIntervalMinutes": 68,
+  "reply": {
+    "lastReplyTime": "2026-08-20T00:02:25.376Z",
+    "nextAllowedTime": "2026-08-20T00:40:25.376Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-20",
+    "lastRandomIntervalMinutes": 38
+  },
+  "processedTweetUrls": [
+    "https://x.com/rito_6327/status/2007102135692104144"
+  ]
 }
