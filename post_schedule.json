@@ -1,21 +1,4 @@
 {
-  "lastPostTime": "2026-08-20T08:46:48.104Z",
-  "nextIntervalMinutes": 65,
-  "reply": {
-    "lastReplyTime": "2026-08-20T10:28:03.648Z",
-    "nextAllowedTime": "2026-08-20T11:11:03.648Z",
-    "todayCount": 2,
-    "lastResetDate": "2026-08-20",
-    "lastRandomIntervalMinutes": 43
-  },
-  "processedTweetUrls": [
-    "https://x.com/omarii_c13/status/2087524678663598543",
-    "https://x.com/barone7of1moon2/status/2089488885617488272"
-  ],
-  "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-08-20"
-  }
+  "lastPostTime": "2026-08-20T10:43:48.881Z",
+  "nextIntervalMinutes": 77
 }
