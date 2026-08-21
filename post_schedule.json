@@ -1,20 +1,4 @@
 {
-  "lastPostTime": "2026-08-20T23:37:58.821Z",
-  "nextIntervalMinutes": 86,
-  "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-08-21"
-  },
-  "reply": {
-    "lastReplyTime": "2026-08-21T01:25:05.150Z",
-    "nextAllowedTime": "2026-08-21T02:02:05.150Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-21",
-    "lastRandomIntervalMinutes": 37
-  },
-  "processedTweetUrls": [
-    "https://x.com/KoheyJump29116/status/1985655055199121566"
-  ]
+  "lastPostTime": "2026-08-21T01:28:00.000Z",
+  "nextIntervalMinutes": 94
 }
