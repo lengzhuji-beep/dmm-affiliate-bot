@@ -1,21 +1,4 @@
 {
-  "lastPostTime": "2026-08-21T21:28:47.264Z",
-  "nextIntervalMinutes": 96,
-  "reply": {
-    "lastReplyTime": "2026-08-21T23:18:24.810Z",
-    "nextAllowedTime": "2026-08-21T23:53:24.810Z",
-    "todayCount": 2,
-    "lastResetDate": "2026-08-22",
-    "lastRandomIntervalMinutes": 35
-  },
-  "processedTweetUrls": [
-    "https://x.com/osakabuffaloes/status/2024058374669631809",
-    "https://x.com/barone7of1moon2/status/2089488885617488272"
-  ],
-  "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-08-22"
-  }
+  "lastPostTime": "2026-08-21T23:31:29.072Z",
+  "nextIntervalMinutes": 109
 }
