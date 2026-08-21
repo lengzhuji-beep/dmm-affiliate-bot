@@ -1,21 +1,4 @@
 {
-  "lastPostTime": "2026-08-21T04:02:22.031Z",
-  "nextIntervalMinutes": 70,
-  "reply": {
-    "lastReplyTime": "2026-08-21T07:41:29.263Z",
-    "nextAllowedTime": "2026-08-21T08:14:29.263Z",
-    "todayCount": 2,
-    "lastResetDate": "2026-08-21",
-    "lastRandomIntervalMinutes": 33
-  },
-  "processedTweetUrls": [
-    "https://x.com/_aoinatsuki/status/1670071737860640768",
-    "https://x.com/iamhangyobacks/status/2090523191114608863"
-  ],
-  "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-08-21"
-  }
+  "lastPostTime": "2026-08-21T07:51:49.509Z",
+  "nextIntervalMinutes": 69
 }
