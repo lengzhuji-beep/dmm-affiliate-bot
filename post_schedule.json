@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-21T04:02:22.031Z",
-  "nextIntervalMinutes": 70
+  "nextIntervalMinutes": 70,
+  "reply": {
+    "lastReplyTime": "2026-08-21T04:23:24.565Z",
+    "nextAllowedTime": "2026-08-21T05:22:24.565Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-21",
+    "lastRandomIntervalMinutes": 59
+  },
+  "processedTweetUrls": [
+    "https://x.com/_aoinatsuki/status/1670071737860640768"
+  ]
 }
