@@ -2,14 +2,15 @@
   "lastPostTime": "2026-08-21T09:48:01.644Z",
   "nextIntervalMinutes": 108,
   "reply": {
-    "lastReplyTime": "2026-08-21T10:06:29.016Z",
-    "nextAllowedTime": "2026-08-21T10:58:29.016Z",
-    "todayCount": 1,
+    "lastReplyTime": "2026-08-21T11:24:52.532Z",
+    "nextAllowedTime": "2026-08-21T12:02:52.532Z",
+    "todayCount": 2,
     "lastResetDate": "2026-08-21",
-    "lastRandomIntervalMinutes": 52
+    "lastRandomIntervalMinutes": 38
   },
   "processedTweetUrls": [
-    "https://x.com/iamhangyobacks/status/2090523191114608863"
+    "https://x.com/iamhangyobacks/status/2090523191114608863",
+    "https://x.com/RR__chara/status/2088115173148303490"
   ],
   "quote": {
     "lastQuoteTime": "1970-01-01T00:00:00.000Z",
