@@ -1,21 +1,4 @@
 {
-  "lastPostTime": "2026-08-22T06:52:48.021Z",
-  "nextIntervalMinutes": 76,
-  "reply": {
-    "lastReplyTime": "2026-08-22T08:05:25.427Z",
-    "nextAllowedTime": "2026-08-22T08:43:25.427Z",
-    "todayCount": 2,
-    "lastResetDate": "2026-08-22",
-    "lastRandomIntervalMinutes": 38
-  },
-  "processedTweetUrls": [
-    "https://x.com/mitsuhashi_sab/status/2089337533973086619",
-    "https://x.com/kawasuberi_bear/status/2090046330186117250"
-  ],
-  "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-08-22"
-  }
+  "lastPostTime": "2026-08-22T08:36:37.628Z",
+  "nextIntervalMinutes": 104
 }
