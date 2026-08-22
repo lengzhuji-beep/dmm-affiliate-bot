@@ -11,5 +11,11 @@
   "processedTweetUrls": [
     "https://x.com/mitsuhashi_sab/status/2089337533973086619",
     "https://x.com/omarii_c13/status/2087524678663598543"
-  ]
+  ],
+  "quote": {
+    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
+    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
+    "todayCount": 0,
+    "lastResetDate": "2026-08-22"
+  }
 }
