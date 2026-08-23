@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-23T01:36:22.928Z",
-  "nextIntervalMinutes": 102
+  "nextIntervalMinutes": 102,
+  "reply": {
+    "lastReplyTime": "2026-08-23T02:38:00.311Z",
+    "nextAllowedTime": "2026-08-23T03:19:00.311Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-23",
+    "lastRandomIntervalMinutes": 41
+  },
+  "processedTweetUrls": [
+    "https://x.com/photo_kenji/status/2090791217093288444"
+  ]
 }
