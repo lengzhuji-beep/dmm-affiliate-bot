@@ -2,14 +2,15 @@
   "lastPostTime": "2026-08-23T08:37:02.037Z",
   "nextIntervalMinutes": 113,
   "reply": {
-    "lastReplyTime": "2026-08-23T08:48:06.233Z",
-    "nextAllowedTime": "2026-08-23T09:41:06.233Z",
-    "todayCount": 1,
+    "lastReplyTime": "2026-08-23T09:52:34.036Z",
+    "nextAllowedTime": "2026-08-23T10:37:34.036Z",
+    "todayCount": 2,
     "lastResetDate": "2026-08-23",
-    "lastRandomIntervalMinutes": 53
+    "lastRandomIntervalMinutes": 45
   },
   "processedTweetUrls": [
-    "https://x.com/Lili_amamiya22/status/2090735724207489185"
+    "https://x.com/Lili_amamiya22/status/2090735724207489185",
+    "https://x.com/momose_seina/status/1725499507369254958"
   ],
   "quote": {
     "lastQuoteTime": "1970-01-01T00:00:00.000Z",
