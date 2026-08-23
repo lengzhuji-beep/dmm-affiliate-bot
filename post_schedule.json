@@ -2,14 +2,15 @@
   "lastPostTime": "2026-08-22T22:56:37.825Z",
   "nextIntervalMinutes": 92,
   "reply": {
-    "lastReplyTime": "2026-08-22T23:15:57.152Z",
-    "nextAllowedTime": "2026-08-23T00:01:57.152Z",
-    "todayCount": 1,
+    "lastReplyTime": "2026-08-23T01:04:01.177Z",
+    "nextAllowedTime": "2026-08-23T01:44:01.177Z",
+    "todayCount": 2,
     "lastResetDate": "2026-08-23",
-    "lastRandomIntervalMinutes": 46
+    "lastRandomIntervalMinutes": 40
   },
   "processedTweetUrls": [
-    "https://x.com/nanan573/status/2087708442320601580"
+    "https://x.com/nanan573/status/2087708442320601580",
+    "https://x.com/kawasuberi_bear/status/2090046330186117250"
   ],
   "quote": {
     "lastQuoteTime": "1970-01-01T00:00:00.000Z",
