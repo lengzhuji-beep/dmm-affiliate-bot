@@ -2,14 +2,15 @@
   "lastPostTime": "2026-08-23T01:36:22.928Z",
   "nextIntervalMinutes": 102,
   "reply": {
-    "lastReplyTime": "2026-08-23T02:38:00.311Z",
-    "nextAllowedTime": "2026-08-23T03:19:00.311Z",
-    "todayCount": 1,
+    "lastReplyTime": "2026-08-23T03:36:45.552Z",
+    "nextAllowedTime": "2026-08-23T04:06:45.552Z",
+    "todayCount": 2,
     "lastResetDate": "2026-08-23",
-    "lastRandomIntervalMinutes": 41
+    "lastRandomIntervalMinutes": 30
   },
   "processedTweetUrls": [
-    "https://x.com/photo_kenji/status/2090791217093288444"
+    "https://x.com/photo_kenji/status/2090791217093288444",
+    "https://x.com/ELINA0121212/status/2089305575893164358"
   ],
   "quote": {
     "lastQuoteTime": "1970-01-01T00:00:00.000Z",
