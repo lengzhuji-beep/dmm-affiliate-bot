@@ -1,20 +1,4 @@
 {
-  "lastPostTime": "2026-08-24T02:53:02.237Z",
-  "nextIntervalMinutes": 96,
-  "reply": {
-    "lastReplyTime": "2026-08-24T03:31:48.126Z",
-    "nextAllowedTime": "2026-08-24T04:29:48.126Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-24",
-    "lastRandomIntervalMinutes": 58
-  },
-  "processedTweetUrls": [
-    "https://x.com/bvvuum/status/2091437626226331991"
-  ],
-  "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-08-24"
-  }
+  "lastPostTime": "2026-08-24T04:57:31.725Z",
+  "nextIntervalMinutes": 113
 }
