@@ -1,20 +1,4 @@
 {
-  "lastPostTime": "2026-08-24T20:37:04.464Z",
-  "nextIntervalMinutes": 73,
-  "reply": {
-    "lastReplyTime": "2026-08-24T22:20:37.004Z",
-    "nextAllowedTime": "2026-08-24T23:01:37.004Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-25",
-    "lastRandomIntervalMinutes": 41
-  },
-  "processedTweetUrls": [
-    "https://x.com/iamhangyobacks/status/2091844928632676676"
-  ],
-  "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-08-25"
-  }
+  "lastPostTime": "2026-08-24T23:07:12.227Z",
+  "nextIntervalMinutes": 86
 }
