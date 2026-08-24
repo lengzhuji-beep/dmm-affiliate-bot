@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-24T23:07:12.227Z",
-  "nextIntervalMinutes": 86
+  "nextIntervalMinutes": 86,
+  "reply": {
+    "lastReplyTime": "2026-08-24T23:18:53.767Z",
+    "nextAllowedTime": "2026-08-24T23:54:53.767Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-25",
+    "lastRandomIntervalMinutes": 36
+  },
+  "processedTweetUrls": [
+    "https://x.com/Lili_amamiya22/status/2091856044591112212"
+  ]
 }
