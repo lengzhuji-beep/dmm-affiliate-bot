@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-24T02:53:02.237Z",
-  "nextIntervalMinutes": 96
+  "nextIntervalMinutes": 96,
+  "reply": {
+    "lastReplyTime": "2026-08-24T03:31:48.126Z",
+    "nextAllowedTime": "2026-08-24T04:29:48.126Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-24",
+    "lastRandomIntervalMinutes": 58
+  },
+  "processedTweetUrls": [
+    "https://x.com/bvvuum/status/2091437626226331991"
+  ]
 }
