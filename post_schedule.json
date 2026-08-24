@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-08-24T07:04:51.734Z",
-  "nextIntervalMinutes": 120
+  "nextIntervalMinutes": 120,
+  "reply": {
+    "lastReplyTime": "2026-08-24T07:45:49.822Z",
+    "nextAllowedTime": "2026-08-24T08:27:49.822Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-24",
+    "lastRandomIntervalMinutes": 42
+  },
+  "processedTweetUrls": [
+    "https://x.com/suwa_cocoro0126/status/1861033184005341547"
+  ]
 }
