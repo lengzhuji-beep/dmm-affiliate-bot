@@ -8,13 +8,14 @@
     "lastResetDate": "2026-08-26"
   },
   "reply": {
-    "lastReplyTime": "2026-08-26T13:16:42.834Z",
-    "nextAllowedTime": "2026-08-26T13:46:42.834Z",
-    "todayCount": 1,
+    "lastReplyTime": "2026-08-26T14:07:34.865Z",
+    "nextAllowedTime": "2026-08-26T15:03:34.865Z",
+    "todayCount": 2,
     "lastResetDate": "2026-08-26",
-    "lastRandomIntervalMinutes": 30
+    "lastRandomIntervalMinutes": 56
   },
   "processedTweetUrls": [
-    "https://x.com/Graham__san/status/1617732589770637312"
+    "https://x.com/Graham__san/status/1617732589770637312",
+    "https://x.com/168nno/status/2092227373270024546"
   ]
 }
