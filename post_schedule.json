@@ -1,21 +1,4 @@
 {
-  "lastPostTime": "2026-08-26T05:43:20.641Z",
-  "nextIntervalMinutes": 111,
-  "reply": {
-    "lastReplyTime": "2026-08-26T06:40:26.830Z",
-    "nextAllowedTime": "2026-08-26T07:33:26.830Z",
-    "todayCount": 2,
-    "lastResetDate": "2026-08-26",
-    "lastRandomIntervalMinutes": 53
-  },
-  "processedTweetUrls": [
-    "https://x.com/Lili_amamiya22/status/2092218465994322406",
-    "https://x.com/yukina__0069/status/2091522254278713403"
-  ],
-  "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-08-26"
-  }
+  "lastPostTime": "2026-08-26T07:56:27.109Z",
+  "nextIntervalMinutes": 73
 }
