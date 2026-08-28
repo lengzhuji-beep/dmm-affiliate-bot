@@ -6,5 +6,15 @@
     "nextAllowedTime": "1970-01-01T00:00:00.000Z",
     "todayCount": 0,
     "lastResetDate": "2026-08-28"
-  }
+  },
+  "reply": {
+    "lastReplyTime": "2026-08-28T02:11:40.581Z",
+    "nextAllowedTime": "2026-08-28T03:09:40.581Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-08-28",
+    "lastRandomIntervalMinutes": 58
+  },
+  "processedTweetUrls": [
+    "https://x.com/lovelysensi_/status/2083034710599676241"
+  ]
 }
