@@ -1,20 +1,4 @@
 {
-  "lastPostTime": "2026-08-29T01:38:52.898Z",
-  "nextIntervalMinutes": 75,
-  "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-08-29"
-  },
-  "reply": {
-    "lastReplyTime": "2026-08-29T04:20:37.894Z",
-    "nextAllowedTime": "2026-08-29T04:58:37.894Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-08-29",
-    "lastRandomIntervalMinutes": 38
-  },
-  "processedTweetUrls": [
-    "https://x.com/mitsuhashi_sab/status/2089337533973086619"
-  ]
+  "lastPostTime": "2026-08-29T08:47:57.771Z",
+  "nextIntervalMinutes": 89
 }
