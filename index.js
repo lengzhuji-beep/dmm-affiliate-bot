@@ -43,8 +43,8 @@ function checkScheduleAndMaybeExit() {
 
 // 次回スケジュールを更新して保存する関数
 function updateSchedule() {
-    // 1時間〜2時間の間（60分〜120分）のランダム値
-    const nextInterval = Math.floor(Math.random() * (120 - 60 + 1)) + 60;
+    // 30分〜60分の間のランダム値
+    const nextInterval = Math.floor(Math.random() * (60 - 30 + 1)) + 30;
     const now = new Date();
 
     const schedule = {
