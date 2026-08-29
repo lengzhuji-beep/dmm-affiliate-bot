@@ -30,6 +30,74 @@ async function dismissOverlays(page) {
 }
 
 /**
+ * コンポーザーへテキストを確実に入力し、URLが破損・欠損（https://抜けや途中で切り切れ）していないか検証・自動修復する
+ */
+async function typeAndVerifyText(page, tweetBoxLocator, textToType) {
+    const MAX_INPUT_RETRIES = 5;
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const expectedUrls = textToType.match(urlRegex) || [];
+
+    for (let attempt = 1; attempt <= MAX_INPUT_RETRIES; attempt++) {
+        console.log(`[Input Attempt ${attempt}/${MAX_INPUT_RETRIES}] Inserting text into composer...`);
+        
+        await tweetBoxLocator.click({ force: true });
+        await page.waitForTimeout(500);
+
+        // エディタ内を全選択してクリア
+        await page.keyboard.press(process.platform === 'darwin' ? 'Meta+A' : 'Control+A');
+        await page.keyboard.press('Backspace');
+        await page.waitForTimeout(500);
+
+        if (attempt % 2 === 1) {
+            // 方法A: keyboard.insertText で一括入力
+            await page.keyboard.insertText(textToType);
+        } else {
+            // 方法B: クリップボード経由または型打込み（フォールバック）
+            await page.keyboard.type(textToType, { delay: 10 });
+        }
+        await page.waitForTimeout(1500);
+
+        // エディタ内の全テキストを複数のDOM属性から取得して検証
+        const innerText = await tweetBoxLocator.innerText().catch(() => '');
+        const textContent = await tweetBoxLocator.evaluate(el => el.textContent || '').catch(() => '');
+        const rawContent = `${innerText} ${textContent}`;
+        const normalizedActual = rawContent.replace(/\r?\n|\r/g, ' ').trim();
+
+        let isValid = true;
+
+        // 1. URLの完全一致チェック
+        for (const expectedUrl of expectedUrls) {
+            if (!normalizedActual.includes(expectedUrl)) {
+                console.warn(`[Verification Failed] Expected URL "${expectedUrl}" not completely found in composer text: "${normalizedActual}"`);
+                isValid = false;
+                break;
+            }
+        }
+
+        // 2. 欠損・破損パターン（.fanza.co.jpやttps://やp/?lurl=等の先頭抜け）の明示的ブロック
+        if (isValid && expectedUrls.length > 0) {
+            // https:// や http:// が抜けて .fanza.co.jp や fanza.co.jp で始まっている異常テキストを検出
+            const hasCorruptedUrl = /(?<!https?:\/\/)(al\.fanza\.co\.jp|\.fanza\.co\.jp|fanza\.co\.jp|\/|\?lurl=)/.test(normalizedActual) &&
+                                    !normalizedActual.includes('https://al.fanza.co.jp');
+            if (hasCorruptedUrl) {
+                console.warn(`[Verification Failed] Corrupted/incomplete URL pattern detected in text: "${normalizedActual}"`);
+                isValid = false;
+            }
+        }
+
+        if (isValid) {
+            console.log('[Verification Passed] All URLs are complete and valid in composer!');
+            return true;
+        }
+
+        console.warn(`[Verification Retry] URL check failed on attempt ${attempt}. Clearing composer and retrying...`);
+        await page.waitForTimeout(1000);
+    }
+
+    throw new Error(`Failed to insert valid text with intact URLs after ${MAX_INPUT_RETRIES} attempts. Aborting post to prevent broken URL post.`);
+}
+
+/**
  * Twitterにログインまたはセッションを復元し、動画付きツイートとリプライを投稿する
  * @param {string} text 投稿するテキスト（親ツイート）
  * @param {string} replyText リプライとして投稿するテキスト
@@ -214,9 +282,7 @@ async function postToTwitter(text, replyText, videoPath) {
         // === 親ツイートの入力・投稿 ===
         console.log('Typing main text...');
         const textarea = page.locator('[data-testid="tweetTextarea_0"]').first();
-        await textarea.click({ force: true });
-        await page.waitForTimeout(500);
-        await page.keyboard.type(text, { delay: 30 });
+        await typeAndVerifyText(page, textarea, text);
         await page.waitForTimeout(1000);
 
         // === ポストボタンのクリック ===
@@ -284,11 +350,12 @@ async function postToTwitter(text, replyText, videoPath) {
             await page.locator('[data-testid="reply"]').first().click();
 
             // リプライ用入力エリアが表示されるのを待つ
-            await page.waitForSelector('[data-testid="tweetTextarea_0"]', { state: 'visible', timeout: 10000 });
+            const replyTextArea = page.locator('[data-testid="tweetTextarea_0"]').first();
+            await replyTextArea.waitFor({ state: 'visible', timeout: 10000 });
             await page.waitForTimeout(1000);
             
-            console.log('Typing reply text...');
-            await page.keyboard.type(replyText, { delay: 30 });
+            console.log('Typing reply text and verifying URLs...');
+            await typeAndVerifyText(page, replyTextArea, replyText);
             await page.waitForTimeout(1000);
 
             // リプライ用投稿ボタン（JavaScriptで直接クリック - オーバーレイをバイパス）
