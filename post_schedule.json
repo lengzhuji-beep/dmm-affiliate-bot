@@ -1,20 +1,4 @@
 {
-  "lastPostTime": "2026-09-01T01:09:38.102Z",
-  "nextIntervalMinutes": 79,
-  "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-09-01"
-  },
-  "reply": {
-    "lastReplyTime": "2026-09-01T02:04:16.407Z",
-    "nextAllowedTime": "2026-09-01T03:03:16.407Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-09-01",
-    "lastRandomIntervalMinutes": 59
-  },
-  "processedTweetUrls": [
-    "https://x.com/ELINA0121212/status/2085318960539717847"
-  ]
+  "lastPostTime": "2026-09-01T02:32:21.298Z",
+  "nextIntervalMinutes": 101
 }
