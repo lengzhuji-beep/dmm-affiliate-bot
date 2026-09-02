@@ -1,14 +1,4 @@
 {
-  "lastPostTime": "2026-09-02T20:39:44.602Z",
-  "nextIntervalMinutes": 110,
-  "reply": {
-    "lastReplyTime": "2026-09-02T22:24:57.052Z",
-    "nextAllowedTime": "2026-09-02T22:56:57.052Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-09-03",
-    "lastRandomIntervalMinutes": 32
-  },
-  "processedTweetUrls": [
-    "https://x.com/AI_Ada66/status/2067501869614957037"
-  ]
+  "lastPostTime": "2026-09-02T22:34:11.368Z",
+  "nextIntervalMinutes": 66
 }
