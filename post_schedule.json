@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-09-05T05:33:57.120Z",
-  "nextIntervalMinutes": 63
+  "nextIntervalMinutes": 63,
+  "reply": {
+    "lastReplyTime": "2026-09-05T06:02:02.082Z",
+    "nextAllowedTime": "2026-09-05T07:02:02.082Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-09-05",
+    "lastRandomIntervalMinutes": 60
+  },
+  "processedTweetUrls": [
+    "https://x.com/nishimetal02/status/2094639022882836764"
+  ]
 }
