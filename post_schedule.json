@@ -1,14 +1,4 @@
 {
-  "lastPostTime": "2026-09-07T01:02:40.109Z",
-  "nextIntervalMinutes": 99,
-  "reply": {
-    "lastReplyTime": "2026-09-07T01:12:07.060Z",
-    "nextAllowedTime": "2026-09-07T01:47:07.060Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-09-07",
-    "lastRandomIntervalMinutes": 35
-  },
-  "processedTweetUrls": [
-    "https://x.com/iamhangyobacks/status/2096512275163312512"
-  ]
+  "lastPostTime": "2026-09-07T03:11:34.796Z",
+  "nextIntervalMinutes": 63
 }
