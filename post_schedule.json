@@ -1,14 +1,4 @@
 {
-  "lastPostTime": "2026-09-07T23:34:54.357Z",
-  "nextIntervalMinutes": 112,
-  "reply": {
-    "lastReplyTime": "2026-09-08T01:18:00.215Z",
-    "nextAllowedTime": "2026-09-08T02:02:00.215Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-09-08",
-    "lastRandomIntervalMinutes": 44
-  },
-  "processedTweetUrls": [
-    "https://x.com/lovelysensi_/status/2083034710599676241"
-  ]
+  "lastPostTime": "2026-09-08T01:37:32.450Z",
+  "nextIntervalMinutes": 114
 }
