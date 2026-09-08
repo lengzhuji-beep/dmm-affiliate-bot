@@ -1,14 +1,4 @@
 {
-  "lastPostTime": "2026-09-08T10:09:10.904Z",
-  "nextIntervalMinutes": 64,
-  "reply": {
-    "lastReplyTime": "2026-09-08T11:16:10.032Z",
-    "nextAllowedTime": "2026-09-08T11:51:10.032Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-09-08",
-    "lastRandomIntervalMinutes": 35
-  },
-  "processedTweetUrls": [
-    "https://x.com/Graham__san/status/1617732589770637312"
-  ]
+  "lastPostTime": "2026-09-08T11:32:28.402Z",
+  "nextIntervalMinutes": 116
 }
