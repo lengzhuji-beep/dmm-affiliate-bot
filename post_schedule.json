@@ -6,5 +6,15 @@
     "nextAllowedTime": "1970-01-01T00:00:00.000Z",
     "todayCount": 0,
     "lastResetDate": "2026-09-10"
-  }
+  },
+  "reply": {
+    "lastReplyTime": "2026-09-10T11:16:50.452Z",
+    "nextAllowedTime": "2026-09-10T11:54:50.452Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-09-10",
+    "lastRandomIntervalMinutes": 38
+  },
+  "processedTweetUrls": [
+    "https://x.com/_R_A_R_A2nd/status/2091124077398524178"
+  ]
 }
