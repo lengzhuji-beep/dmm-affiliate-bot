@@ -1,20 +1,4 @@
 {
-  "lastPostTime": "2026-09-11T00:28:20.600Z",
-  "nextIntervalMinutes": 63,
-  "reply": {
-    "lastReplyTime": "2026-09-11T00:46:34.776Z",
-    "nextAllowedTime": "2026-09-11T01:40:34.776Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-09-11",
-    "lastRandomIntervalMinutes": 54
-  },
-  "processedTweetUrls": [
-    "https://x.com/juu_158/status/2087436675454767350"
-  ],
-  "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-09-11"
-  }
+  "lastPostTime": "2026-09-11T02:04:56.187Z",
+  "nextIntervalMinutes": 94
 }
