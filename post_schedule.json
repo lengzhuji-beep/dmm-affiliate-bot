@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-09-11T00:28:20.600Z",
-  "nextIntervalMinutes": 63
+  "nextIntervalMinutes": 63,
+  "reply": {
+    "lastReplyTime": "2026-09-11T00:46:34.776Z",
+    "nextAllowedTime": "2026-09-11T01:40:34.776Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-09-11",
+    "lastRandomIntervalMinutes": 54
+  },
+  "processedTweetUrls": [
+    "https://x.com/juu_158/status/2087436675454767350"
+  ]
 }
