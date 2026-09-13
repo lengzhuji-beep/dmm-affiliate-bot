@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-09-13T04:33:25.615Z",
-  "nextIntervalMinutes": 91
+  "nextIntervalMinutes": 91,
+  "reply": {
+    "lastReplyTime": "2026-09-13T05:07:02.827Z",
+    "nextAllowedTime": "2026-09-13T05:55:02.827Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-09-13",
+    "lastRandomIntervalMinutes": 48
+  },
+  "processedTweetUrls": [
+    "https://x.com/kawasuberi_bear/status/2091382936075681865"
+  ]
 }
