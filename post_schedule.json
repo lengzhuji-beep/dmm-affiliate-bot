@@ -1,20 +1,4 @@
 {
-  "lastPostTime": "2026-09-13T14:07:06.905Z",
-  "nextIntervalMinutes": 97,
-  "reply": {
-    "lastReplyTime": "2026-09-13T14:27:01.412Z",
-    "nextAllowedTime": "2026-09-13T15:17:01.412Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-09-13",
-    "lastRandomIntervalMinutes": 50
-  },
-  "processedTweetUrls": [
-    "https://x.com/supergirlschan/status/1755549534627701198"
-  ],
-  "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-09-13"
-  }
+  "lastPostTime": "2026-09-13T16:03:52.072Z",
+  "nextIntervalMinutes": 79
 }
