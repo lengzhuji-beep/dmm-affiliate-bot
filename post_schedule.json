@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-09-13T14:07:06.905Z",
-  "nextIntervalMinutes": 97
+  "nextIntervalMinutes": 97,
+  "reply": {
+    "lastReplyTime": "2026-09-13T14:27:01.412Z",
+    "nextAllowedTime": "2026-09-13T15:17:01.412Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-09-13",
+    "lastRandomIntervalMinutes": 50
+  },
+  "processedTweetUrls": [
+    "https://x.com/supergirlschan/status/1755549534627701198"
+  ]
 }
