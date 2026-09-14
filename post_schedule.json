@@ -6,5 +6,15 @@
     "nextAllowedTime": "1970-01-01T00:00:00.000Z",
     "todayCount": 0,
     "lastResetDate": "2026-09-14"
-  }
+  },
+  "reply": {
+    "lastReplyTime": "2026-09-14T01:40:44.455Z",
+    "nextAllowedTime": "2026-09-14T02:20:44.455Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-09-14",
+    "lastRandomIntervalMinutes": 40
+  },
+  "processedTweetUrls": [
+    "https://x.com/rito_6327/status/2007102135692104144"
+  ]
 }
