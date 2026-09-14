@@ -6,5 +6,15 @@
     "nextAllowedTime": "1970-01-01T00:00:00.000Z",
     "todayCount": 0,
     "lastResetDate": "2026-09-14"
-  }
+  },
+  "reply": {
+    "lastReplyTime": "2026-09-14T07:07:06.901Z",
+    "nextAllowedTime": "2026-09-14T08:06:06.901Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-09-14",
+    "lastRandomIntervalMinutes": 59
+  },
+  "processedTweetUrls": [
+    "https://x.com/mitsuhashi_sab/status/2095099257309339690"
+  ]
 }
