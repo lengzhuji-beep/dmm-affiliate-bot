@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-09-20T13:09:13.699Z",
-  "nextIntervalMinutes": 94
+  "nextIntervalMinutes": 94,
+  "reply": {
+    "lastReplyTime": "2026-09-20T14:49:52.924Z",
+    "nextAllowedTime": "2026-09-20T15:22:52.924Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-09-20",
+    "lastRandomIntervalMinutes": 33
+  },
+  "processedTweetUrls": [
+    "https://x.com/osu_moka/status/2091328083504906682"
+  ]
 }
