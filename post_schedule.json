@@ -1,20 +1,4 @@
 {
-  "lastPostTime": "2026-09-20T00:35:08.044Z",
-  "nextIntervalMinutes": 90,
-  "reply": {
-    "lastReplyTime": "2026-09-20T01:08:27.949Z",
-    "nextAllowedTime": "2026-09-20T01:58:27.949Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-09-20",
-    "lastRandomIntervalMinutes": 50
-  },
-  "processedTweetUrls": [
-    "https://x.com/mikiiiiiiigram/status/1832613865198412262"
-  ],
-  "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-09-20"
-  }
+  "lastPostTime": "2026-09-20T02:37:24.823Z",
+  "nextIntervalMinutes": 115
 }
