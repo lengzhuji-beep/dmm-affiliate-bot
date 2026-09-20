@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-09-20T00:35:08.044Z",
-  "nextIntervalMinutes": 90
+  "nextIntervalMinutes": 90,
+  "reply": {
+    "lastReplyTime": "2026-09-20T01:08:27.949Z",
+    "nextAllowedTime": "2026-09-20T01:58:27.949Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-09-20",
+    "lastRandomIntervalMinutes": 50
+  },
+  "processedTweetUrls": [
+    "https://x.com/mikiiiiiiigram/status/1832613865198412262"
+  ]
 }
