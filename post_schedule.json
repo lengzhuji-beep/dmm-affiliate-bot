@@ -1,4 +1,10 @@
 {
   "lastPostTime": "2026-09-20T06:41:05.936Z",
-  "nextIntervalMinutes": 115
+  "nextIntervalMinutes": 115,
+  "quote": {
+    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
+    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
+    "todayCount": 0,
+    "lastResetDate": "2026-09-20"
+  }
 }
