@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-09-20T22:02:33.520Z",
-  "nextIntervalMinutes": 104
+  "nextIntervalMinutes": 104,
+  "reply": {
+    "lastReplyTime": "2026-09-20T22:29:39.732Z",
+    "nextAllowedTime": "2026-09-20T23:09:39.732Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-09-21",
+    "lastRandomIntervalMinutes": 40
+  },
+  "processedTweetUrls": [
+    "https://x.com/pinko_mm/status/1642818695100784640"
+  ]
 }
