@@ -1,20 +1,4 @@
 {
-  "lastPostTime": "2026-09-22T06:32:36.015Z",
-  "nextIntervalMinutes": 68,
-  "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-09-22"
-  },
-  "reply": {
-    "lastReplyTime": "2026-09-22T07:13:02.366Z",
-    "nextAllowedTime": "2026-09-22T08:13:02.366Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-09-22",
-    "lastRandomIntervalMinutes": 60
-  },
-  "processedTweetUrls": [
-    "https://x.com/Graham__san/status/1617732589770637312"
-  ]
+  "lastPostTime": "2026-09-22T08:03:44.284Z",
+  "nextIntervalMinutes": 70
 }
