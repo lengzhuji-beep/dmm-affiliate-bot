@@ -8,13 +8,14 @@
     "lastResetDate": "2026-09-25"
   },
   "reply": {
-    "lastReplyTime": "2026-09-24T22:58:51.836Z",
-    "nextAllowedTime": "2026-09-24T23:42:51.836Z",
-    "todayCount": 1,
+    "lastReplyTime": "2026-09-25T00:59:28.325Z",
+    "nextAllowedTime": "2026-09-25T01:30:28.325Z",
+    "todayCount": 2,
     "lastResetDate": "2026-09-25",
-    "lastRandomIntervalMinutes": 44
+    "lastRandomIntervalMinutes": 31
   },
   "processedTweetUrls": [
-    "https://x.com/_R_A_R_A2nd/status/2102263224448295126"
+    "https://x.com/_R_A_R_A2nd/status/2102263224448295126",
+    "https://x.com/ELINA0121212/status/2085318960539717847"
   ]
 }
