@@ -1,21 +1,4 @@
 {
-  "lastPostTime": "2026-09-28T01:22:32.671Z",
-  "nextIntervalMinutes": 68,
-  "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-09-28"
-  },
-  "reply": {
-    "lastReplyTime": "2026-09-28T10:57:04.252Z",
-    "nextAllowedTime": "2026-09-28T11:55:04.252Z",
-    "todayCount": 2,
-    "lastResetDate": "2026-09-28",
-    "lastRandomIntervalMinutes": 58
-  },
-  "processedTweetUrls": [
-    "https://x.com/Yush_1021/status/1924378890769944936",
-    "https://x.com/Lili_amamiya22/status/2097592557144613233"
-  ]
+  "lastPostTime": "2026-09-28T14:37:41.672Z",
+  "nextIntervalMinutes": 103
 }
