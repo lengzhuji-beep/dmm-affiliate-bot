@@ -8,13 +8,14 @@
     "lastResetDate": "2026-09-28"
   },
   "reply": {
-    "lastReplyTime": "2026-09-28T04:15:03.227Z",
-    "nextAllowedTime": "2026-09-28T04:50:03.227Z",
-    "todayCount": 1,
+    "lastReplyTime": "2026-09-28T10:57:04.252Z",
+    "nextAllowedTime": "2026-09-28T11:55:04.252Z",
+    "todayCount": 2,
     "lastResetDate": "2026-09-28",
-    "lastRandomIntervalMinutes": 35
+    "lastRandomIntervalMinutes": 58
   },
   "processedTweetUrls": [
-    "https://x.com/Yush_1021/status/1924378890769944936"
+    "https://x.com/Yush_1021/status/1924378890769944936",
+    "https://x.com/Lili_amamiya22/status/2097592557144613233"
   ]
 }
