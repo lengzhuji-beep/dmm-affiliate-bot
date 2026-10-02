@@ -1,14 +1,4 @@
 {
-  "lastPostTime": "2026-10-02T01:14:29.057Z",
-  "nextIntervalMinutes": 110,
-  "reply": {
-    "lastReplyTime": "2026-10-02T02:16:43.250Z",
-    "nextAllowedTime": "2026-10-02T02:48:43.250Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-10-02",
-    "lastRandomIntervalMinutes": 32
-  },
-  "processedTweetUrls": [
-    "https://x.com/_aoinatsuki/status/1665721099030601729"
-  ]
+  "lastPostTime": "2026-10-02T03:34:30.161Z",
+  "nextIntervalMinutes": 90
 }
