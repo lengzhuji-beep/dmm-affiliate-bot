@@ -1,20 +1,4 @@
 {
-  "lastPostTime": "2026-10-01T23:03:12.672Z",
-  "nextIntervalMinutes": 103,
-  "reply": {
-    "lastReplyTime": "2026-10-01T23:12:20.041Z",
-    "nextAllowedTime": "2026-10-02T00:05:20.041Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-10-02",
-    "lastRandomIntervalMinutes": 53
-  },
-  "processedTweetUrls": [
-    "https://x.com/_aoinatsuki/status/1665721099030601729"
-  ],
-  "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-10-02"
-  }
+  "lastPostTime": "2026-10-02T01:14:29.057Z",
+  "nextIntervalMinutes": 110
 }
