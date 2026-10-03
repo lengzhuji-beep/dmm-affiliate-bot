@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-10-03T02:03:43.398Z",
-  "nextIntervalMinutes": 98
+  "nextIntervalMinutes": 98,
+  "reply": {
+    "lastReplyTime": "2026-10-03T02:17:31.185Z",
+    "nextAllowedTime": "2026-10-03T03:16:31.185Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-10-03",
+    "lastRandomIntervalMinutes": 59
+  },
+  "processedTweetUrls": [
+    "https://x.com/jitenshazuki/status/2073525054672105492"
+  ]
 }
