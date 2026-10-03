@@ -6,5 +6,15 @@
     "nextAllowedTime": "1970-01-01T00:00:00.000Z",
     "todayCount": 0,
     "lastResetDate": "2026-10-03"
-  }
+  },
+  "reply": {
+    "lastReplyTime": "2026-10-03T13:23:44.004Z",
+    "nextAllowedTime": "2026-10-03T13:58:44.004Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-10-03",
+    "lastRandomIntervalMinutes": 35
+  },
+  "processedTweetUrls": [
+    "https://x.com/Lili_amamiya22/status/2097592557144613233"
+  ]
 }
