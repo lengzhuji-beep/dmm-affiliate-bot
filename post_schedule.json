@@ -1,20 +1,4 @@
 {
-  "lastPostTime": "2026-10-04T01:35:40.761Z",
-  "nextIntervalMinutes": 68,
-  "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-10-04"
-  },
-  "reply": {
-    "lastReplyTime": "2026-10-04T02:37:24.770Z",
-    "nextAllowedTime": "2026-10-04T03:22:24.770Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-10-04",
-    "lastRandomIntervalMinutes": 45
-  },
-  "processedTweetUrls": [
-    "https://x.com/_aqua_mari_ne_/status/2033025950137614719"
-  ]
+  "lastPostTime": "2026-10-04T03:02:22.015Z",
+  "nextIntervalMinutes": 115
 }
