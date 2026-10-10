@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-10-10T19:33:30.606Z",
-  "nextIntervalMinutes": 112
+  "nextIntervalMinutes": 112,
+  "reply": {
+    "lastReplyTime": "2026-10-10T22:57:37.415Z",
+    "nextAllowedTime": "2026-10-10T23:36:37.415Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-10-11",
+    "lastRandomIntervalMinutes": 39
+  },
+  "processedTweetUrls": [
+    "https://x.com/hanamori_hina/status/2084395131646414939"
+  ]
 }
