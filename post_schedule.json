@@ -1,21 +1,4 @@
 {
-  "lastPostTime": "2026-10-10T19:33:30.606Z",
-  "nextIntervalMinutes": 112,
-  "reply": {
-    "lastReplyTime": "2026-10-11T01:31:50.064Z",
-    "nextAllowedTime": "2026-10-11T02:18:50.064Z",
-    "todayCount": 2,
-    "lastResetDate": "2026-10-11",
-    "lastRandomIntervalMinutes": 47
-  },
-  "processedTweetUrls": [
-    "https://x.com/hanamori_hina/status/2084395131646414939",
-    "https://x.com/yukina__0069/status/2108882329762684997"
-  ],
-  "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-10-11"
-  }
+  "lastPostTime": "2026-10-11T06:16:30.638Z",
+  "nextIntervalMinutes": 87
 }
