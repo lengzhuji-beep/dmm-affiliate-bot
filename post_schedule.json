@@ -1,20 +1,4 @@
 {
-  "lastPostTime": "2026-10-11T21:32:34.230Z",
-  "nextIntervalMinutes": 116,
-  "reply": {
-    "lastReplyTime": "2026-10-11T22:55:20.796Z",
-    "nextAllowedTime": "2026-10-11T23:47:20.796Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-10-12",
-    "lastRandomIntervalMinutes": 52
-  },
-  "processedTweetUrls": [
-    "https://x.com/mine_riorio/status/2002754584083898535"
-  ],
-  "quote": {
-    "lastQuoteTime": "1970-01-01T00:00:00.000Z",
-    "nextAllowedTime": "1970-01-01T00:00:00.000Z",
-    "todayCount": 0,
-    "lastResetDate": "2026-10-12"
-  }
+  "lastPostTime": "2026-10-12T00:03:18.093Z",
+  "nextIntervalMinutes": 103
 }
