@@ -1,14 +1,4 @@
 {
-  "lastPostTime": "2026-10-12T23:32:25.239Z",
-  "nextIntervalMinutes": 77,
-  "reply": {
-    "lastReplyTime": "2026-10-13T00:56:27.041Z",
-    "nextAllowedTime": "2026-10-13T01:45:27.041Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-10-13",
-    "lastRandomIntervalMinutes": 49
-  },
-  "processedTweetUrls": [
-    "https://x.com/koji_ri_x/status/2103333916728037499"
-  ]
+  "lastPostTime": "2026-10-13T01:07:00.808Z",
+  "nextIntervalMinutes": 101
 }
