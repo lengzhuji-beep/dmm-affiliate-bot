@@ -1,14 +1,4 @@
 {
-  "lastPostTime": "2026-10-13T23:03:11.723Z",
-  "nextIntervalMinutes": 95,
-  "reply": {
-    "lastReplyTime": "2026-10-13T23:54:49.040Z",
-    "nextAllowedTime": "2026-10-14T00:24:49.040Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-10-14",
-    "lastRandomIntervalMinutes": 30
-  },
-  "processedTweetUrls": [
-    "https://x.com/Ema_Hoshino/status/2099716350155644970"
-  ]
+  "lastPostTime": "2026-10-14T01:05:07.518Z",
+  "nextIntervalMinutes": 106
 }
