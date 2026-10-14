@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-10-14T07:33:46.841Z",
-  "nextIntervalMinutes": 89
+  "nextIntervalMinutes": 89,
+  "reply": {
+    "lastReplyTime": "2026-10-14T08:41:23.662Z",
+    "nextAllowedTime": "2026-10-14T09:16:23.662Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-10-14",
+    "lastRandomIntervalMinutes": 35
+  },
+  "processedTweetUrls": [
+    "https://x.com/swift_tn/status/2012469524889784779"
+  ]
 }
