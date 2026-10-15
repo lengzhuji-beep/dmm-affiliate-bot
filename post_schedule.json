@@ -6,5 +6,15 @@
     "nextAllowedTime": "1970-01-01T00:00:00.000Z",
     "todayCount": 0,
     "lastResetDate": "2026-10-15"
-  }
+  },
+  "reply": {
+    "lastReplyTime": "2026-10-15T00:20:01.341Z",
+    "nextAllowedTime": "2026-10-15T01:11:01.341Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-10-15",
+    "lastRandomIntervalMinutes": 51
+  },
+  "processedTweetUrls": [
+    "https://x.com/ELINA0121212/status/2104165324572828022"
+  ]
 }
