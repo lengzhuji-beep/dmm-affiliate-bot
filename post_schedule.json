@@ -1,14 +1,4 @@
 {
-  "lastPostTime": "2026-10-15T04:04:15.090Z",
-  "nextIntervalMinutes": 83,
-  "reply": {
-    "lastReplyTime": "2026-10-15T04:59:31.709Z",
-    "nextAllowedTime": "2026-10-15T05:49:31.709Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-10-15",
-    "lastRandomIntervalMinutes": 50
-  },
-  "processedTweetUrls": [
-    "https://x.com/momose_seina/status/1800524432408215932"
-  ]
+  "lastPostTime": "2026-10-15T05:35:01.078Z",
+  "nextIntervalMinutes": 73
 }
