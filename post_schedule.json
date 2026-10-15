@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-10-15T09:07:44.117Z",
-  "nextIntervalMinutes": 106
+  "nextIntervalMinutes": 106,
+  "reply": {
+    "lastReplyTime": "2026-10-15T09:39:11.796Z",
+    "nextAllowedTime": "2026-10-15T10:27:11.796Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-10-15",
+    "lastRandomIntervalMinutes": 48
+  },
+  "processedTweetUrls": [
+    "https://x.com/yukina__0069/status/2109243151789805678"
+  ]
 }
