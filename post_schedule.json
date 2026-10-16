@@ -1,4 +1,14 @@
 {
   "lastPostTime": "2026-10-16T11:33:47.032Z",
-  "nextIntervalMinutes": 77
+  "nextIntervalMinutes": 77,
+  "reply": {
+    "lastReplyTime": "2026-10-16T12:51:32.172Z",
+    "nextAllowedTime": "2026-10-16T13:34:32.172Z",
+    "todayCount": 1,
+    "lastResetDate": "2026-10-16",
+    "lastRandomIntervalMinutes": 43
+  },
+  "processedTweetUrls": [
+    "https://x.com/enako_cos/status/2029516876737647032"
+  ]
 }
