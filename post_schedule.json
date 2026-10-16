@@ -1,14 +1,4 @@
 {
-  "lastPostTime": "2026-10-15T22:32:17.376Z",
-  "nextIntervalMinutes": 89,
-  "reply": {
-    "lastReplyTime": "2026-10-15T23:55:00.082Z",
-    "nextAllowedTime": "2026-10-16T00:50:00.082Z",
-    "todayCount": 1,
-    "lastResetDate": "2026-10-16",
-    "lastRandomIntervalMinutes": 55
-  },
-  "processedTweetUrls": [
-    "https://x.com/yamadaaiii0911/status/1928279896528146442"
-  ]
+  "lastPostTime": "2026-10-16T00:05:39.112Z",
+  "nextIntervalMinutes": 98
 }
